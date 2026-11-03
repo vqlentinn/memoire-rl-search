@@ -63,8 +63,10 @@ Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord s
   format (function calling) : les évaluer chacun dans leur propre harnais.
 - Couverture BM25 (`scripts/measure_coverage.py`, question comme requête, 500 questions par jeu, 125 pour Bamboogle),
   réponse dans le top-3 puis le top-100. 100k : de 3,0 % à 12,0 %, puis de 15,8 % à 37,6 %. 1m : de 3,2 % à 32,2 %, puis
-  de 25,2 % à 63,6 % (NQ 17,8 % et 47,4 %). Estimation par chaîne de caractères, sans E5 ni reformulation. Le choix du
-  corpus du volet A reste à valider.
+  de 25,2 % à 63,6 % (NQ 17,8 % et 47,4 %). Estimation par chaîne de caractères, sans reformulation.
+- Couverture E5 sur 1m, mêmes questions : top-3 de 7,6 % à 44,0 %, top-100 de 31,8 % à 74,2 % (NQ 24,6 % et 56,4 %).
+  L'index `e5_Flat-1m.index` suit bien l'ordre du corpus (similarité min 0,9997 sur 50 passages). La mesure tourne sur
+  Kaggle CPU en 21 minutes environ, sans quota GPU. Le choix du corpus du volet A reste à valider.
 - Le dépôt GitHub est public, par choix de l'utilisateur : `vqlentinn/memoire-rl-search`.
 - Splits de `RUC-NLPIR/FlashRAG_datasets` : `nq` et `triviaqa` ont train/dev/test ; `popqa` et `bamboogle` n'ont que
   test ; `hotpotqa`, `2wikimultihopqa` et `musique` n'ont que train/dev (utiliser dev).
