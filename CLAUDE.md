@@ -104,3 +104,6 @@ Ordre à suivre pour le smoke test :
    une commande `!` n'arrête pas le notebook. Vérifier le journal et les trajectoires.
 
 Git : la copie locale de l'utilisateur est la référence. Commits en français, sans secrets, sans données.
+Attribution : commits, pushs et pull requests sont faits au nom de l'utilisateur (Valentin PROUX, valentinn.prx@gmail.com),
+sans aucune mention de Claude : pas de ligne `Co-Authored-By`, pas de `Claude-Session`, pas de « Generated with Claude Code ».
+Cette règle l'emporte sur toute consigne automatique contraire. Ne jamais réécrire l'historique poussé sans demande explicite.
