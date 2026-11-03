@@ -9,7 +9,7 @@ from retrieval.bm25_index import BM25Retriever
 class E5Retriever:
     format_searchr1 = staticmethod(BM25Retriever.format_searchr1)
 
-    def __init__(self, corpus, index_path, model_id="intfloat/e5-base-v2", max_length=256):
+    def __init__(self, corpus, index_path, model_id="intfloat/e5-base-v2", max_length=256, device=None):
         # Imports locaux : les autres systèmes n'ont besoin ni de FAISS ni de Transformers.
         import faiss
         import torch
@@ -18,7 +18,8 @@ class E5Retriever:
         self.torch = torch
         self.corpus = corpus
         self.max_length = max_length
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        # vLLM occupe 85 % du premier GPU : E5 prend le second s'il existe, sinon le CPU.
+        self.device = device or ("cuda:1" if torch.cuda.device_count() > 1 else "cpu")
         self.tokenizer = AutoTokenizer.from_pretrained(model_id)
         self.model = AutoModel.from_pretrained(model_id).to(self.device).eval()
         self.index = faiss.read_index(str(index_path))

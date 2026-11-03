@@ -15,5 +15,5 @@ max_searches: 4
 temperature: 0.0
 model_a0_a3: Qwen/Qwen2.5-3B-Instruct
 model_a4: PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-ppo-v0.3
-model_a5: à renseigner (checkpoint GRPO v0.3 de la collection PeterJinGo/search-r1-v03)
+model_a5: PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3
 hypothese_testee: H1 (les gains du RL se concentrent sur les jeux vus à l'entraînement)

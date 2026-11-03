@@ -4,7 +4,10 @@ Un run coupé reprend là où il s'est arrêté : les identifiants déjà prése
 sont sautés. Une ligne JSONL par question (trajectoire, requêtes, documents, réponse, EM, F1, jetons).
 
 Exemple (Kaggle, GPU T4) :
-    python scripts/run_volet_a.py --system A1 --dataset nq --n 100 --corpus 1m --retriever e5   # télécharge l'index e5_Flat-1m
+    VLLM_WORKER_MULTIPROC_METHOD=spawn python scripts/run_volet_a.py --system A1 --dataset nq --n 100 --corpus 1m --retriever e5
+L'index e5_Flat-1m est téléchargé au premier lancement. Spawn est nécessaire : E5 initialise CUDA avant vLLM.
+
+Avec une graine autre que 42 (mise au point), les questions d'évaluation sont exclues du tirage.
 """
 import argparse
 import json
@@ -18,6 +21,17 @@ from data.load_qa import load_qa  # noqa: E402
 from eval.metrics import exact_match, extract_answer, f1_score  # noqa: E402
 
 A4_MODEL = "PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-ppo-v0.3"
+EVAL_SEED = 42
+EVAL_N = 100
+
+
+def select_questions(dataset, n, seed):
+    """Tirage d'évaluation (graine 42), ou tirage de mise au point sans aucune question d'évaluation."""
+    if seed == EVAL_SEED:
+        return load_qa(dataset, n=n, seed=seed)
+    evaluation = {q["question"] for q in load_qa(dataset, n=EVAL_N, seed=EVAL_SEED)}
+    candidates = load_qa(dataset, n=n + EVAL_N, seed=seed)
+    return [q for q in candidates if q["question"] not in evaluation][:n]
 
 
 def build_retriever(kind, corpus_size, e5_index):
@@ -69,21 +83,24 @@ def main():
     ap.add_argument("--model", default=None)
     ap.add_argument("--topk", type=int, default=3)
     ap.add_argument("--batch", type=int, default=25)
+    ap.add_argument("--seed", type=int, default=EVAL_SEED)
     ap.add_argument("--outdir", default="results")
     args = ap.parse_args()
 
-    out = Path(args.outdir) / f"{args.system}_{args.dataset}_{args.retriever}_{args.corpus}_n{args.n}.jsonl"
+    suffix = "" if args.seed == EVAL_SEED else f"_seed{args.seed}"
+    out = Path(args.outdir) / f"{args.system}_{args.dataset}_{args.retriever}_{args.corpus}_n{args.n}{suffix}.jsonl"
     out.parent.mkdir(parents=True, exist_ok=True)
     done = set()
     if out.exists():
         done = {json.loads(line)["id"] for line in out.read_text().splitlines() if line.strip()}
-    questions = [q for q in load_qa(args.dataset, n=args.n, seed=42) if q["id"] not in done]
+    questions = [q for q in select_questions(args.dataset, args.n, args.seed) if q["id"] not in done]
     print(f"{args.system} sur {args.dataset} : {len(done)} déjà faites, {len(questions)} à faire -> {out}")
     if not questions:
         return
 
-    system = build_system(args.system, build_retriever(args.retriever, args.corpus, args.e5_index),
-                          args.model, args.topk)
+    # A0 ne cherche pas : inutile de charger le corpus et l'index.
+    retriever = None if args.system == "A0" else build_retriever(args.retriever, args.corpus, args.e5_index)
+    system = build_system(args.system, retriever, args.model, args.topk)
     t0 = time.time()
     for i in range(0, len(questions), args.batch):
         trajs = [finish(t, args.system) for t in system.run(questions[i:i + args.batch])]
