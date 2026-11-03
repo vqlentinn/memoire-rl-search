@@ -43,8 +43,10 @@ Smoke test sur Kaggle, GPU T4 (vLLM 0.33.0, torch 2.14.0), 3 novembre 2026. Avec
 20) : version 4 à 18/20 (tri JAX), version 5 à 17/20 (tri NumPy), EM 0,30 dans les deux cas (indicatif seulement :
 20 questions, 100k passages). L'écart vient de passages ex aequo. Les non-réponses demandent encore une recherche à la
 dernière génération. Décision de l'utilisateur : le critère devient « la chaîne fonctionne » (voir
-`scripts/smoke_test.py`), le taux de réponse est une mesure à documenter dans le mémoire. Résultat avec ce critère et
-le départage des ex aequo : en attente de la version 6. Seul le chargement de NQ a été exécuté, pas les 6 autres jeux.
+`scripts/smoke_test.py`), le taux de réponse est une mesure à documenter dans le mémoire. Version 6, avec ce critère et
+le départage des ex aequo : réussie, 18 `<answer>`, 2 budgets épuisés, 0 anomalie sur 20, EM 0,30, 3,25 recherches par
+question. Les 65 recherches Kaggle sont reproduites à l'identique sur le Mac. La répétabilité de la génération entre deux
+runs identiques n'est pas testée. Seul le chargement de NQ a été exécuté, pas les 6 autres jeux.
 
 Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord sa couverture), runs du volet A.
 
