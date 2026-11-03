@@ -4,9 +4,14 @@ Corpus : JSONL, une ligne par passage, {"id": ..., "contents": "Titre\\nTexte"}.
 Le formatage des résultats reproduit search() de infer.py dans le dépôt Search-R1.
 """
 import json
+import os
 from pathlib import Path
 
-import bm25s
+# bm25s lance un calcul JAX dès son import. Sur Kaggle, JAX réserverait alors la mémoire du GPU
+# avant vLLM. BM25 n'a pas besoin du GPU : à définir avant l'import de bm25s.
+os.environ.setdefault("JAX_PLATFORMS", "cpu")
+
+import bm25s  # noqa: E402
 
 try:
     import Stemmer
@@ -34,7 +39,9 @@ class BM25Retriever:
 
     def search(self, query: str, k: int = 3):
         tokens = bm25s.tokenize([query], stopwords="en", stemmer=_STEMMER)
-        ids, scores = self.retriever.retrieve(tokens, k=k)
+        # Tri NumPy imposé : sinon bm25s prend JAX s'il est installé, et l'ordre des ex aequo
+        # pourrait dépendre de l'environnement.
+        ids, scores = self.retriever.retrieve(tokens, k=k, backend_selection="numpy")
         return [self.corpus[i] for i in ids[0]]
 
     @staticmethod

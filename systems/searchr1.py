@@ -1,9 +1,13 @@
 """Systèmes A4 et A5 : checkpoints Search-R1, boucle de recherche avec vLLM.
 
-Reproduit la boucle de infer.py du dépôt Search-R1 :
+Suit la boucle de search_r1/llm_agent/generation.py du dépôt Search-R1 (prompt copié de infer.py) :
 - prompt = prompts/searchr1.txt passé dans le chat template ;
 - génération jusqu'à </search> ou fin de séquence ;
-- après chaque recherche, ajout de "\\n\\n<information>{docs}</information>\\n\\n".
+- après chaque recherche, ajout de "\\n\\n<information>{docs}</information>\\n\\n" ;
+- max_turns tours avec recherche, puis une dernière génération sans recherche. Si le modèle y
+  demande encore une recherche, la trajectoire se termine sans <answer>.
+Écarts connus avec generation.py : décodage glouton (choix du protocole), 512 jetons par tour au lieu
+de 500, pas de troncature des résultats ni de message pour action invalide, pas de strip() sur les docs.
 Les questions sont traitées par lots : chaque tour génère pour toutes les questions encore actives.
 """
 import re
