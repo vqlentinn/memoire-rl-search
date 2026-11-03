@@ -72,7 +72,19 @@ Prochaine étape : smoke test (20 questions NQ, checkpoint
 
 ## Kaggle depuis ici
 
-Un jeton Kaggle existe dans `~/.kaggle/` sur la machine de l'utilisateur. Le client officiel est `pip install kaggle`.
-Format du nouveau jeton et chemin exact : non confirmés, à tester. Lancer un notebook sur GPU par l'API demande un
-`kernel-metadata.json` (`enable_gpu`, `enable_internet`) : non testé. Repli : `notebooks/kaggle_smoke_test.ipynb`,
-à importer à la main dans Kaggle. Ne demande jamais le mot de passe Kaggle ou le jeton dans le chat.
+Session locale sur le Mac de l'utilisateur : le réseau est disponible, contrairement à l'ancien environnement cloud.
+Un jeton Kaggle existe dans `~/.kaggle/` (nouveau format : une chaîne unique, probablement `~/.kaggle/access_token`).
+Ne lis jamais ce fichier : laisse le client `kaggle` (`pip install kaggle`) l'utiliser. Ne demande jamais le mot de
+passe ou le jeton dans le chat.
+
+Ordre à suivre pour le smoke test :
+1. `curl -I https://www.kaggle.com` et `curl -I https://huggingface.co` pour vérifier le réseau.
+2. `pip install kaggle`, puis `kaggle kernels list --mine` pour tester l'authentification (montre l'erreur complète si échec).
+3. Remplacer `KAGGLE_USERNAME` dans `kaggle/kernel-metadata.json` (nom obtenu avec l'utilisateur), puis
+   `kaggle kernels push -p kaggle/`, suivre avec `kaggle kernels status`, récupérer la sortie avec `kaggle kernels output`.
+   Non testé. Le dépôt GitHub étant privé, le notebook clone avec le secret Kaggle `GITHUB_TOKEN` : à ajouter par
+   l'utilisateur dans Kaggle (Add-ons > Secrets) et à attacher au notebook. Si le push échoue, repli manuel :
+   `notebooks/kaggle_smoke_test.ipynb` importé dans Kaggle.
+4. Montrer à l'utilisateur la sortie complète, réussite ou échec.
+
+Git : la copie locale de l'utilisateur est la référence. Commits en français, sans secrets, sans données.
