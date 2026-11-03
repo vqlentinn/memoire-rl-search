@@ -52,10 +52,12 @@ class SearchR1System:
                 s["gen"] += out.text
                 s["tokens"] += len(out.token_ids)
                 ended_on_search = out.stop_reason == "</search>"
-                if not ended_on_search or turn == self.max_turns:
+                # Sans <search> ouvrant, pas de requête : fin de la trajectoire sans faire planter le lot.
+                matches = SEARCH_RE.findall(out.text)
+                if not ended_on_search or turn == self.max_turns or not matches:
                     s["done"] = True
                     continue
-                query = SEARCH_RE.findall(out.text)[-1].strip()
+                query = matches[-1].strip()
                 passages = self.retriever.search(query, k=self.topk)
                 info = self.retriever.format_searchr1(passages)
                 s["queries"].append(query)
