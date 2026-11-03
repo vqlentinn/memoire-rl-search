@@ -1,0 +1,4 @@
+Answer the question. The documents below were retrieved for it: use them if they are useful, otherwise rely on your own knowledge. Give only the final answer inside <answer> and </answer>, without explanation. For example, <answer> Beijing </answer>.
+
+{docs}
+Question: {question}

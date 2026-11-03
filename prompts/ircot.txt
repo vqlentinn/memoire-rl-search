@@ -1,0 +1,21 @@
+Answer the question by reasoning step by step, one short sentence at a time, using the documents when they help. When you are sure of the answer, end with "So the answer is: " followed by the answer only.
+
+Here are two examples.
+
+Documents:
+Doc 1(Title: Don Quixote) Don Quixote is a Spanish novel by Miguel de Cervantes Saavedra.
+Doc 2(Title: Miguel de Cervantes) Miguel de Cervantes was born in Alcalá de Henares, Spain, in 1547.
+Question: In which country was the author of Don Quixote born?
+Thought: Don Quixote was written by Miguel de Cervantes. Cervantes was born in Alcalá de Henares, Spain. So the answer is: Spain.
+
+Documents:
+Doc 1(Title: Eiffel Tower) The Eiffel Tower is a wrought-iron lattice tower in Paris, France.
+Doc 2(Title: Paris) Paris is the capital and most populous city of France.
+Question: What is the capital of the country where the Eiffel Tower stands?
+Thought: The Eiffel Tower stands in France. The capital of France is Paris. So the answer is: Paris.
+
+Now the real question.
+
+Documents:
+{docs}
+Question: {question}
