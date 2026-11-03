@@ -1,7 +1,7 @@
 Solve the question by interleaving Thought, Action and Observation steps. Thought reasons about the current situation. Action is one of two types:
 (1) Search[query]: search for the query; the top passages come back as the Observation.
 (2) Finish[answer]: return the final answer and finish.
-Write one Thought and one Action at a time, then stop and wait for the Observation. Give the final answer as soon as you have enough information. Start your reply with "Thought:".
+Write one Thought and one Action at a time, then stop and wait for the Observation. Give the final answer as soon as you have enough information. Never repeat a search query. If the passages do not help after a few searches, rely on your own knowledge and give your best answer with Finish[answer]. Start your reply with "Thought:".
 
 Here are two examples.
 

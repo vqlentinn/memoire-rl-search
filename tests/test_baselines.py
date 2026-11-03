@@ -58,7 +58,8 @@ def test_parse_ircot_answer_et_phrase():
     assert b.parse_ircot_answer("Il est né en Espagne. So the answer is: Spain.") == "Spain"
     assert b.parse_ircot_answer("Pas de réponse encore.") is None
     assert b.first_sentence("Première phrase. Deuxième phrase.") == "Première phrase."
-    assert b.first_sentence("A. So the answer is: St. Louis.") == "A. So the answer is: St. Louis."
+    assert b.first_sentence("A. So the answer is: St. Louis.") == "A."
+    assert b.first_sentence("So the answer is: St. Louis.") == "So the answer is: St. Louis."
 
 
 def test_a0_direct():
@@ -109,3 +110,13 @@ def test_a3_budget_de_recherche_et_etapes():
     llm = FakeLLM([["Phrase un."], ["Phrase deux."], ["Phrase trois."]])
     res = b.IRCoTSystem(llm, r, max_searches=2, max_steps=3).run(Q)[0]
     assert res["n_search"] == 2 and res["prediction"] is None and res["status"] == "budget_exhausted"
+
+
+def test_a3_garde_une_phrase_meme_si_le_modele_ecrit_toute_la_chaine():
+    # Observé sur Kaggle : tout était généré d'un bloc, donc une seule recherche par question.
+    r = FakeRetriever()
+    llm = FakeLLM([["Don Quichotte est de Cervantes. So the answer is: Cervantes."],
+                   ["So the answer is: Cervantes."]])
+    res = b.IRCoTSystem(llm, r).run(Q)[0]
+    assert r.queries == [Q[0]["question"], "Don Quichotte est de Cervantes."]
+    assert res["n_search"] == 2 and res["prediction"] == "Cervantes" and res["status"] == "answer"

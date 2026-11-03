@@ -1,4 +1,4 @@
-Answer the question by reasoning step by step, one short sentence at a time, using the documents when they help. When you are sure of the answer, end with "So the answer is: " followed by the answer only.
+Answer the question by reasoning step by step, one short sentence at a time, using the documents when they help. If they do not help, rely on your own knowledge: always give an answer. When you are sure of the answer, end with "So the answer is: " followed by the answer only.
 
 Here are two examples.
 

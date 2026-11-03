@@ -60,11 +60,11 @@ def parse_ircot_answer(cot: str):
 
 
 def first_sentence(text: str) -> str:
-    """Une phrase de raisonnement par étape, sauf si la phrase finale « the answer is » est déjà là."""
+    """Première phrase : IRCoT cherche après chaque phrase, même si le modèle a écrit toute sa chaîne.
+    Si cette phrase donne la réponse, tout le texte est gardé : le point de « St. Louis » ne doit pas la couper."""
     text = text.strip()
-    if ANSWER_IS_RE.search(text):
-        return text
-    return SENTENCE_END_RE.split(text, maxsplit=1)[0].strip()
+    first = SENTENCE_END_RE.split(text, maxsplit=1)[0].strip()
+    return text if ANSWER_IS_RE.search(first) else first
 
 
 def _record(q, text, queries, docs, tokens, prediction, status, elapsed):
