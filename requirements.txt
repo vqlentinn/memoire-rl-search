@@ -1,0 +1,20 @@
+# Versions à figer après le smoke test (semaine 2) avec : pip freeze > requirements.lock
+vllm            # vérifier la version compatible T4 (pas de bf16, fp16 uniquement)
+transformers
+torch
+datasets
+bm25s
+PyStemmer
+faiss-cpu
+sentence-transformers
+numpy
+scipy
+pandas
+scikit-learn
+pyyaml
+tqdm
+pytest
+
+# Volet B
+trl
+peft

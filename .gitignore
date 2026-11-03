@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Données, index, modèles : jamais dans git
+results/*
+!results/.gitkeep
+data/raw/
+data/corpus/
+indexes/
+checkpoints/
+*.index
+*.faiss
+*.npy
+*.safetensors
+*.bin
+*.jsonl.gz
+
+# Suivi d'expériences
+wandb/
+outputs/
+
+# Secrets
+.env
+*.token
+
+# Système
+.DS_Store

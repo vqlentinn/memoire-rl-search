@@ -1,0 +1,14 @@
+# Smoke test, semaine 2
+system: A4
+model: PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-ppo-v0.3
+dataset: nq
+split: test
+n_questions: 20
+seed: 42
+corpus: maknee/wiki-18-subsets / wiki-18-100k.jsonl.gz
+retriever: bm25
+topk: 3
+max_turns: 4
+max_tokens_per_turn: 512
+temperature: 0.0
+dtype: float16
