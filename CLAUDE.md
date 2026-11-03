@@ -39,12 +39,12 @@ Fait : squelette du dépôt, prompt exact de Search-R1, métriques EM/F1 (même 
 statistiques, retriever BM25 (bm25s), chargement des jeux (FlashRAG), boucle de recherche vLLM (A4/A5),
 script `scripts/smoke_test.py`, tests (`python -m pytest tests/` passe).
 
-**Jamais exécuté sur GPU.** vLLM sur T4 n'a pas été testé. `data/load_qa.py` n'a pas été exécuté (noms de
-splits à vérifier dans le dataset `RUC-NLPIR/FlashRAG_datasets`).
+Smoke test réussi le 3 novembre 2026 sur Kaggle, GPU T4 (version 4 du notebook) : 18 réponses `<answer>` sur 20
+(seuil : 18), EM 0,30 sur 20 questions et 100k passages (indicatif seulement), 3,25 recherches par question.
+vLLM 0.33.0, torch 2.14.0. Les 2 échecs demandent encore une recherche à la dernière génération. Seul le chargement
+de NQ a été exécuté, pas celui des 6 autres jeux.
 
-Prochaine étape : smoke test (20 questions NQ, checkpoint
-`PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-ppo-v0.3`, sous-corpus 100k passages). Réussi si au moins
-18 réponses sur 20 se terminent par `<answer>`. Ensuite : systèmes A0 à A3, construction du corpus, runs du volet A.
+Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord sa couverture), runs du volet A.
 
 ## Faits vérifiés (ne pas redécouvrir)
 
@@ -57,7 +57,14 @@ Prochaine étape : smoke test (20 questions NQ, checkpoint
 - Format du prompt Search-R1 : `prompts/searchr1.txt`, copié de `infer.py` du dépôt officiel (Apache 2.0).
   Balises `<think>`, `<search>`, `<information>`, `<answer>`. Les modèles TRL du volet B utiliseront un autre
   format (function calling) : les évaluer chacun dans leur propre harnais.
-- Le dépôt GitHub est privé : `vqlentinn/memoire-rl-search`.
+- Le dépôt GitHub est public, par choix de l'utilisateur : `vqlentinn/memoire-rl-search`.
+- Splits de `RUC-NLPIR/FlashRAG_datasets` : `nq` et `triviaqa` ont train/dev/test ; `popqa` et `bamboogle` n'ont que
+  test ; `hotpotqa`, `2wikimultihopqa` et `musique` n'ont que train/dev (utiliser dev).
+- Boucle Search-R1 : `systems/searchr1.py` suit `search_r1/llm_agent/generation.py` (max_turns tours avec recherche,
+  puis une génération sans recherche). `infer.py` n'a pas de limite de tours.
+- `import bm25s` lance un calcul JAX. Sur Kaggle, JAX s'exécute alors sur le GPU et en réserve la mémoire, ce qui fait
+  échouer vLLM. D'où `JAX_PLATFORMS=cpu` et le tri `numpy` dans `retrieval/bm25_index.py`. vLLM doit aussi démarrer avec
+  `VLLM_WORKER_MULTIPROC_METHOD=spawn`.
 
 ## Règles du projet
 
@@ -79,12 +86,14 @@ passe ou le jeton dans le chat.
 
 Ordre à suivre pour le smoke test :
 1. `curl -I https://www.kaggle.com` et `curl -I https://huggingface.co` pour vérifier le réseau.
-2. `pip install kaggle`, puis `kaggle kernels list --mine` pour tester l'authentification (montre l'erreur complète si échec).
-3. Remplacer `KAGGLE_USERNAME` dans `kaggle/kernel-metadata.json` (nom obtenu avec l'utilisateur), puis
-   `kaggle kernels push -p kaggle/`, suivre avec `kaggle kernels status`, récupérer la sortie avec `kaggle kernels output`.
-   Non testé. Le dépôt GitHub étant privé, le notebook clone avec le secret Kaggle `GITHUB_TOKEN` : à ajouter par
-   l'utilisateur dans Kaggle (Add-ons > Secrets) et à attacher au notebook. Si le push échoue, repli manuel :
-   `notebooks/kaggle_smoke_test.ipynb` importé dans Kaggle.
-4. Montrer à l'utilisateur la sortie complète, réussite ou échec.
+2. Installer le client dans un venv hors du dépôt (le Python de Homebrew refuse `pip install` global) :
+   `pip install kaggle six` (`six` manque dans les dépendances de kaggle 2.2.5). Puis `kaggle kernels list --mine` pour
+   tester l'authentification (montre l'erreur complète si échec). Compte Kaggle : `valentinproux`.
+3. `kaggle kernels push -p kaggle/ --accelerator NvidiaTeslaT4 -t 7200`, suivre avec `kaggle kernels status`, lire le
+   journal avec `kaggle kernels logs`, récupérer les fichiers avec `kaggle kernels output`. Le dépôt étant public, le clone
+   n'a pas besoin de secret. Le notebook clone depuis GitHub : pousser le code avant de relancer. Si le push échoue,
+   repli manuel : `notebooks/kaggle_smoke_test.ipynb` importé dans Kaggle.
+4. Montrer à l'utilisateur la sortie complète, réussite ou échec. Le statut `COMPLETE` ne prouve rien : une erreur dans
+   une commande `!` n'arrête pas le notebook. Vérifier le journal et les trajectoires.
 
 Git : la copie locale de l'utilisateur est la référence. Commits en français, sans secrets, sans données.
