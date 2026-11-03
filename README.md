@@ -34,6 +34,7 @@ systems/     un module par système
 eval/        métriques (EM, F1), oracle, statistiques
 train/       volet B (GRPO)
 scripts/     points d'entrée (smoke test, runs)
+notebooks/   notebook Kaggle prêt à lancer (smoke test)
 analysis/    notebooks de figures
 results/     JSONL des trajectoires (non versionné)
 ```
