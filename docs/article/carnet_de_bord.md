@@ -70,6 +70,19 @@ méthode de la trame.
   (champs rouges « À remplir »). Bibliographie : 35 références, toutes vérifiées dans OpenAlex. Le gabarit du cours
   (`main.tex` du .zip) n'est pas encore là : le préambule est provisoire.
 
+**Étapes 7 et 8 (suite) : préparation du run Kaggle. Aucun système n'a encore tourné.**
+- Tests : 22 réussis dans un venv hors du dépôt (20 existants, 2 ajoutés pour le tirage des questions).
+- A5 : `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3`, trouvé dans la collection Search-R1-v0.3 de Hugging
+  Face. Il existe aussi une variante `-it-em-` : à ne pas confondre.
+- Écart repéré, non tranché : d'après leur `config.json`, A4 et A5 partent de `Qwen/Qwen2.5-3B` alors que A0 à A3 utilisent
+  `Qwen/Qwen2.5-3B-Instruct`. La comparaison ne change donc pas seulement le harnais. [à compléter : décision]
+- Tirage de mise au point : la graine 7 seule reprenait 3 questions d'évaluation sur NQ et 2 sur TriviaQA (sur 110 tirées).
+  Ces questions sont maintenant exclues ; vérifié sur les vrais jeux, 0 recouvrement sur les 10 questions de chaque jeu.
+  TriviaQA a été chargé pour la première fois à cette occasion.
+- Git : le worktree `.litterature-wt` pointe vers un chemin de VM absent du Mac, et ses verrous sont ouverts par une VM
+  active. Les fichiers de littérature ont été commités sans passer par ce worktree. Son retrait attend la réponse de
+  l'étudiant.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |
