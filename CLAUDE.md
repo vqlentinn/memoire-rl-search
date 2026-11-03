@@ -61,6 +61,10 @@ Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord s
 - Format du prompt Search-R1 : `prompts/searchr1.txt`, copié de `infer.py` du dépôt officiel (Apache 2.0).
   Balises `<think>`, `<search>`, `<information>`, `<answer>`. Les modèles TRL du volet B utiliseront un autre
   format (function calling) : les évaluer chacun dans leur propre harnais.
+- Couverture BM25 (`scripts/measure_coverage.py`, question comme requête, 500 questions par jeu, 125 pour Bamboogle),
+  réponse dans le top-3 puis le top-100. 100k : de 3,0 % à 12,0 %, puis de 15,8 % à 37,6 %. 1m : de 3,2 % à 32,2 %, puis
+  de 25,2 % à 63,6 % (NQ 17,8 % et 47,4 %). Estimation par chaîne de caractères, sans E5 ni reformulation. Le choix du
+  corpus du volet A reste à valider.
 - Le dépôt GitHub est public, par choix de l'utilisateur : `vqlentinn/memoire-rl-search`.
 - Splits de `RUC-NLPIR/FlashRAG_datasets` : `nq` et `triviaqa` ont train/dev/test ; `popqa` et `bamboogle` n'ont que
   test ; `hotpotqa`, `2wikimultihopqa` et `musique` n'ont que train/dev (utiliser dev).
