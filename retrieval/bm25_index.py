@@ -12,6 +12,7 @@ from pathlib import Path
 os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
 import bm25s  # noqa: E402
+import numpy as np  # noqa: E402
 
 try:
     import Stemmer
@@ -38,11 +39,17 @@ class BM25Retriever:
                 self.retriever.save(index_dir)
 
     def search(self, query: str, k: int = 3):
-        tokens = bm25s.tokenize([query], stopwords="en", stemmer=_STEMMER)
-        # Tri NumPy imposé : sinon bm25s prend JAX s'il est installé, et l'ordre des ex aequo
-        # pourrait dépendre de l'environnement.
-        ids, scores = self.retriever.retrieve(tokens, k=k, backend_selection="numpy")
-        return [self.corpus[i] for i in ids[0]]
+        tokens = bm25s.tokenize([query], stopwords="en", stemmer=_STEMMER, return_ids=False,
+                                show_progress=False)[0]
+        # Requête réduite à rien (que des mots vides) : get_scores() planterait, les scores sont nuls.
+        scores = self.retriever.get_scores(tokens) if tokens else np.zeros(len(self.corpus))
+        # Ex aequo départagés par l'indice du passage : retrieve() les ordonne arbitrairement, et le
+        # résultat change selon la machine ou le backend (JAX, NumPy). Score décroissant, puis indice.
+        k = min(k, len(scores))
+        seuil = np.partition(scores, -k)[-k]
+        candidats = np.flatnonzero(scores >= seuil)
+        ordre = np.lexsort((candidats, -scores[candidats]))
+        return [self.corpus[i] for i in candidats[ordre][:k]]
 
     @staticmethod
     def format_searchr1(passages) -> str:

@@ -39,10 +39,12 @@ Fait : squelette du dépôt, prompt exact de Search-R1, métriques EM/F1 (même 
 statistiques, retriever BM25 (bm25s), chargement des jeux (FlashRAG), boucle de recherche vLLM (A4/A5),
 script `scripts/smoke_test.py`, tests (`python -m pytest tests/` passe).
 
-Smoke test réussi le 3 novembre 2026 sur Kaggle, GPU T4 (version 4 du notebook) : 18 réponses `<answer>` sur 20
-(seuil : 18), EM 0,30 sur 20 questions et 100k passages (indicatif seulement), 3,25 recherches par question.
-vLLM 0.33.0, torch 2.14.0. Les 2 échecs demandent encore une recherche à la dernière génération. Seul le chargement
-de NQ a été exécuté, pas celui des 6 autres jeux.
+Smoke test sur Kaggle, GPU T4 (vLLM 0.33.0, torch 2.14.0), 3 novembre 2026. Avec l'ancien critère (18 `<answer>` sur
+20) : version 4 à 18/20 (tri JAX), version 5 à 17/20 (tri NumPy), EM 0,30 dans les deux cas (indicatif seulement :
+20 questions, 100k passages). L'écart vient de passages ex aequo. Les non-réponses demandent encore une recherche à la
+dernière génération. Décision de l'utilisateur : le critère devient « la chaîne fonctionne » (voir
+`scripts/smoke_test.py`), le taux de réponse est une mesure à documenter dans le mémoire. Résultat avec ce critère et
+le départage des ex aequo : en attente de la version 6. Seul le chargement de NQ a été exécuté, pas les 6 autres jeux.
 
 Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord sa couverture), runs du volet A.
 
@@ -63,8 +65,11 @@ Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord s
 - Boucle Search-R1 : `systems/searchr1.py` suit `search_r1/llm_agent/generation.py` (max_turns tours avec recherche,
   puis une génération sans recherche). `infer.py` n'a pas de limite de tours.
 - `import bm25s` lance un calcul JAX. Sur Kaggle, JAX s'exécute alors sur le GPU et en réserve la mémoire, ce qui fait
-  échouer vLLM. D'où `JAX_PLATFORMS=cpu` et le tri `numpy` dans `retrieval/bm25_index.py`. vLLM doit aussi démarrer avec
+  échouer vLLM. D'où `JAX_PLATFORMS=cpu` dans `retrieval/bm25_index.py`. vLLM doit aussi démarrer avec
   `VLLM_WORKER_MULTIPROC_METHOD=spawn`.
+- Ex aequo BM25 : `retrieve()` de bm25s les ordonne arbitrairement, et le résultat change selon la machine ou le
+  backend. 4 requêtes distinctes sur 52 ont une égalité dans leur top-4 (100k passages). `search()` les départage donc
+  par indice de passage.
 
 ## Règles du projet
 

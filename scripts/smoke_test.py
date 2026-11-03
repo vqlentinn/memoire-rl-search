@@ -1,6 +1,9 @@
 """Smoke test (semaine 2) : un checkpoint Search-R1 tourne-t-il sur Kaggle ?
 
-Critère de réussite : au moins 18 questions sur 20 terminées avec <answer>.
+Critère de réussite (révisé le 3 novembre 2026, avant la version 6 du notebook) : la chaîne fonctionne.
+Le run va au bout et chaque trajectoire se termine soit par <answer>, soit par une recherche au dernier
+tour (budget épuisé). Toute autre fin est une anomalie. Le taux de réponse est une mesure, pas un seuil.
+L'ancien critère (18 <answer> sur 20) a donné 18/20 puis 17/20 selon l'ordre de passages ex aequo.
 
 Usage (Kaggle, GPU T4, internet activé) :
     python scripts/smoke_test.py --n 20
@@ -46,23 +49,33 @@ def main():
     trajs = system.run(questions)
 
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    n_answer, em_total = 0, 0
+    n_answer, n_budget, em_total = 0, 0, 0
     with open(args.out, "w") as f:
         for t in trajs:
             pred = extract_answer(t["trajectory"])
             t["prediction"] = pred
             t["em"] = exact_match(pred, t["golds"])
             t["f1"] = f1_score(pred, t["golds"])
-            n_answer += pred is not None
+            if pred is not None:
+                t["status"] = "answer"
+            elif t["n_search"] == system.max_turns and t["trajectory"].rstrip().endswith("</search>"):
+                t["status"] = "budget_exhausted"
+            else:
+                t["status"] = "anomaly"
+            n_answer += t["status"] == "answer"
+            n_budget += t["status"] == "budget_exhausted"
             em_total += t["em"]
             f.write(json.dumps(t, ensure_ascii=False) + "\n")
 
     n = len(trajs)
+    n_anomaly = n - n_answer - n_budget
     print(f"Réponses <answer> : {n_answer}/{n}")
+    print(f"Budget de recherche épuisé : {n_budget}/{n}")
+    print(f"Anomalies : {n_anomaly}/{n}")
     print(f"EM : {em_total / n:.2f} (indicatif : corpus réduit, 20 questions)")
     print(f"Recherches par question : {sum(t['n_search'] for t in trajs) / n:.2f}")
     print(f"Temps total : {trajs[0]['batch_seconds']:.0f} s")
-    print("SMOKE TEST " + ("RÉUSSI" if n_answer >= 0.9 * n else "ÉCHOUÉ"))
+    print("SMOKE TEST " + ("RÉUSSI" if n == args.n and n_anomaly == 0 else "ÉCHOUÉ"))
 
 
 if __name__ == "__main__":
