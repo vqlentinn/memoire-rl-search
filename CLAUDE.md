@@ -48,7 +48,9 @@ le départage des ex aequo : réussie, 18 `<answer>`, 2 budgets épuisés, 0 ano
 question. Les 65 recherches Kaggle sont reproduites à l'identique sur le Mac. La répétabilité de la génération entre deux
 runs identiques n'est pas testée. Seul le chargement de NQ a été exécuté, pas les 6 autres jeux.
 
-Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord sa couverture), runs du volet A.
+A0 à A3 écrits (`systems/baselines.py`, prompts dans `prompts/`, tests `tests/test_baselines.py`), jamais exécutés sur GPU. Script de run avec reprise : `scripts/run_volet_a.py`. Mini-expérience pour l'article : `configs/mini_experience.yaml` (NQ vu / TriviaQA non vu, E5 sur 1m, 100 questions) ; choix guidé par la couverture (HotpotQA 17 %, Bamboogle 10 % en top 3 avec E5 1m).
+
+Prochaine étape : exécuter A0 à A5 sur Kaggle (A5 : préciser `--model`, identifiant du checkpoint GRPO non vérifié), puis runs du volet A.
 
 ## Faits vérifiés (ne pas redécouvrir)
 
