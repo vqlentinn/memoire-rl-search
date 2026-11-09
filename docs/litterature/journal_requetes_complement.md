@@ -10,6 +10,9 @@ Complète `journal_requetes_openalex.md` (branche `litterature-corpus`). À fusi
 | 11 | Équation 3, liste complète | Tri des 116 sur les titres | 116 | 4 inclus proposés, 58 doutes, 38 exclus, 11 déjà candidats, 5 déjà au corpus | Proposition de Claude : la décision revient à l'étudiant (`tri_equation3_proposition.csv`) |
 | 12 | OpenAlex `search_works` (sémantique) | Comparaison empirique d'agents RL et de harnais fixes, à retriever et corpus identiques | 50 (15 lus) | Zhao et al. 2026, Pezzuti et al. 2026 : absents de l'équation 3 | Ajoutés après lecture du résumé, car ils touchent à la lacune et à la surrecherche |
 | 13 | OpenAlex `resolve_references` | 6 références ajoutées à `refs.bib` | 6 | 6 exactes | Raikote 2026 : apparié sur le titre, pas de DOI |
+| 14 | OpenAlex `search_works` (texte intégral) | « information foraging » ET agents de recherche ET LLM, depuis 2023 | 58 | 12 titres lus, 5 PDF contrôlés | Dans 4 PDF sur 5, le terme vient d'une seule référence citée (InForage). InForage mobilise vraiment la théorie |
+| 15 | OpenAlex `search_works` (texte intégral) | Modèles économiques, satisficing ou rationalité limitée ET agents de recherche ET RL | 57 | Aucune mention de Stigler, d'Azzopardi ni de satisficing dans les 10 PDF contrôlés | Simon retiré du cadre |
+| 16 | OpenAlex `resolve_references` | Pirolli et Card 1999, Azzopardi 2011, Holm 1979, Qian et Liu 2025, Zhang et al. 2026, Poudel et al. 2026 | 6 | 6 exactes | Ajoutés à `refs.bib` |
 
 OQL de l'équation 3 :
 
