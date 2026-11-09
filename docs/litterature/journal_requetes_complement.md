@@ -1,6 +1,6 @@
 # Journal des requêtes : complément du 3 novembre 2026 (après-midi)
 
-Complète `journal_requetes_openalex.md` (branche `litterature-corpus`). À fusionner avec lui.
+Complète `journal_requetes_openalex.md` (même dossier).
 
 | N° | Outil | Requête | Nombre | Résultat | Ce que j'ai changé et pourquoi |
 | --- | --- | --- | --- | --- | --- |
@@ -13,6 +13,7 @@ Complète `journal_requetes_openalex.md` (branche `litterature-corpus`). À fusi
 | 14 | OpenAlex `search_works` (texte intégral) | « information foraging » ET agents de recherche ET LLM, depuis 2023 | 58 | 12 titres lus, 5 PDF contrôlés | Dans 4 PDF sur 5, le terme vient d'une seule référence citée (InForage). InForage mobilise vraiment la théorie |
 | 15 | OpenAlex `search_works` (texte intégral) | Modèles économiques, satisficing ou rationalité limitée ET agents de recherche ET RL | 57 | Aucune mention de Stigler, d'Azzopardi ni de satisficing dans les 10 PDF contrôlés | Simon retiré du cadre |
 | 16 | OpenAlex `resolve_references` | Pirolli et Card 1999, Azzopardi 2011, Holm 1979, Qian et Liu 2025, Zhang et al. 2026, Poudel et al. 2026 | 6 | 6 exactes | Ajoutés à `refs.bib` |
+| 17 | OpenAlex `resolve_references` (9 novembre) | Les 46 références de `refs.bib`, par DOI ou par titre (lots de 25 et 21) | 46 | 43 exactes ; 3 non trouvées par le titre (R1-Searcher, apparié à tort à R1-Searcher++ ; la synthèse de Lin et al. ; ParallelSearch), toutes exactes par leur DOI arXiv. 0 rétractée | Vérification finale de l'étape 12 : zéro rouge. DOI arXiv ajoutés aux 3 entrées. 6 entrées passées à leur version publiée signalée par OpenAlex (FlashRAG, Adaptive-RAG, Active RAG, Mallen et al., InForage, Zhang et al.) |
 
 OQL de l'équation 3 :
 
