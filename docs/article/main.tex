@@ -31,6 +31,9 @@
 % genere/approf_valeurs.tex est écrit par analysis/analyse_approfondie.py (analyses exploratoires).
 \input{genere/approf_valeurs.tex}
 \newcommand{\valAp}[1]{\csname valAp-#1\endcsname}             % ex. \valAp{rl-em_t}, \valAp{ox-lire}
+% genere/avance_valeurs.tex est écrit par analysis/analyse_avancee.py (analyses avancées, exploratoires).
+\input{genere/avance_valeurs.tex}
+\newcommand{\valAv}[1]{\csname valAv-#1\endcsname}             % ex. \valAv{glm-rl}, \valAv{A4-marg2}
 \newcommand{\valBest}[2]{\csname valBest-#1-#2\endcsname}     % EM du meilleur système d'une famille (rl, harnais)
 \newcommand{\valBestNom}[2]{\csname valBestNom-#1-#2\endcsname}
 % genere/puissance_valeurs.tex est écrit par analysis/puissance.py (simulation, indépendante des données).
@@ -272,6 +275,36 @@ A5 & Search-R1, GRPO & Politique apprise par GRPO\\
 \label{tab:sys}
 \end{table}
 
+\paragraph{Comment A4 et A5 ont été entraînés.} Les deux agents sont des points de contrôle publics : nous ne les avons pas entraînés, mais leur entraînement explique ce que nous mesurons (figure~\ref{fig:boucle}). D'après \citet{jin2025search}, le modèle reçoit une question d'entraînement (NQ ou HotpotQA), produit une trajectoire où il peut insérer des requêtes, et le moteur de recherche y insère les passages trouvés. Une fois la réponse écrite, une récompense unique la note : 1 si elle correspond exactement à la réponse attendue, 0 sinon. L'algorithme d'optimisation, PPO \citep{schulman2017proximal} pour A4 ou GRPO \citep{shao2024deepseekmath} pour A5, renforce alors les choix des trajectoires récompensées. Les passages insérés par le moteur sont exclus de ce calcul, puisque le modèle ne les a pas écrits. Rien dans cette boucle ne fait payer une recherche : c'est le point de départ de nos hypothèses HA3a et HA3b.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.88, every node/.style={transform shape},
+  b/.style={draw, rounded corners, align=center, minimum height=1.05cm, font=\small, fill=white},
+  pol/.style={b, fill=orange!14, minimum width=3.3cm},
+  env/.style={b, fill=gray!10, minimum width=3.3cm},
+  rew/.style={b, fill=green!10, minimum width=5.6cm},
+  upd/.style={b, fill=blue!7, minimum width=5.6cm},
+  >={Stealth[length=2.2mm]}]
+  \node[env] (q) at (0,0) {Question d'entraînement\\ {\footnotesize NQ, HotpotQA}};
+  \node[pol] (pi) at (4.6,0) {Politique $\pi_\theta$\\ {\footnotesize le modèle de langage}};
+  \node[env] (se) at (4.6,-3.2) {Moteur de recherche\\ {\footnotesize E5, Wikipédia 2018}};
+  \node[b, minimum width=5.6cm, font=\scriptsize\ttfamily, align=left] (tr) at (11.2,0) {<think> ... <search> requête </search>\\ <information> passages </information>\\ ... <answer> réponse </answer>};
+  \node[font=\footnotesize, anchor=south] at (tr.north) {trajectoire générée};
+  \node[rew] (r) at (11.2,-2.1) {Récompense $r$ : 1 si la réponse est exacte, 0 sinon\\ {\footnotesize\textbf{aucun coût par recherche}}};
+  \node[upd] (u) at (11.2,-4.3) {Mise à jour des poids $\theta$\\ {\footnotesize PPO (A4) : avantage estimé par un critique}\\ {\footnotesize GRPO (A5) : avantage relatif à un groupe de trajectoires}\\ {\footnotesize + pénalité d'écart au modèle de départ}};
+  \draw[->, thick] (q) -- (pi);
+  \draw[->, thick] (pi) -- node[above, font=\footnotesize] {génère} (tr);
+  \draw[->, thick] ([xshift=-0.7cm]pi.south) -- node[left, font=\footnotesize] {requête} ([xshift=-0.7cm]se.north);
+  \draw[->, thick] ([xshift=0.7cm]se.north) -- node[right, font=\footnotesize, align=left] {passages\\ insérés,\\ exclus du\\ calcul} ([xshift=0.7cm]pi.south);
+  \draw[->, thick] (tr) -- node[right, font=\footnotesize] {réponse finale} (r);
+  \draw[->, thick] (r) -- (u);
+  \draw[->, thick, dashed] (u.east) -- ++(0.5,0) |- ([yshift=1.25cm]pi.north) node[pos=0.75, above, font=\footnotesize] {répété sur des milliers de questions} -- (pi.north);
+\end{tikzpicture}
+\caption{Boucle d'entraînement de Search-R1, d'après \citet{jin2025search}, simplifiée. Lecture : seule la justesse de la réponse finale est récompensée ; une recherche inutile ne coûte rien à l'agent, tant que la réponse finale est juste.}
+\label{fig:boucle}
+\end{figure}
+
 La figure~\ref{fig:protocole} résume le protocole : seuls la règle de recherche et, pour A4 et A5, les poids du modèle changent d'un système à l'autre ; questions, corpus, retriever, budget et mesures sont communs.
 
 \begin{figure}[ht]
@@ -449,6 +482,48 @@ Une décomposition contrefactuelle chiffre ces trois contributions. L'écart moy
 \label{fig:matrice}
 \end{figure}
 
+
+\subsection{Robustesse et analyses avancées}\label{sec:avance}
+Ces analyses, elles aussi exploratoires, répondent à cinq objections que l'on peut faire aux résultats précédents.
+
+\paragraph{L'écart vient-il seulement de questions plus faciles ?} Un modèle de régression logistique explique la réussite de chaque trajectoire (\valAv{glm-nobs} trajectoires des cinq systèmes qui cherchent, \valAv{glm-nq} questions) par la famille du système, la présence de la réponse dans les passages, leur interaction, la connaissance préalable de la question et le jeu ; les erreurs-types sont groupées par question, puisque chaque question apparaît cinq fois (tableau~\ref{tab:glm}). À situation égale, être un agent entraîné multiplie les chances de bonne réponse par \valAv{glm-rl} [\valAv{glm-rl-lo}\,; \valAv{glm-rl-hi}]. L'avantage des agents ne s'explique donc ni par la difficulté des questions, ni par des passages plus utiles. L'interaction entre famille et présence de la réponse est en revanche nulle (\valAv{glm-rlxtrouvee}, $p = \valAv{glm-rlxtrouvee-p}$) : en chances relatives, l'avantage des agents est le même que la réponse soit dans les passages ou non. La part importante de la « lecture » dans la décomposition additive (section~\ref{sec:exploratoire}) tient au fait que, quand la réponse est là, il y a plus de points à gagner ; ce que les agents font mieux, c'est répondre à partir de l'information dont ils disposent, qu'elle vienne des passages ou de leurs connaissances.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/avance_glm.tex}
+\caption{Régression logistique de la réussite (EM) sur 1\,000 trajectoires (A1 à A5, 200 questions), erreurs-types groupées par question. Un odds ratio supérieur à 1 signifie de meilleures chances de réussite. Référence : harnais, réponse absente des passages, question non connue, jeu NQ.}
+\label{tab:glm}
+\end{table}
+
+\paragraph{Les recherches supplémentaires rapportent-elles ?} La figure~\ref{fig:fourragement} trace, pour chaque système, la part des questions dont la réponse a été trouvée après $k$ recherches, et ce qu'apporte chaque recherche. Le rendement décroît brutalement : la première recherche trouve la réponse pour environ un tiers des questions ; la deuxième n'ajoute que de \valAv{A5-marg2} à \valAv{A3-marg2}~points, sauf pour A4 (\valAv{A4-marg2}~points) ; la troisième et la quatrième presque rien. Pourtant, IRCoT fait au moins trois recherches sur \valAv{A3-atteint3}~\% des questions et A4 sur \valAv{A4-atteint3}~\%. C'est la courbe de rendement décroissant que décrit la théorie du fourragement, et un agent qui la suivrait s'arrêterait après la deuxième recherche ; sans coût dans sa récompense, A4 continue.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_fourragement.pdf}
+\caption{Rendement des recherches successives. À gauche, part cumulée des questions où la réponse attendue figure dans les passages lus après $k$ recherches ; à droite, gain apporté par la $k$-ième recherche, en points. 200 questions par système ; une question qui s'arrête avant la $k$-ième recherche n'apporte aucun gain à ce rang. A1 ne fait qu'une recherche.}
+\label{fig:fourragement}
+\end{figure}
+
+\paragraph{Le résultat dépend-il de la métrique ?} La correspondance exacte compte faux « Dame Judi Dench » pour « Judi Dench ». Le tableau~\ref{tab:sensibilite} recalcule l'écart entre agents et harnais avec une correspondance souple (une réponse attendue apparaît, en mots entiers, dans la réponse donnée) et avec F1. L'écart reste du même ordre (\valAv{sens-souple}~points en correspondance souple, \valAv{sens-f1} en F1), et les six comparaisons restent significatives après correction de Holm. Les tailles d'effet sont grandes : pour chaque paire, les questions que seul l'agent réussit sont \valAv{or-min} à \valAv{or-max} fois plus nombreuses que celles que seul le harnais réussit.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/avance_sensibilite.tex}
+\caption{Sensibilité de HA1 à la métrique, et tailles d'effet. Écart moyen entre agents (A4, A5) et harnais (A1 à A3) sur 200 questions, intervalle bootstrap apparié. Odds ratio de McNemar avec intervalle exact.}
+\label{tab:sensibilite}
+\end{table}
+
+\paragraph{La décomposition tient-elle sur chaque jeu ?} Recalculée sur chaque jeu séparément (tableau~\ref{tab:jeux}), la part « trouver » reste faible sur les deux. Sur NQ, où le corpus couvre moins bien les réponses, l'écart se joue presque autant sans appui (\valAv{jeu-nq-sans}~points) qu'à la lecture (\valAv{jeu-nq-lire}) ; sur TriviaQA, surtout à la lecture (\valAv{jeu-triviaqa-lire}~points). Les intervalles, sur 100 questions, sont larges.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/avance_jeux.tex}
+\caption{Décomposition de l'écart d'EM entre agents et harnais, jeu par jeu, en points ; intervalle bootstrap à 95~\% sur les 100 questions du jeu.}
+\label{tab:jeux}
+\end{table}
+
+\paragraph{Les systèmes réussissent-ils les mêmes questions ?} Les deux agents se ressemblent davantage entre eux (indice de Jaccard de \valAv{comp-jac_rl} entre leurs ensembles de questions réussies) que les harnais entre eux (\valAv{comp-jac_h} en moyenne). Une question réussie par au moins un harnais l'est dans \valAv{comp-oracle_h}~\% des cas, par au moins un agent dans \valAv{comp-oracle_rl}~\%, par au moins un des six systèmes dans \valAv{comp-oracle_tous}~\% : aucun système ne trouve la réponse à \valAv{comp-aucun}~\% des questions. Ce plafond est d'abord celui du corpus réduit.
+
 \FloatBarrier
 \section{Discussion}\label{sec:discussion}
 % Cinq mouvements (étape 10) : rappel, comparaison, explication, contributions, limites et ouverture.
@@ -462,12 +537,12 @@ Une décomposition contrefactuelle chiffre ces trois contributions. L'écart moy
 Nos résultats confirment le sens du gain rapporté par les auteurs de Search-R1 \citep{jin2025search}, cette fois face à des harnais qui partagent le corpus, le retriever et le budget de l'agent : le gain subsiste quand ces trois conditions sont communes, même si les poids du modèle, eux, diffèrent. Ils nuancent en revanche l'idée d'un avantage limité aux jeux d'entraînement. Un contrôleur appris sur HotpotQA perd en qualité de réponse sur MuSiQue \citep{raikote2026policy} ; ici, l'avance est aussi forte sur TriviaQA que sur NQ. Les deux jeux sont toutefois proches (questions factuelles à une étape) : notre « non vu » est un changement de distribution modeste. Sur le coût, nos agents confirment le constat de surrecherche \citep{wu2025search,tang2026saas} : ils ne se passent jamais de chercher. Enfin, les pertes des harnais rejoignent les travaux qui montrent qu'un modèle se laisse distraire par des passages non pertinents \citep{yoran2023making} et que la recherche peut nuire sur ce que le modèle sait déjà \citep{mallen2022when,maekawa2024retrieval}.
 
 \subsection{Explication}
-Le cadre du fourragement de l'information (section~\ref{sec:cadre}) distingue deux choses : décider s'il faut fourrager et quand s'arrêter, et tirer parti de ce que l'on trouve. Nos résultats séparent les deux. Sur la décision, le cadre rend compte de ce que l'on observe sans le distinguer des harnais : la récompense de Search-R1 ne fait payer aucune recherche, et les agents cherchent toujours, même quand le gain attendu est faible (HA3a, HA3b) ; mais ReAct, sur les questions que le modèle connaît, ne renonce pas davantage à chercher. La surrecherche n'est donc pas propre aux agents entraînés ; ils cherchent seulement plus. Leur avantage se situe ailleurs, du côté de l'exploitation : ce sont des fourrageurs qui ne choisissent pas mieux leurs parcelles, mais qui tirent mieux parti de ce qu'ils y trouvent. Les analyses exploratoires de la section~\ref{sec:exploratoire} le chiffrent : leurs premières requêtes trouvent la réponse aussi souvent que celles des harnais, et la plus grande part de l'écart (\valAp{ox-lire-part}~\%) tient à ce qu'ils font d'une réponse présente dans les passages ; un quart tient à ce qu'ils répondent mieux quand elle manque, sans doute en s'appuyant sur leurs propres connaissances plutôt que sur des passages trompeurs. Une lecture compatible avec nos données est que le renforcement, qui ne récompense que la bonne réponse finale, pénalise indirectement l'usage d'un passage trompeur ; le modèle Instruct, lui, reprend des passages voisins mais hors sujet alors même que son prompt l'autorise à s'en remettre à ses connaissances. Sur NQ, où le corpus ne contient la réponse que pour une question sur quatre, cette tendance coûte plus que la recherche ne rapporte. Ces chiffres décrivent où se joue l'écart ; ils n'en établissent pas la cause, et la mesure de « réponse présente » est une estimation par chaîne de caractères.
+Le cadre du fourragement de l'information (section~\ref{sec:cadre}) distingue deux choses : décider s'il faut fourrager et quand s'arrêter, et tirer parti de ce que l'on trouve. Nos résultats séparent les deux. Sur la décision, le cadre rend compte de ce que l'on observe sans le distinguer des harnais : la récompense de Search-R1 ne fait payer aucune recherche, et les agents cherchent toujours, même quand le gain attendu est faible (HA3a, HA3b) ; mais ReAct, sur les questions que le modèle connaît, ne renonce pas davantage à chercher. La surrecherche n'est donc pas propre aux agents entraînés ; ils cherchent seulement plus. La courbe de gain des recherches (figure~\ref{fig:fourragement}) en donne la mesure la plus directe : au-delà de la deuxième recherche, le gain est presque nul pour tous les systèmes, et un fourrageur qui comparerait ce gain à un coût s'arrêterait là ; IRCoT, par règle, et A4, faute de coût, ne s'arrêtent pas. Leur avantage se situe ailleurs, du côté de l'exploitation : ce sont des fourrageurs qui ne choisissent pas mieux leurs parcelles, mais qui tirent mieux parti de ce qu'ils y trouvent. Les analyses exploratoires de la section~\ref{sec:exploratoire} le chiffrent : leurs premières requêtes trouvent la réponse aussi souvent que celles des harnais, et la plus grande part de l'écart (\valAp{ox-lire-part}~\%) tient à ce qu'ils font d'une réponse présente dans les passages ; un quart tient à ce qu'ils répondent mieux quand elle manque. Le modèle logistique (section~\ref{sec:avance}) précise cette lecture : en chances relatives, l'avantage des agents est le même avec ou sans la réponse dans les passages. Ils ne lisent donc pas mieux au sens étroit ; ils répondent mieux à partir de l'information dont ils disposent, et se laissent moins détourner de ce qu'ils savent par un passage trompeur. Une lecture compatible avec nos données est que le renforcement, qui ne récompense que la bonne réponse finale, pénalise indirectement l'usage d'un passage trompeur ; le modèle Instruct, lui, reprend des passages voisins mais hors sujet alors même que son prompt l'autorise à s'en remettre à ses connaissances. Sur NQ, où le corpus ne contient la réponse que pour une question sur quatre, cette tendance coûte plus que la recherche ne rapporte. Ces chiffres décrivent où se joue l'écart ; ils n'en établissent pas la cause, et la mesure de « réponse présente » est une estimation par chaîne de caractères.
 
 \emph{Explications concurrentes.} Deux autres lectures sont possibles, et notre protocole ne permet pas de les écarter. La première tient au corpus : A4 et A5 ont été entraînés avec E5 sur Wikipédia 2018, la source de notre sous-corpus ; ils connaissent le format et le bruit de ces passages, ce que n'apprennent pas les harnais. La seconde tient au modèle : les agents partent du modèle de base, les harnais du modèle Instruct, dont l'ajustement aux consignes pourrait renforcer la déférence envers le contexte. Comparer A4 et A5 aux agents Search-R1 issus de la version Instruct, et faire varier le retriever (H4), permettra de départager ces lectures dans le mémoire.
 
 \subsection{Contributions}
-\textbf{Théorique.} L'étude sépare trois composantes que la littérature confond souvent sous « savoir chercher » : la décision de chercher, le choix de la requête, et l'usage de ce qui est trouvé ; elle propose une décomposition simple de la précision selon ces moments, réutilisable pour d'autres agents. Dans nos conditions, les agents entraînés se distinguent par la seconde et non par la première, ce qui est compatible avec un cadre de fourragement où la récompense ignore le coût. La question « quand chercher ? » reste donc ouverte même pour les agents entraînés.
+\textbf{Théorique.} L'étude montre, sur un agent de recherche, la courbe de rendement décroissant que prédit la théorie du fourragement, et l'absence de la règle d'arrêt qui devrait l'accompagner quand la récompense ignore le coût. Elle sépare aussi trois composantes que la littérature confond souvent sous « savoir chercher » : la décision de chercher, le choix de la requête, et l'usage de ce qui est trouvé ; elle propose une décomposition simple de la précision selon ces moments, réutilisable pour d'autres agents. Dans nos conditions, les agents entraînés se distinguent par la seconde et non par la première, ce qui est compatible avec un cadre de fourragement où la récompense ignore le coût. La question « quand chercher ? » reste donc ouverte même pour les agents entraînés.
 
 \textbf{Pratique.} Trois recommandations, chacune pour un acteur précis. L'équipe qui ajoute un moteur de recherche à un petit modèle Instruct devrait d'abord comparer, sur un échantillon de ses questions, le modèle seul et le modèle avec recherche : sur NQ, la recherche a fait baisser la précision de nos trois harnais. Celle qui dispose d'un agent Search-R1 public et d'un corpus encyclopédique proche de Wikipédia peut en attendre, dans des conditions comparables aux nôtres, un gain de précision pour environ une recherche de plus par question qu'un ReAct ; sur un autre corpus, ce gain reste à vérifier. Enfin, l'équipe qui entraîne un agent devrait ajouter un coût par recherche à sa récompense : sans lui, l'agent ne renonce jamais à chercher, même sur ce qu'il sait ; c'est l'hypothèse H3 du mémoire.
 

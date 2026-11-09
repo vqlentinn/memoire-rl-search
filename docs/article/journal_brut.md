@@ -201,6 +201,17 @@ analyse poussée »). `analysis/analyse_approfondie.py`, exploratoire, sur les 1
   A4 à 70 % ; requête répétée pour 29 % (A4) et 26 % (A5) des questions. Jetons : environ 150 à 166 pour les systèmes itératifs.
 - Gains / pertes face à A0, typologie automatique des erreurs, matrice des 15 comparaisons (Bonferroni), arbre TikZ.
 
+**Analyses avancées (9 novembre, fin d'après-midi).** `analysis/analyse_avancee.py`, exploratoire :
+- Régression logistique (1 000 trajectoires, SE groupées par question) : RL OR 2,62 [1,44 ; 4,78] ; réponse dans les passages
+  OR 12,96 ; RL × réponse dans les passages OR 1,03 (p = 0,94) ; connue OR 5,61 ; TriviaQA OR 3,90. Interprétation « lisent
+  mieux » corrigée en « répondent mieux à information égale ».
+- Gain marginal des recherches : 1re ≈ 31 à 37 % ; 2e +1 à +3 points (A4 +10) ; 3e et 4e 0 à 1,5. IRCoT fait ≥ 3 recherches
+  sur 80 % des questions, A4 sur 66 %.
+- Sensibilité HA1 : souple +12,5 [8,1 ; 17,2], 6/6 ; F1 +15,5 [11,3 ; 19,9]. Odds ratios McNemar 3,8 à 6,0.
+- Par jeu : trouver 1,2 (NQ) et 2,7 (TQA) points ; lire 6,5 et 9,7 ; sans appui 5,1 et 2,0.
+- Complémentarité : aucun système ne répond juste à 52 % des questions ; Jaccard A4/A5 0,69, harnais 0,48 en moyenne.
+- Schéma TikZ de la boucle d'entraînement de Search-R1 ajouté à la méthode.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |

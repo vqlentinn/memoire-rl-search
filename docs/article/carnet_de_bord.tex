@@ -287,6 +287,12 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {\f{analysis/analyse\_approfondie.py} ; figures 6 à 10 de l'article.}
 {« Réponse présente dans les passages » est une estimation par chaîne de caractères ; la typologie des erreurs est automatique, pas annotée à la main (ce sera le volet C du mémoire).}
 
+\dec{D25. Des analyses de robustesse, et une interprétation corrigée}{\moi{} demandé, \ia{} réalisé}
+{S'en tenir à la décomposition additive de D24 et à son interprétation (« les agents lisent mieux »).}
+{J'ai demandé des analyses plus poussées. Chacune répond à une objection : une régression logistique avec erreurs-types groupées par question (l'écart vient-il de questions plus faciles ?), la courbe de gain des recherches successives (le rendement décroissant de la théorie), une analyse de sensibilité à la métrique (correspondance souple, F1), des tailles d'effet (odds ratios de McNemar), la décomposition jeu par jeu et la complémentarité des systèmes. La régression a nuancé l'interprétation : l'interaction entre famille et présence de la réponse est nulle (OR 1,03), donc les agents ne « lisent » pas mieux au sens étroit ; ils répondent mieux à partir de l'information disponible. La discussion a été corrigée en ce sens. Un schéma TikZ de la boucle d'entraînement de Search-R1 a été ajouté à la méthode.}
+{\f{analysis/analyse\_avancee.py} ; section 6.4, figures 3 et 11, tableaux 10 à 12 de l'article.}
+{Toujours exploratoire ; la régression suppose un effet additif sur l'échelle logistique, et la « réponse présente » reste une estimation par chaîne de caractères.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}
@@ -368,6 +374,7 @@ Chaque étonnement est un écart entre ce que j'attendais et ce qui s'est passé
 \item \textbf{Les vraies données ont démenti le scénario fictif.} \emph{Attendu :} les paramètres fictifs, choisis à la main, faisaient des agents entraînés des systèmes à peine meilleurs et surtout plus coûteux. \emph{Observé :} ils gagnent de 10 à 17 points sur toutes les comparaisons, et les harnais font même moins bien que le modèle seul sur NQ. Le texte écrit sur le fictif était entièrement à jeter : c'est la meilleure preuve que les données fictives ne servent qu'à tester la chaîne.
 \item \textbf{Chercher peut faire perdre ce que l'on savait.} \emph{Attendu :} une recherche ajoute de l'information, au pire elle ne sert à rien. \emph{Observé :} sur les 44 questions que le modèle résout seul, le RAG en perd 18 après avoir lu les passages ; à une question sur le half-pipe à ski, il répond la date d'entrée du snowboard aux Jeux.
 \item \textbf{Les agents ne cherchent pas mieux, ils lisent mieux.} \emph{Attendu :} un agent entraîné à chercher formule de meilleures requêtes. \emph{Observé :} sa première requête trouve la réponse aussi souvent que celle d'un harnais (environ un tiers des questions), A5 recopie la question dans 90~\% des cas, et une question sur quatre contient une requête répétée mot pour mot ; l'essentiel de l'écart (59~\%) se joue une fois la réponse dans les passages.
+\item \textbf{Deux analyses, deux lectures.} \emph{Attendu :} la décomposition additive (59~\% de l'écart à la « lecture ») prouvait que les agents lisent mieux les passages. \emph{Observé :} une régression logistique montre que leur avantage relatif est le même que la réponse soit dans les passages ou non. Les deux chiffres sont justes ; ils ne répondent pas à la même question (points gagnés contre chances relatives). Une interprétation déjà écrite a dû être corrigée.
 \item \textbf{Le résumé ne suffit pas.} \emph{Attendu :} le résumé de Wu et al. parle « d'un modèle » qui fait 27,7~\% de recherches évitables. \emph{Observé :} le texte précise qu'il s'agit de Search-R1, l'un de mes systèmes.
 \end{enumerate}
 
