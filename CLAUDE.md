@@ -48,9 +48,17 @@ le départage des ex aequo : réussie, 18 `<answer>`, 2 budgets épuisés, 0 ano
 question. Les 65 recherches Kaggle sont reproduites à l'identique sur le Mac. La répétabilité de la génération entre deux
 runs identiques n'est pas testée. Seul le chargement de NQ a été exécuté, pas les 6 autres jeux.
 
-A0 à A3 écrits (`systems/baselines.py`, prompts dans `prompts/`, tests `tests/test_baselines.py`), jamais exécutés sur GPU. Script de run avec reprise : `scripts/run_volet_a.py`. Mini-expérience pour l'article : `configs/mini_experience.yaml` (NQ vu / TriviaQA non vu, E5 sur 1m, 100 questions) ; choix guidé par la couverture (HotpotQA 17 %, Bamboogle 10 % en top 3 avec E5 1m).
+A0 à A3 écrits (`systems/baselines.py`, prompts dans `prompts/`, tests `tests/test_baselines.py`). Exécutés seulement en mise au point sur Kaggle (10 questions par jeu, graine 7, hors évaluation) ; IRCoT corrigé et prompts de A2/A3 ajustés après cette mise au point, run de contrôle pas encore fait. Script de run avec reprise : `scripts/run_volet_a.py`. Mini-expérience pour l'article : `configs/mini_experience.yaml` (NQ vu / TriviaQA non vu, E5 sur 1m, 100 questions) ; choix guidé par la couverture (HotpotQA 17 %, Bamboogle 10 % en top 3 avec E5 1m).
 
-Prochaine étape : exécuter A0 à A5 sur Kaggle (A5 : préciser `--model`, identifiant du checkpoint GRPO non vérifié), puis runs du volet A.
+Premier rendu (9 novembre 2026) : article complet de 16 pages (`docs/article/main.pdf`) et carnet de bord en LaTeX
+(`docs/article/carnet_de_bord.tex`, journal au jour le jour dans `journal_brut.md`). Résultats, discussion, résumé et conclusion
+reposent sur des données FICTIVES (`analysis/donnees_fictives.py` -> `results/fictif/`), marquées automatiquement dans le PDF
+(filigrane, encadrés, exposant « fictif »). `analysis/analyse_mini.py --indir results` régénère tableaux et figures
+(`docs/article/genere/`) avec les vrais runs ; le texte des résultats sera alors à réécrire. Il n'y a pas de cours ni de gabarit :
+c'est le sujet de mémoire de l'utilisateur, la trame Mercanti-Guérin (PDF à la racine, non versionné) sert de référence de forme.
+Compilation locale : `tectonic -X compile main.tex` dans `docs/article/` (préambule compatible XeTeX et pdfLaTeX).
+
+Prochaine étape : run de contrôle de A2/A3, puis run d'évaluation A0 à A5 sur Kaggle (A5 : `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3`, ne pas confondre avec la variante `-it-`), puis réécrire les résultats de l'article.
 
 ## Faits vérifiés (ne pas redécouvrir)
 
