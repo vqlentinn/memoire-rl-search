@@ -293,6 +293,12 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {\f{analysis/analyse\_avancee.py} ; section 6.4, figures 3 et 11, tableaux 10 à 12 de l'article.}
 {Toujours exploratoire ; la régression suppose un effet additif sur l'échelle logistique, et la « réponse présente » reste une estimation par chaîne de caractères.}
 
+\dec{D26. Formaliser le cadre par la récompense}{\moi{} décidé, sur proposition de \ia{}}
+{Garder le cadre théorique sous forme d'analogie (« l'agent est un fourrageur ») ; ou placer les mathématiques dans l'état de l'art.}
+{Écrire la récompense de Search-R1, $r = \mathrm{EM}$, et celle qu'impliquerait un coût, $r = \mathrm{EM} - c\cdot n_{\mathrm{rech}}$, transforme l'analogie en mécanisme vérifiable : le coût de la théorie du fourragement est le $c$ de la récompense, que Search-R1 fixe à zéro. Les hypothèses HA3a et HA3b découlent alors d'une équation. Les équations vont dans le cadre théorique, chacune suivie d'une phrase « Lecture : » pour un lecteur non spécialiste ; les dérivations (gradient de politique, avantage, PPO, GRPO, masquage des passages) vont en annexe D ; l'état de l'art n'en reçoit qu'une phrase, pour ne pas casser son fil.}
+{Section 3 (équations 1 et 2) et annexe D de l'article.}
+{La formalisation décrit l'entraînement d'après l'article de Search-R1 ; nous ne l'avons pas reproduit.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}

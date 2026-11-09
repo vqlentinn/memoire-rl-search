@@ -10,7 +10,7 @@
 \usepackage[round,authoryear]{natbib}
 \usepackage[hidelinks]{hyperref}
 \usepackage{setspace}\onehalfspacing
-\usepackage{eso-pic,amsmath,placeins}
+\usepackage{eso-pic,amsmath,amssymb,placeins}
 \usepackage{fvextra}% consignes des systèmes en annexe, avec retour à la ligne
 \newcommand{\aremplir}[1]{\textbf{\textcolor{red}{[À remplir : #1]}}}
 
@@ -98,7 +98,7 @@ Cette revue est narrative : le champ est jeune, fait surtout de préprints de 20
 La génération augmentée par la recherche (RAG) combine la mémoire du modèle et un index de documents \citep{lewis2020retrieval}. Ses variantes itératives ajoutent des recherches en cours de raisonnement : ReAct fait alterner raisonnement et actions d'outil \citep{yao2022react}, IRCoT entrelace recherche et chaîne de pensée \citep{trivedi2022interleaving}. D'autres travaux apprennent à décider \emph{si} il faut chercher, par un classifieur de complexité de la question \citep{jeong2024adaptive}, par l'incertitude de la génération \citep{jiang2023active,moskvoretskii2025adaptive} ou par la réflexion du modèle sur lui-même \citep{asai2023self}. Cette littérature part d'un constat : chercher n'aide pas toujours, et l'intérêt de la recherche dépend de ce que le modèle sait déjà \citep{mallen2022when,yin2023do}.
 
 \subsection{Agents de recherche entraînés par renforcement}
-L'apprentissage par renforcement promet de remplacer la règle écrite à la main par une politique optimisée sur le résultat. Search-R1 en est la forme la plus simple : le modèle insère des requêtes dans son raisonnement, et seule la justesse de la réponse finale est récompensée \citep{jin2025search}. Ce principe s'est vite décliné : R1-Searcher et ReSearch varient la récompense et les données \citep{song2025r1,chen2025research}, DeepResearcher place l'agent sur le web réel \citep{zheng2025deepresearcher}, ZeroSearch remplace le moteur par un moteur simulé \citep{sun2025zerosearch}. Tous reposent sur PPO \citep{schulman2017proximal} ou GRPO \citep{shao2024deepseekmath}, popularisés pour le raisonnement par DeepSeek-R1 \citep{deepseekai2025deepseek}, et une synthèse récente organise ce champ \citep{lin2025comprehensive}.
+L'apprentissage par renforcement promet de remplacer la règle écrite à la main par une politique optimisée sur le résultat. Search-R1 en est la forme la plus simple : le modèle insère des requêtes dans son raisonnement, et seule la justesse de la réponse finale est récompensée \citep{jin2025search}. Ce principe s'est vite décliné : R1-Searcher et ReSearch varient la récompense et les données \citep{song2025r1,chen2025research}, DeepResearcher place l'agent sur le web réel \citep{zheng2025deepresearcher}, ZeroSearch remplace le moteur par un moteur simulé \citep{sun2025zerosearch}. Tous reposent sur PPO \citep{schulman2017proximal} ou GRPO \citep{shao2024deepseekmath}, popularisés pour le raisonnement par DeepSeek-R1 \citep{deepseekai2025deepseek}, et une synthèse récente organise ce champ \citep{lin2025comprehensive}. Leur principe commun est un gradient de politique : le modèle de langage est traité comme une politique qui choisit chaque jeton, et l'on augmente la probabilité des trajectoires dont la récompense dépasse ce qui était attendu. Ce que cette récompense contient, ou omet, détermine donc ce que l'agent apprend (section~\ref{sec:cadre}).
 
 Ce que l'agent apprend reste pourtant mal connu. Les auteurs de Search-R1 montrent eux-mêmes que les récompenses intermédiaires sur la recherche changent peu de chose, mais que le choix du moteur pèse sur l'entraînement et sur la robustesse \citep{jin2025empirical} : la politique apprise dépend de l'environnement dans lequel elle a été apprise. C'est la raison pour laquelle nous distinguons un jeu vu d'un jeu non vu.
 
@@ -153,6 +153,16 @@ A4, A5 & Apprise par renforcement & Aucun dans la récompense\\
 \caption{Les systèmes lus avec le cadre. Tous partagent le même budget de quatre recherches.}
 \label{tab:cadre}
 \end{table}
+
+\paragraph{Formalisation.} Le cadre peut s'écrire avec la récompense même des agents. Search-R1 note une trajectoire $\tau$ (le texte complet, de la question à la réponse) par la seule justesse de sa réponse finale \citep{jin2025search} :
+\begin{equation}\label{eq:r-searchr1}
+r(\tau) = \mathrm{EM}(\tau) \in \{0, 1\}.
+\end{equation}
+L'entraînement maximise l'espérance de cette récompense, $J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta}[r(\tau)]$, où $\pi_\theta$ est le modèle de langage de paramètres $\theta$. \emph{Lecture :} deux trajectoires justes, l'une avec une recherche et l'autre avec quatre, reçoivent la même récompense ; rien, dans le signal d'apprentissage, ne distingue la recherche utile de la recherche superflue. La théorie du fourragement introduirait, elle, un coût $c$ par recherche :
+\begin{equation}\label{eq:r-cout}
+r_c(\tau) = \mathrm{EM}(\tau) - c \cdot n_{\text{rech}}(\tau), \qquad c > 0.
+\end{equation}
+\emph{Lecture :} entre deux trajectoires également justes, celle qui cherche moins est alors préférée, et l'agent a intérêt à s'arrêter dès que le gain espéré d'une recherche, en probabilité de bonne réponse, passe sous $c$ : c'est la règle d'arrêt du fourrageur. Search-R1 correspond au cas $c = 0$. L'hypothèse H3 du mémoire teste $c > 0$. L'annexe~\ref{ann:formel} détaille comment ces récompenses deviennent un gradient, pour PPO et GRPO.
 
 Il en découle trois attentes. Un agent qui estime le gain devrait mieux répartir ses recherches qu'une règle fixe. Cette estimation, apprise sur certains jeux de questions, devrait perdre en fiabilité ailleurs. Enfin, sans coût perçu, l'agent devrait continuer à chercher même quand le gain attendu est faible.
 
@@ -676,4 +686,31 @@ Droits & Licences de FlashRAG, du sous-corpus, de Qwen2.5 et des points de contr
 \bottomrule
 \end{longtable}
 \end{small}
+
+\section{Formalisation de l'apprentissage par renforcement}\label{ann:formel}
+
+\paragraph{Le problème de décision.} L'entraînement d'un agent de recherche est un processus de décision markovien $\mathcal{M} = (\mathcal{S}, \mathcal{A}, P, r)$. Un état $s_t = (x, y_{<t})$ est la question $x$ suivie des jetons déjà écrits ; une action $a_t = y_t$ est le jeton suivant, choisi dans le vocabulaire ; la politique $\pi_\theta(y_t \mid x, y_{<t})$ est le modèle de langage lui-même. La transition est déterministe (le jeton est ajouté au texte), sauf après la balise \texttt{</search>} : l'environnement, le moteur de recherche, ajoute alors des passages $d$ entre \texttt{<information>} et \texttt{</information>}. La récompense est nulle à chaque étape, sauf à la fin, où elle vaut $r(\tau)$ (équations~\ref{eq:r-searchr1} et~\ref{eq:r-cout}).
+
+\paragraph{Le gradient de politique.} On cherche $\theta$ qui maximise $J(\theta) = \mathbb{E}_{\tau \sim p_\theta}[r(\tau)]$. L'identité $\nabla_\theta p_\theta = p_\theta \nabla_\theta \log p_\theta$ donne
+\begin{equation}
+\nabla_\theta J(\theta) = \mathbb{E}_{\tau}\Big[\, r(\tau) \sum_t m_t \, \nabla_\theta \log \pi_\theta(y_t \mid x, y_{<t}) \Big].
+\end{equation}
+Les probabilités de transition, donc le moteur de recherche, ne dépendent pas de $\theta$ et disparaissent du gradient : il n'est pas nécessaire de dériver l'environnement. Le masque $m_t$ vaut 0 sur les jetons des passages insérés, qui ne sont pas des actions de la politique, et 1 ailleurs \citep{jin2025search}.
+
+\paragraph{L'avantage.} L'estimateur précédent est très variable. Soustraire une ligne de base $b(s_t)$, qui ne dépend pas de l'action, ne change pas son espérance, puisque $\mathbb{E}_{a \sim \pi_\theta}[\nabla_\theta \log \pi_\theta(a \mid s)\, b(s)] = b(s)\, \nabla_\theta \sum_a \pi_\theta(a \mid s) = 0$. On remplace donc $r(\tau)$ par un avantage $\hat{A}_t$, qui mesure de combien une action fait mieux que ce qui était attendu. PPO et GRPO diffèrent par la façon de l'estimer.
+
+\paragraph{PPO (A4).} Un second réseau, le critique $V_\phi(s)$, prédit la récompense attendue depuis chaque état. L'avantage est estimé par $\hat{A}_t = \sum_{l \ge 0} (\gamma\lambda)^l \delta_{t+l}$, avec $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. Pour ne pas trop modifier la politique à partir de trajectoires générées par l'ancienne version $\pi_{\theta_\text{old}}$, PPO maximise un objectif écrêté \citep{schulman2017proximal} :
+\begin{equation}
+L^{\text{CLIP}}(\theta) = \mathbb{E}_t\Big[\min\big(\rho_t \hat{A}_t,\ \mathrm{clip}(\rho_t, 1-\varepsilon, 1+\varepsilon)\,\hat{A}_t\big)\Big], \qquad \rho_t = \frac{\pi_\theta(y_t \mid s_t)}{\pi_{\theta_\text{old}}(y_t \mid s_t)}.
+\end{equation}
+
+\paragraph{GRPO (A5).} GRPO se passe de critique \citep{shao2024deepseekmath}. Pour une même question, il génère un groupe de $G$ trajectoires de récompenses $r_1, \dots, r_G$, et donne à tous les jetons de la trajectoire $i$ l'avantage normalisé dans le groupe :
+\begin{equation}
+\hat{A}_i = \frac{r_i - \mathrm{moy}(r_1, \dots, r_G)}{\mathrm{ét}(r_1, \dots, r_G)}.
+\end{equation}
+Par exemple, avec $G = 5$ et des récompenses $(1, 0, 0, 1, 0)$, les deux trajectoires justes reçoivent $\hat{A} \approx +1{,}22$ et les trois autres $\hat{A} \approx -0{,}82$. Si toutes les trajectoires d'un groupe ont la même récompense, tous les avantages sont nuls et la question n'apprend rien. L'objectif reprend l'écrêtage de PPO, moyenné sur le groupe.
+
+\paragraph{La pénalité de divergence.} Dans les deux cas, on retranche $\beta\, D_{\mathrm{KL}}(\pi_\theta \,\|\, \pi_\text{ref})$, où $\pi_\text{ref}$ est le modèle avant l'entraînement, pour que la politique continue à écrire un langage correct au lieu d'exploiter les failles de la récompense.
+
+\paragraph{Conséquence pour cette étude.} Avec la récompense~\eqref{eq:r-searchr1}, l'avantage d'une trajectoire ne dépend que de la justesse de sa réponse. Une recherche superflue n'est jamais pénalisée tant que la réponse reste juste : le gradient pousse vers tout ce qui rend la réponse juste (utiliser un passage utile, ignorer un passage trompeur), jamais vers chercher moins. Avec la récompense~\eqref{eq:r-cout}, deux trajectoires également justes ont des avantages différents, et la politique apprend une règle d'arrêt. Nos résultats, des agents plus justes qui ne cherchent pas moins (sections~\ref{sec:resultats} et~\ref{sec:avance}), sont ceux qu'attend la première récompense.
 \end{document}

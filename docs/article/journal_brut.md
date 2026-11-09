@@ -212,6 +212,10 @@ analyse poussée »). `analysis/analyse_approfondie.py`, exploratoire, sur les 1
 - Complémentarité : aucun système ne répond juste à 52 % des questions ; Jaccard A4/A5 0,69, harnais 0,48 en moyenne.
 - Schéma TikZ de la boucle d'entraînement de Search-R1 ajouté à la méthode.
 
+**Formalisation (9 novembre, soir).** Sur proposition de Claude, décidée par l'étudiant : récompense de Search-R1 (r = EM) et
+récompense avec coût (r = EM − c · n_rech) dans le cadre théorique, avec lecture en clair ; annexe D sur le gradient de
+politique, l'avantage, PPO, GRPO, la pénalité KL et le masquage des passages ; une phrase dans l'état de l'art.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |
