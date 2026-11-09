@@ -40,7 +40,7 @@ Ce carnet suit les quatre rubriques demandées par la trame : les outils utilis�
 
 \textbf{Livrables.} L'article (\f{docs/article/main.pdf}) est une mini-expérience tirée du mémoire : six systèmes, deux jeux de 100 questions. Le mémoire, lui, prévoit sept jeux, 500 questions par jeu et trois volets (inférence, entraînement, analyse des échecs).
 
-\textbf{État au 9 novembre.} Introduction, revue, cadre, modèle, hypothèses, méthode et limites sont rédigés. Les systèmes A0 à A3 ont tourné en mise au point sur Kaggle (10 questions par jeu, hors évaluation) ; la chaîne A4 a été validée par un test de fumée. Le run d'évaluation n'a pas encore eu lieu : les résultats, la discussion et la conclusion du premier rendu reposent sur des \textbf{données fictives}, déclarées comme telles (section~\ref{sec:donnees}).
+\textbf{État au 9 novembre.} L'article est complet, sur des résultats réels : le run d'évaluation (1\,200 trajectoires) a tourné sur Kaggle le 9 novembre. Un premier rendu avait été fait le matin même sur des \textbf{données fictives}, déclarées comme telles (section~\ref{sec:donnees}), pour tester la chaîne ; il a été entièrement remplacé.
 
 \section{La trame, étape par étape}
 
@@ -55,13 +55,13 @@ La trame suppose un article de cours rédigé dans Word, converti en LaTeX avec 
 2. Projet Claude & Fait & Projet « memoire-rl-search », avec la description du mémoire. Le contexte durable du projet est aussi dans \f{CLAUDE.md}, lu par Claude Code à chaque session.\\
 3. Problématique & Fait, adapté & La question et les hypothèses H1 à H4 existaient avant ces séances : elles sont de moi. La méthode du plugin a été appliquée avec Claude plutôt que dans ChatGPT : fiche de synthèse en dix rubriques (section~\ref{sec:fiche}). Consensus utilisé (10 articles, tous favorables au RL, pas de Consensus Meter fourni par l'outil). Open Knowledge Maps non fait.\\
 4. Introduction & Fait & Réécrite le 9 novembre selon les cinq mouvements de la page « entonnoir » du site (contexte large, problème réel, faille, objectif « Cette étude… », contribution). La première version se terminait sur le plan de l'article, ce que la consigne exclut : elle se termine maintenant sur la contribution. Chaque mouvement est repéré par un commentaire dans le source.\\
-5. Revue & Fait, à finir & Revue \emph{narrative}, choisie parmi les 13 types de la page « revues de littérature » du site ; sa règle « anti-catalogue » a conduit à réécrire trois sous-sections pour que chaque paragraphe s'ouvre sur un constat. : le champ est récent (surtout des préprints de 2025--2026) et le but est de situer la lacune, pas d'estimer un effet moyen. Équation OpenAlex en trois versions avec mesure de précision, boule de neige, vérification des références. Tri des 116 résultats de l'équation 3 : seconde proposition de Claude le 9 novembre, après lecture des 56 résumés disponibles parmi les 58 doutes (15 inclus proposés au total, 82 exclus motivés, 3 doutes). La décision finale, colonne \f{decision\_etudiant}, reste à moi : la trame le demande.\\
+5. Revue & Fait, à finir & Revue \emph{narrative}, choisie parmi les 13 types de la page « revues de littérature » du site ; sa règle « anti-catalogue » a conduit à réécrire trois sous-sections pour que chaque paragraphe s'ouvre sur un constat. Le type narratif convient parce que le champ est récent (surtout des préprints de 2025--2026) et que le but est de situer la lacune, pas d'estimer un effet moyen. Équation OpenAlex en trois versions avec mesure de précision, boule de neige, vérification des références. Tri des 116 résultats de l'équation 3 : seconde proposition de Claude le 9 novembre, après lecture des 56 résumés disponibles parmi les 58 doutes (15 inclus proposés au total, 82 exclus motivés, 3 doutes). La décision finale, colonne \f{decision\_etudiant}, reste à moi : la trame le demande.\\
 6. Cadre, modèle, hypothèses & Fait & Refait une fois après la lecture de la trame (section~\ref{sec:registre}, D13 et D14). NotebookLM non utilisé : Claude Code a lu les PDF en accès libre directement, et la vérification qui comptait (la théorie est-elle vraiment mobilisée dans les articles ?) s'est faite dans les textes.\\
 7. Données & Fait, adapté & Kaggle à la place de Colab (D2). Fiche données remplie (\f{fiche\_donnees.md}). Le principe de la trame est respecté : l'IA écrit le programme, la plateforme l'exécute, je vérifie le résultat. Données fictives produites pour tester la chaîne (point 7.6 de la trame), déclarées section~\ref{sec:donnees}.\\
 8. Analyse qualitative & Non applicable ici & L'article est quantitatif. Le mémoire prévoit une analyse qualitative des échecs (volet C : 300 trajectoires, dont 100 annotées à la main). La lecture des trajectoires de mise au point a quand même été décisive : c'est elle qui a révélé le bogue de A3 (difficultés, section~\ref{sec:difficultes}).\\
-9. Dataviz & Fait (données fictives) & Deux figures produites par programme (\f{analysis/analyse\_mini.py}), avec tableau de contrôle imprimé à chaque exécution et les cinq contrôles de la trame (section~\ref{sec:donnees}).\\
-10. Discussion & Fait (sur données fictives) & Les cinq mouvements de la trame. Le texte sert d'exemple de forme : il sera réécrit avec les vrais résultats.\\
-11. Abstract & Fait & Réécrit selon la page du site : un paragraphe continu d'environ 200 mots, contexte, faille, résultat majeur, résultats-clés chiffrés au passé, portée ; sans citation, abréviations définies, six mots-clés absents du titre. Version anglaise écrite pour elle-même, pas traduite mot à mot. Les chiffres viennent des macros générées : ils ne peuvent pas diverger du tableau.\\
+9. Dataviz & Fait & Deux figures produites par programme (\f{analysis/analyse\_mini.py}), avec tableau de contrôle imprimé à chaque exécution et les cinq contrôles de la trame (section~\ref{sec:donnees}).\\
+10. Discussion & Fait & Les cinq mouvements de la trame, réécrits sur les vrais résultats, puis relus avec le prompt « rapporteur » de la trame (six corrections).\\
+11. Abstract & Fait & Réécrit sur les vrais résultats selon la page du site : un paragraphe continu d'environ 200 mots, contexte, faille, résultat majeur, résultats-clés chiffrés au passé, portée ; sans citation, abréviations définies, six mots-clés absents du titre. Version anglaise écrite pour elle-même, pas traduite mot à mot. Les chiffres viennent des macros générées : ils ne peuvent pas diverger du tableau.\\
 12. LaTeX & Fait, adapté & Écrit directement en LaTeX : il n'y avait ni texte Word à convertir ni gabarit de cours. Le préambule est donc le mien, avec les éléments de la trame (TikZ pour les schémas, \f{natbib}, macro \f{\textbackslash aremplir}). Bibliographie de 46 références, vérifiées d'un seul tenant le 9 novembre : zéro rouge (D18). Les trois fichiers de rendu sont produits par \f{scripts/rendu.sh} sous les noms demandés. L'import dans Overleaf est facultatif (D21).\\
 \bottomrule
 \end{longtable}
@@ -83,7 +83,7 @@ La trame suppose un article de cours rédigé dans Word, converti en LaTeX avec 
 7 & Claude Code, Kaggle (GPU T4), vLLM & Code des six systèmes, script de run avec reprise, notebooks & Bogue de A3 trouvé à la lecture des trajectoires, pas par les tests. Prompts de A2 et A3 corrigés en mise au point (D8). J'ai fixé le protocole et validé chaque lancement ; je n'ai pas réécrit le code.\\
 7 & Claude Code & Données fictives au format exact des vrais fichiers & Générateur gardé et documenté. Chaque ligne porte \f{"fictif": true}.\\
 9 & Claude Code, matplotlib & Figures, tableaux, tests des hypothèses & Programme gardé. Figures relues en image. Tableau de contrôle vérifié (D15).\\
-10, 11 & Claude Code & Discussion et résumé sur les données fictives & Gardés comme exemple de forme seulement : à réécrire.\\
+10, 11 & Claude Code & Discussion et résumé, d'abord sur les données fictives, puis sur les vrais résultats ; relecture « rapporteur » & Version fictive jetée en entier. Version réelle relue avec le prompt de la trame : six corrections, surtout des affirmations causales trop fortes.\\
 12 & Claude Code, \f{tectonic} & Mise en page, schéma du modèle complet et du protocole & Pages relues en image après chaque compilation. Deux erreurs de compilation corrigées (difficultés).\\
 \bottomrule
 \end{longtable}
@@ -111,7 +111,7 @@ Section Données depuis la fiche données (7.8) & Section 5.2 et annexe C & Fait
 Données fabriquées déclarées, avec leur programme (7.6) & Encadrés, filigrane, exposant ; annexe C & Fait\\
 Figure : légende normalisée, tableau de contrôle, 5 contrôles (9.4--9.6) & Figures 4 et 5 ; contrôles en section~\ref{sec:donnees} & Fait\\
 Commentaire de figure avec limite et mise en garde causale (9.6) & Section 6.1 & Fait\\
-Discussion en cinq mouvements, sans répéter les chiffres (10.1--10.2) & Section 7 & Fait (sur données fictives)\\
+Discussion en cinq mouvements, sans répéter les chiffres (10.1--10.2) & Section 7 & Fait, sur les vrais résultats\\
 Implications « qui fait quoi », pas génériques (10.2) & Section 7.4, trois recommandations ciblées & Fait\\
 Limites scientifiques, pas des alibis (10.2) & Section 7.5, dont la puissance & Fait\\
 Abstract en 5 mouvements, environ 200 mots, mots-clés (11) & Résumé et abstract & Fait\\
@@ -119,7 +119,7 @@ PDF et source Overleaf nommés \f{NOM\_Prenom\_…} (12.4) & \f{rendu/} & Fait. 
 Carnet : outils, difficultés, étonnement, approfondir (p.~3) & Ce document & Fait\\
 Plugin de problématique : fiche de synthèse (3) & Carnet, section~\ref{sec:fiche} & Fait, avec Claude\\
 Open Knowledge Maps (3.3), NotebookLM (6.4) & — & Non faits : outils en navigateur, à faire par moi\\
-Relecture de la discussion par une IA « rapporteur » (10.3) & — & À faire avec les vrais résultats\\
+Relecture de la discussion par une IA « rapporteur » (10.3) & Carnet, section dédiée & Fait sur les vrais résultats ; six corrections\\
 \bottomrule
 \end{longtable}
 \normalsize
@@ -268,13 +268,19 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {\f{rendu/PROUX\_Valentin\_source.zip}.}
 {La compilation locale utilise XeTeX ; Overleaf utilise pdfLaTeX par défaut. Le préambule est écrit pour les deux, mais seul un import une fois avant le rendu le vérifiera.}
 
+\dec{D22. Une analyse exploratoire, déclarée comme telle}{\ia{} proposé, \moi{} accepté}
+{Ne rapporter que les quatre tests prévus ; ou présenter la nouvelle analyse comme si elle avait été prévue.}
+{La lecture des vrais résultats a montré un fait que le plan n'anticipait pas : sur NQ, les trois harnais font moins bien que le modèle seul. Compter les questions « connues » (A0 juste) perdues après recherche l'explique : 18 à 24 sur 44 pour les harnais, 6 et 10 pour les agents. Cette analyse est utile, mais elle a été choisie après avoir vu les données : l'article la présente comme exploratoire, sans test, et ne lui fait porter aucun verdict.}
+{Section 6.2 de l'article, paragraphe « Analyse exploratoire » ; valeurs générées par \f{analysis/analyse\_mini.py}.}
+{Elle ne prouve rien à elle seule ; elle oriente le mémoire (oracle de connaissance, H4).}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}
 \begin{itemize}
 \item \textbf{Questions.} Natural Questions et TriviaQA dans le format FlashRAG (\f{RUC-NLPIR/FlashRAG\_datasets}, split \f{test}), 100 questions par jeu tirées avec la graine 42.
 \item \textbf{Corpus.} \f{maknee/wiki-18-subsets}, fichier \f{wiki-18-1m.jsonl.gz} et index \f{e5\_Flat-1m.index}. Jeu tiers sans fiche descriptive : l'alignement entre index et corpus a été vérifié.
-\item \textbf{Trajectoires.} Produites par ce projet sur Kaggle. Une ligne par question et par système. Mise au point (graine 7, 10 questions par jeu) : A0 à A3 le 3 novembre, puis contrôle de A2 et A3 après correction. Le run d'évaluation (graine 42, 100 questions par jeu, six systèmes) a été lancé le 9 novembre (version 4 du kernel).
+\item \textbf{Trajectoires.} Produites par ce projet sur Kaggle. Une ligne par question et par système. Mise au point (graine 7, 10 questions par jeu) : A0 à A3 le 3 novembre, puis contrôle de A2 et A3 après correction. Run d'évaluation le 9 novembre (version 4 du kernel, commit \f{07c1fbb}) : 1\,200 trajectoires, 12 runs à code 0, aucune erreur au journal, mêmes questions pour les six systèmes, 1~h~12 de GPU. Fichiers dans \f{results/eval\_v4/} (non versionné, comme toutes les données).
 \item \textbf{Nettoyage.} Aucun : pas de question retirée. Seul ajout, comme dans Search-R1 : un « ? » en fin de question s'il manque.
 \item \textbf{Licences.} À vérifier avant le rendu final (FlashRAG, sous-corpus, Qwen2.5, points de contrôle Search-R1).
 \end{itemize}
@@ -345,6 +351,8 @@ Chaque étonnement est un écart entre ce que j'attendais et ce qui s'est passé
 \item \textbf{« Tous les tests passent » ne veut pas dire « ça marche ».} \emph{Attendu :} A3 fonctionnait. \emph{Observé :} il ne faisait jamais qu'une recherche, sans aucune erreur. Seule la lecture des sorties l'a montré.
 \item \textbf{On ne retrouve même pas ce qu'on a mis.} \emph{Attendu :} la trame prévient que des données fabriquées font « découvrir » ce qu'on y a écrit. \emph{Observé :} j'avais donné au meilleur agent 9 points d'avance sur le RAG pour NQ ; avec 100 questions, l'échantillon n'en montre que 7, et aucune des six comparaisons n'est significative après correction. Avec cette taille d'échantillon, un vrai effet de cette taille peut passer inaperçu. C'est la leçon la plus utile du premier rendu : la taille de l'échantillon décide de ce que l'expérience peut voir.
 \item \textbf{Une référence introuvable n'est pas forcément inventée.} \emph{Attendu :} d'après l'exemple de la trame, « aucune correspondance » signale une référence fabriquée. \emph{Observé :} trois références réelles, dont deux citées des dizaines de fois, n'étaient pas trouvées par leur titre, et une quatrième était appariée à un autre article de mêmes auteurs ; par le DOI, toutes étaient exactes. La vérification automatique dit où regarder, pas ce qu'il faut conclure.
+\item \textbf{Les vraies données ont démenti le scénario fictif.} \emph{Attendu :} les paramètres fictifs, choisis à la main, faisaient des agents entraînés des systèmes à peine meilleurs et surtout plus coûteux. \emph{Observé :} ils gagnent de 10 à 17 points sur toutes les comparaisons, et les harnais font même moins bien que le modèle seul sur NQ. Le texte écrit sur le fictif était entièrement à jeter : c'est la meilleure preuve que les données fictives ne servent qu'à tester la chaîne.
+\item \textbf{Chercher peut faire perdre ce que l'on savait.} \emph{Attendu :} une recherche ajoute de l'information, au pire elle ne sert à rien. \emph{Observé :} sur les 44 questions que le modèle résout seul, le RAG en perd 18 après avoir lu les passages ; à une question sur le half-pipe à ski, il répond la date d'entrée du snowboard aux Jeux.
 \item \textbf{Le résumé ne suffit pas.} \emph{Attendu :} le résumé de Wu et al. parle « d'un modèle » qui fait 27,7~\% de recherches évitables. \emph{Observé :} le texte précise qu'il s'agit de Search-R1, l'un de mes systèmes.
 \end{enumerate}
 
@@ -356,6 +364,27 @@ Chaque étonnement est un écart entre ce que j'attendais et ce qui s'est passé
 \item \textbf{Le biais de publication des articles de méthode.} Les 10 articles de Consensus sont favorables au RL. Une comparaison contrôlée, avec un résultat négatif possible, est une façon d'y répondre.
 \item \textbf{Lire les textes.} Le statut de tous les articles « essentiels » est encore « non lu » ; relire les 58 « doutes » du tri de l'équation 3.
 \end{itemize}
+
+\section{Relecture de la discussion par l'IA (étape 10.3)}
+
+J'ai fait relire la discussion avec le prompt de la trame : « Relis ma discussion comme un rapporteur exigeant. Signale chaque phrase qui répète les résultats sans les interpréter, chaque affirmation causale que mes données ne permettent pas et chaque implication managériale trop générale. Ne réécris pas ma discussion. » Limite : la relecture a été faite par la même IA que celle qui avait rédigé le premier jet.
+
+\small
+\begin{longtable}{@{}P{5.6cm}P{3cm}P{7cm}@{}}
+\toprule
+Passage signalé & Type & Ce que j'ai changé\\
+\midrule\endhead
+« le gain ne disparaît pas quand on contrôle ces différences » & Causalité trop forte & Le corpus, le retriever et le budget sont communs, mais pas les poids du modèle : la phrase le dit maintenant.\\
+« un prompt qui l'invite à se servir des documents » & Inexact & Le prompt de A1 dit au contraire « otherwise rely on your own knowledge » : corrigé.\\
+« le renforcement a appris à l'agent à n'utiliser un passage que s'il aide » & Causalité non établie & Devenu une « lecture compatible avec nos données », suivie de « elles n'en établissent pas la cause ».\\
+« sur la décision, le cadre se vérifie » & Interprétation partielle & ReAct ne renonce pas non plus à chercher sur les questions connues : la surrecherche n'est pas propre aux agents, qui cherchent seulement davantage.\\
+« l'apprentissage améliore la seconde sans améliorer la première » & Causalité & Devenu « les agents se distinguent par la seconde » ; même correction dans le résumé, l'abstract et la conclusion.\\
+« peut en attendre un gain net de précision » & Implication trop générale & Limitée à un corpus proche de Wikipédia et à des conditions comparables.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+Aucune phrase ne répétait les chiffres sans les interpréter : le rappel des résultats est écrit sans chiffres, comme le demande l'étape 10.
 
 \section{Risques de l'IA et garde-fous}
 
@@ -390,7 +419,7 @@ Poste & Consommation & Source\\
 Argent & 0~€ & Aucun abonnement ni crédit d'API\\
 GPU Kaggle, test de fumée & six versions, durées non relevées & Kernel \f{memoire-smoke-test}\\
 GPU Kaggle, contrôle de A2 et A3 & 980~s (40 trajectoires) & Journal du kernel, version 3\\
-GPU Kaggle, run d'évaluation & en cours le 9 novembre & Kernel \f{memoire-mini-experience}, version 4\\
+GPU Kaggle, run d'évaluation & 4\,324~s, soit 1~h~12 (1\,200 trajectoires) & Journal du kernel, version 4\\
 Mesure de couverture E5 & environ 21~min sur processeur & Kaggle, sans quota GPU\\
 API OpenAlex & quelques centièmes de dollar sur l'allocation gratuite & Coût affiché par l'API (0,0001~\$ pour les 58 résumés)\\
 \bottomrule

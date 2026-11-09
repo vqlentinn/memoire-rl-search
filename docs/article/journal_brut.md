@@ -180,6 +180,17 @@ l'article […], recheck si on suit bien la trame ».
 - Carnet : tableau de conformité à la trame, décisions D17 à D19, chronologie, demandes de l'étudiant citées. L'étudiant
   avait autorisé Claude à inventer ; Claude n'a rien inventé de factuel et l'a écrit.
 
+**Run d'évaluation et article sur les vrais résultats (9 novembre, fin de matinée).**
+- Contrôle de A2/A3 déjà fait (kernel v3, commit fcef699) : A2 20/20 réponses sans requête répétée ; A3 3,4 recherches par
+  question mais 3 abstentions sur 20. Prompt de A3 gelé (D20). Notebook passé en mode `complet`, kernel v4 lancé à 9 h 18.
+- Kernel v4 terminé à 10 h 39 : 1 200 trajectoires, 12 runs à code 0, aucune erreur, mêmes questions pour les 6 systèmes,
+  4 324 s de GPU. Trajectoires lues : format Search-R1 correct pour A4 ; anomalies de A2 = vrais ratés de format.
+- Verdicts du programme commité avant le run : HA1 soutenue (6/6, écarts de 10 à 17 points, p Holm < 0,001) ; HA2 non
+  soutenue (12,8 points sur NQ, 14,3 sur TriviaQA) ; HA3a soutenue (+0,92 recherche) ; HA3b soutenue (+0,74 sur 44 questions).
+- Constat non prévu : sur NQ, les trois harnais font moins bien que le modèle seul. Analyse exploratoire (D22) : sur les 44
+  questions « connues », les harnais en perdent 18 à 24 après recherche, les agents 6 et 10. Exemples vérifiés dans les passages.
+- Résumé, résultats, discussion et conclusion réécrits ; relecture « rapporteur » avec le prompt de la trame : 6 corrections.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |
