@@ -1,0 +1,19 @@
+# Mini-expérience pour l'article de recherche (sous-ensemble du volet A)
+systems: [A0, A1, A2, A3, A4, A5]
+datasets:
+  vu_a_l_entrainement: nq         # A4 et A5 entraînés sur NQ + HotpotQA
+  non_vu: triviaqa
+n_questions: 100
+# Choix guidé par results/coverage_*.jsonl (part des questions dont la réponse est dans le top 3) :
+#   100k BM25 : NQ 0,09  TriviaQA 0,12  HotpotQA 0,07  Bamboogle 0,03  -> ininterprétable
+#   1m E5     : NQ 0,25  TriviaQA 0,44  HotpotQA 0,17  Bamboogle 0,10  -> NQ / TriviaQA seuls assez couverts
+seed: 42
+corpus: maknee/wiki-18-subsets / wiki-18-1m.jsonl.gz
+retriever: e5   # celui de l'entraînement de Search-R1 (index e5_Flat-1m.index)
+topk: 3
+max_searches: 4
+temperature: 0.0
+model_a0_a3: Qwen/Qwen2.5-3B-Instruct
+model_a4: PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-ppo-v0.3
+model_a5: PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3
+hypothese_testee: H1 (les gains du RL se concentrent sur les jeux vus à l'entraînement)

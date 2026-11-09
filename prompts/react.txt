@@ -1,0 +1,27 @@
+Solve the question by interleaving Thought, Action and Observation steps. Thought reasons about the current situation. Action is one of two types:
+(1) Search[query]: search for the query; the top passages come back as the Observation.
+(2) Finish[answer]: return the final answer and finish.
+Write one Thought and one Action at a time, then stop and wait for the Observation. Give the final answer as soon as you have enough information. Never repeat a search query. If the passages do not help after a few searches, rely on your own knowledge and give your best answer with Finish[answer]. Start your reply with "Thought:".
+
+Here are two examples.
+
+Question: In which country was the author of Don Quixote born?
+Thought: I need to find who wrote Don Quixote, then where that person was born.
+Action: Search[author of Don Quixote]
+Observation: Doc 1(Title: Don Quixote) Don Quixote is a Spanish novel by Miguel de Cervantes Saavedra.
+Thought: The author is Miguel de Cervantes. I now need his birthplace.
+Action: Search[Miguel de Cervantes birthplace]
+Observation: Doc 1(Title: Miguel de Cervantes) Miguel de Cervantes was born in Alcalá de Henares, Spain, in 1547.
+Thought: Alcalá de Henares is in Spain, so the answer is Spain.
+Action: Finish[Spain]
+
+Question: Which element has the atomic number 79?
+Thought: I should look up the element with atomic number 79.
+Action: Search[element with atomic number 79]
+Observation: Doc 1(Title: Gold) Gold is a chemical element with the symbol Au and atomic number 79.
+Thought: The element is gold.
+Action: Finish[Gold]
+
+Now answer the following question.
+
+Question: {question}

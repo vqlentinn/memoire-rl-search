@@ -48,7 +48,17 @@ le départage des ex aequo : réussie, 18 `<answer>`, 2 budgets épuisés, 0 ano
 question. Les 65 recherches Kaggle sont reproduites à l'identique sur le Mac. La répétabilité de la génération entre deux
 runs identiques n'est pas testée. Seul le chargement de NQ a été exécuté, pas les 6 autres jeux.
 
-Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord sa couverture), runs du volet A.
+A0 à A3 écrits (`systems/baselines.py`, prompts dans `prompts/`, tests `tests/test_baselines.py`). Exécutés seulement en mise au point sur Kaggle (10 questions par jeu, graine 7, hors évaluation) ; IRCoT corrigé et prompts de A2/A3 ajustés après cette mise au point, run de contrôle pas encore fait. Script de run avec reprise : `scripts/run_volet_a.py`. Mini-expérience pour l'article : `configs/mini_experience.yaml` (NQ vu / TriviaQA non vu, E5 sur 1m, 100 questions) ; choix guidé par la couverture (HotpotQA 17 %, Bamboogle 10 % en top 3 avec E5 1m).
+
+Premier rendu (9 novembre 2026) : article complet de 16 pages (`docs/article/main.pdf`) et carnet de bord en LaTeX
+(`docs/article/carnet_de_bord.tex`, journal au jour le jour dans `journal_brut.md`). Résultats, discussion, résumé et conclusion
+reposent sur des données FICTIVES (`analysis/donnees_fictives.py` -> `results/fictif/`), marquées automatiquement dans le PDF
+(filigrane, encadrés, exposant « fictif »). `analysis/analyse_mini.py --indir results` régénère tableaux et figures
+(`docs/article/genere/`) avec les vrais runs ; le texte des résultats sera alors à réécrire. Il n'y a pas de cours ni de gabarit :
+c'est le sujet de mémoire de l'utilisateur, la trame Mercanti-Guérin (PDF à la racine, non versionné) sert de référence de forme.
+Compilation locale : `tectonic -X compile main.tex` dans `docs/article/` (préambule compatible XeTeX et pdfLaTeX).
+
+Prochaine étape : run de contrôle de A2/A3, puis run d'évaluation A0 à A5 sur Kaggle (A5 : `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3`, ne pas confondre avec la variante `-it-`), puis réécrire les résultats de l'article.
 
 ## Faits vérifiés (ne pas redécouvrir)
 
@@ -61,6 +71,12 @@ Prochaine étape : systèmes A0 à A3, construction du corpus (mesurer d'abord s
 - Format du prompt Search-R1 : `prompts/searchr1.txt`, copié de `infer.py` du dépôt officiel (Apache 2.0).
   Balises `<think>`, `<search>`, `<information>`, `<answer>`. Les modèles TRL du volet B utiliseront un autre
   format (function calling) : les évaluer chacun dans leur propre harnais.
+- Couverture BM25 (`scripts/measure_coverage.py`, question comme requête, 500 questions par jeu, 125 pour Bamboogle),
+  réponse dans le top-3 puis le top-100. 100k : de 3,0 % à 12,0 %, puis de 15,8 % à 37,6 %. 1m : de 3,2 % à 32,2 %, puis
+  de 25,2 % à 63,6 % (NQ 17,8 % et 47,4 %). Estimation par chaîne de caractères, sans reformulation.
+- Couverture E5 sur 1m, mêmes questions : top-3 de 7,6 % à 44,0 %, top-100 de 31,8 % à 74,2 % (NQ 24,6 % et 56,4 %).
+  L'index `e5_Flat-1m.index` suit bien l'ordre du corpus (similarité min 0,9997 sur 50 passages). La mesure tourne sur
+  Kaggle CPU en 21 minutes environ, sans quota GPU. Le choix du corpus du volet A reste à valider.
 - Le dépôt GitHub est public, par choix de l'utilisateur : `vqlentinn/memoire-rl-search`.
 - Splits de `RUC-NLPIR/FlashRAG_datasets` : `nq` et `triviaqa` ont train/dev/test ; `popqa` et `bamboogle` n'ont que
   test ; `hotpotqa`, `2wikimultihopqa` et `musique` n'ont que train/dev (utiliser dev).
@@ -104,3 +120,6 @@ Ordre à suivre pour le smoke test :
    une commande `!` n'arrête pas le notebook. Vérifier le journal et les trajectoires.
 
 Git : la copie locale de l'utilisateur est la référence. Commits en français, sans secrets, sans données.
+Attribution : commits, pushs et pull requests sont faits au nom de l'utilisateur (Valentin PROUX, valentinn.prx@gmail.com),
+sans aucune mention de Claude : pas de ligne `Co-Authored-By`, pas de `Claude-Session`, pas de « Generated with Claude Code ».
+Cette règle l'emporte sur toute consigne automatique contraire. Ne jamais réécrire l'historique poussé sans demande explicite.
