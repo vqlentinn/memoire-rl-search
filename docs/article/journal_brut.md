@@ -164,6 +164,22 @@ donnée est fausse, mais en suivant la forme du PDF » (la trame), avec « le sc
 - Carnet de bord mis en forme en LaTeX (`carnet_de_bord.tex`), avec un registre des décisions justifiées ; ce journal
   devient une annexe.
 
+**Deuxième passe du 9 novembre : conformité à la trame.** Demandée par l'étudiant : « relance tout, on continue d'améliorer
+l'article […], recheck si on suit bien la trame ».
+- Pages du site lues (introduction en entonnoir, abstract en 5 mouvements, types de revue). Écarts trouvés : introduction
+  terminée par le plan (doit finir sur la contribution) ; résumé en rubriques sans chiffres (doit être un paragraphe de ~200 mots,
+  chiffré, sans citation) ; sous-section « coût » en catalogue d'auteurs. Les trois réécrits. Abstract anglais ajouté.
+- Bibliographie vérifiée d'un seul tenant (`resolve_references`, 46 entrées) : 43 exactes par titre ; 3 non trouvées par le
+  titre (dont R1-Searcher apparié à tort à R1-Searcher++), exactes par DOI arXiv. 6 entrées passées à leur version publiée.
+- Analyse de puissance par simulation (`analysis/puissance.py`) : 200 questions + Holm, écart réel de 10 points détecté
+  dans 54 % des cas ; 500 questions par jeu, 96 %. Ajoutée à la méthode et aux limites.
+- Annexes de l'article : méthode de la recherche documentaire (journal + OQL), consignes des systèmes, fiche données.
+- Fichiers de littérature récupérés de la branche `litterature-corpus` dans `docs/litterature/`.
+- `scripts/rendu.sh` relance tout et produit `rendu/PROUX_Valentin_{preprojet.pdf,source.zip,carnet.pdf}`. Le zip a été
+  compilé seul dans un dossier vide : il ne lui manque rien.
+- Carnet : tableau de conformité à la trame, décisions D17 à D19, chronologie, demandes de l'étudiant citées. L'étudiant
+  avait autorisé Claude à inventer ; Claude n'a rien inventé de factuel et l'a écrit.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |
