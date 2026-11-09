@@ -1,117 +1,117 @@
-﻿openalex_id,titre_court,proposition_claude,motif,lu,proposition_v2,motif_v2,commentaire_v2,decision_etudiant
-W4416385124,QAgent,Doute,,résumé (9 nov.),Inclus (proposition),,Constate les difficultés de généralisation des agents RL : H1 (jeu vu / non vu),
-W4414809429,Erase to Improve,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7204249312,OPDSearch+,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7123250689,PRISMA,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7166877659,D2Plan (ACL 2026),Déjà candidat,,titre,Déjà candidat,,,
-W7168349929,D2Plan (Underline),Exclu,E4,titre,Exclu,E4,,
-W7124151572,D2Plan (arXiv),Exclu,E4,titre,Exclu,E4,,
-W4416035985,s3 (EMNLP 2025),Inclus (proposition),,résumé,Inclus (proposition),,,
-W7128696696,Thinking Forward and Backward (Underline),Exclu,E4,titre,Exclu,E4,,
-W7137922947,Thinking Forward and Backward (AAAI 2026),Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7161202802,Scaling RAR with Parallel Search,Doute,,résumé (9 nov.),Exclu,E1,Requêtes parallèles ; redondant avec ParallelSearch déjà cité,
-W4414689470,Search and Refine During Think (NeurIPS 2025),Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7106813105,s3 (Underline),Exclu,E4,titre,Exclu,E4,,
-W7108325177,LLM Agents with Trajectory-Level Self-Evaluation,Doute,,résumé (9 nov.),Inclus (proposition),,Entraînement QLoRA d'un agent de recherche : faisabilité du volet B à petit budget,
-W4416256501,ReSearch,Déjà au corpus,,titre,Déjà au corpus,,,
-W4417422257,Search-R1,Déjà au corpus,,titre,Déjà au corpus,,,
-W7140304544,TIPS,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7138195392,RAG-R1 (AAAI 2026),Doute,,résumé (9 nov.),Exclu,E1,Requêtes parallèles ; redondant avec ParallelSearch déjà cité,
-W7162092276,Search-E1,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W4414880168,DynaSearcher,Déjà candidat,,titre,Déjà candidat,,,
-W7116391219,AdaSearch,Déjà au corpus,,titre,Déjà au corpus,,,
-W7163551182,SA-RAG,Exclu,E1,titre,Exclu,E1,,
-W7168399467,Exploration-and-Thinking (graphes),Exclu,E1,titre,Exclu,E1,,
-W4416353973,CriticSearch,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7154774180,IG-Search,Déjà candidat,,titre,Déjà candidat,,,
-W7224441376,Action-Level Credit Assignment,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7168872944,Beneficial Reasoning Behaviors (Underline),Exclu,E4,titre,Exclu,E4,,
-W4416290984,Thinking Forward and Backward (arXiv),Exclu,E4,titre,Exclu,E4,,
-W4417291509,RouteRAG,Doute,,résumé (9 nov.),Exclu,E1,Recherche hybride texte et graphe,
-W7215077125,PhantomEnvironments,Doute,,résumé (9 nov.),Exclu,E1,Environnements synthétiques d'entraînement,
-W7162770303,SAAS (sur-recherche),Inclus (proposition),,résumé,Inclus (proposition),,,
-W7166808507,Beneficial Reasoning Behaviors (Findings ACL 2026),Doute,,résumé (9 nov.),Inclus (proposition),,Comportements de raisonnement tirés de trajectoires réussies et ratées : volet C (taxonomie des échecs),
-W4415315432,Beneficial Reasoning Behaviors (arXiv),Exclu,E4,titre,Exclu,E4,,
-W4407130538,QA juridique vietnamien,Exclu,E1,titre,Exclu,E1,,
-W7155061330,MTSearch-R1,Doute,,résumé (9 nov.),Exclu,E1,Plusieurs outils de recherche,
-W4416452578,O2-Searcher,Doute,,résumé (9 nov.),Exclu,E3,Questions ouvertes sans réponse unique,
-W7162997851,ElasticMem,Exclu,E1,titre,Exclu,E1,,
-W7128686752,RAG-R1 (Underline),Exclu,E4,titre,Exclu,E4,,
-W7127289422,Synthetic Semantic Information Gain Reward,Doute,,résumé (9 nov.),Inclus (proposition),,Gain d'information comme récompense : proche du « gain espéré » du cadre du fourragement,
-W7169522730,LOTAPO,Déjà candidat,,titre,Déjà candidat,,,
-W7168272857,Adaptive and Retriever-friendly RAG via RL,Doute,,résumé (9 nov.),Doute,,Critique les stratégies statiques ou heuristiques ; apport réel à vérifier dans le texte,
-W7204133053,AdaRAG (budget),Doute,,résumé (9 nov.),Inclus (proposition),,"Budget de recherche explicite (nombre de tours et de passages) : coût, H3",
-W7164148351,Recycling Zero-Variance Queries,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7133216801,Truncated Step-Level Sampling,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7171517895,Multi-Agent Protocol Distillation,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7162501308,UnityMAS-O,Exclu,E1,titre,Exclu,E1,,
-W7221758497,Strive-R1,Doute,,résumé (9 nov.),Doute,,Résumé absent dans OpenAlex : lire le texte,
-W4414972172,Beyond Outcome Reward,Déjà candidat,,titre,Déjà candidat,,,
-W4416036494,Search Wisely (EMNLP 2025),Inclus (proposition),,résumé,Inclus (proposition),,,
-W7131319509,Personal Context QA (arXiv),Exclu,E4,titre,Exclu,E4,,
-W7168401363,Personal Context QA (SIGIR 2026),Exclu,E3,titre,Exclu,E3,,
-W7133790487,SE-Search,Déjà candidat,,titre,Déjà candidat,,,
-W7223698975,VSRL,Doute,,résumé (9 nov.),Exclu,E3,Domaines verticaux spécialisés,
-W4414886075,Acting Less is Reasoning More,Déjà au corpus,,titre,Déjà au corpus,,,
-W7220986876,Beyond Outcome Rewards: Retrieval Credit,Doute,,résumé (9 nov.),Inclus (proposition),,Étude systématique des récompenses intermédiaires : nuance Jin et al. (étude empirique),
-W7153078816,SubSearch,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7172409897,Search-GRT,Déjà candidat,,titre,Déjà candidat,,,
-W7139026625,CP-Search (AAAI 2026),Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7224235699,Observation-Aware Stabilization,Déjà candidat,,titre,Déjà candidat,,,
-W7204208687,GTA-RAG,Déjà candidat,,titre,Déjà candidat,,,
-W4416018134,TimeRAG,Doute,,résumé (9 nov.),Exclu,E1,Raisonnement temporel,
-W4415343699,OpenTable-R1,Exclu,E1,titre,Exclu,E1,,
-W7162685022,Plan Before Search,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7204181592,EDGE,Doute,,résumé (9 nov.),Exclu,E1,"RL agentique général, pas la recherche",
-W4415317961,Tool-Augmented Policy Optimization,Doute,,résumé (9 nov.),Exclu,E1,"Outils de calcul, raisonnement mathématique",
-W7117106678,Graph-O1,Exclu,E1,titre,Exclu,E1,,
-W7172481893,FLARE,Exclu,E1,titre,Exclu,E1,,
-W7166899400,Eval-RAR,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7155370836,OThink-SRR1,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7128767543,SIGHT,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7106788143,Search Wisely (Underline),Exclu,E4,titre,Exclu,E4,,
-W7128687735,CP-Search (Underline),Exclu,E4,titre,Exclu,E4,,
-W7119503143,QA médical,Exclu,E3,titre,Exclu,E3,,
-W7161389352,ER-MedRAG,Exclu,E3,titre,Exclu,E3,,
-W7155506905,Multi-Agent Open Deep Search (SSRN),Doute,,résumé (9 nov.),Doute,,Résumé absent dans OpenAlex : lire le texte,
-W7127982019,TKG-Thinker,Exclu,E1,titre,Exclu,E1,,
-W4416048525,EvolveSearch (arXiv),Déjà candidat,,titre,Déjà candidat,,,
-W7106854244,EvolveSearch (Underline),Exclu,E4,titre,Exclu,E4,,
-W4417100464,RECON,Doute,,résumé (9 nov.),Inclus (proposition),,Coût en jetons des observations accumulées : mesure du coût,
-W7203685820,TRCA,Exclu,E1,titre,Exclu,E1,,
-W7214723760,SIPO,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7163074432,LongTraceRL,Doute,,résumé (9 nov.),Exclu,E1,Raisonnement en contexte long,
-W4415926835,MARAG-R1,Doute,,résumé (9 nov.),Exclu,E1,Plusieurs outils de recherche ; pas la décision de chercher,
-W4414448325,AI-SearchPlanner,Déjà au corpus,,titre,Déjà au corpus,,,
-W7168846564,SPARKLE (Underline),Exclu,E4,titre,Exclu,E4,,
-W7125777723,Dep-Search,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W4416159268,Q-RAG,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7197019678,UniDocVLM,Exclu,E1,titre,Exclu,E1,,
-W7223829943,CalibraRL,Doute,,résumé (9 nov.),Exclu,E1,"Calibration et abstention, pas la décision de chercher",
-W7172417946,CoEvoKG,Exclu,E1,titre,Exclu,E1,,
-W7148259409,ORBIT,Doute,,résumé (9 nov.),Exclu,E1,Génération de données d'entraînement,
-W7162262881,Multi-Agent RAG with Minimalist RL,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W4393987334,ChatGPT et efficacité commerciale,Exclu,E1,titre,Exclu,E1,,
-W7168369263,ChatR1,Exclu,E3,titre,Exclu,E3,,
-W7165433033,Policy over Prompt (DiVA),Inclus (proposition),,résumé,Inclus (proposition),,,
-W7155414154,ReflectiveRAG,Doute,,résumé (9 nov.),Inclus (proposition),,"Oppose top-k fixe, reranking et politiques RL coûteuses : débat harnais contre RL",
-W7214890894,BRIDGE,Doute,,résumé (9 nov.),Inclus (proposition),,Les échecs dus au retriever sont imputés à la politique : lien avec H4,
-W4416621886,Plan Then Retrieve (graphes),Exclu,E1,titre,Exclu,E1,,
-W7204889407,AgenticRag-R1,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W4415035625,MaskSearch,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7166826935,SPARKLE (ACL 2026),Doute,,résumé (9 nov.),Inclus (proposition),,Politique de recherche adaptative ajoutée à un modèle gelé : alternative au RL de bout en bout,
-W7203687570,SmartMM,Exclu,E1,titre,Exclu,E1,,
-W7202346014,LoongReflect,Déjà candidat,,titre,Déjà candidat,,,
-W7208524746,Enhancing Search Systems (thèse),Doute,,résumé (9 nov.),Exclu,E1,Thèse sur les systèmes de recherche en général,
-W4416037508,QuestionRAG (EMNLP industrie),Exclu,E1,titre,Exclu,E1,,
-W7172406067,SearchMaster,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7106853652,QuestionRAG (Underline),Exclu,E4,titre,Exclu,E4,,
-W7225083931,"Search When Needed, Proceed When Reliable",Doute,,résumé (9 nov.),Inclus (proposition),,"Décider de chercher ou de répondre de mémoire, avec une supervision de fiabilité : au cœur de H2 et H3",
-W7216536839,RAG and Self-Verification (JECIR),Doute,,résumé (9 nov.),Exclu,E1,Auto-vérification sans décision de recherche,
-W7223102112,RANGER (graphes),Exclu,E1,titre,Exclu,E1,,
-W7222933001,Information Geometric Uncertainty,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7222918660,ReaRAG,Doute,,résumé (9 nov.),Exclu,E1,Distillation à la place du RL ; pas de comparaison à des harnais fixes,
-W7162637406,Deep GraphRAG (WWW 2026),Exclu,E1,titre,Exclu,E1,,
-W7124797028,Deep GraphRAG (arXiv),Exclu,E4,titre,Exclu,E4,,
-W7167709631,Information Gain Rollout Policy Optimization,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",
-W7136889252,Portail d'analyse de documents,Exclu,E1,titre,Exclu,E1,,
+﻿openalex_id,titre_court,proposition_claude,motif,lu,proposition_v2,motif_v2,commentaire_v2,decision_finale,motif_final,decide_par
+W4416385124,QAgent,Doute,,résumé (9 nov.),Inclus (proposition),,Constate les difficultés de généralisation des agents RL : H1 (jeu vu / non vu),Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4414809429,Erase to Improve,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7204249312,OPDSearch+,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7123250689,PRISMA,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7166877659,D2Plan (ACL 2026),Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7168349929,D2Plan (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7124151572,D2Plan (arXiv),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416035985,s3 (EMNLP 2025),Inclus (proposition),,résumé,Inclus (proposition),,,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7128696696,Thinking Forward and Backward (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7137922947,Thinking Forward and Backward (AAAI 2026),Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7161202802,Scaling RAR with Parallel Search,Doute,,résumé (9 nov.),Exclu,E1,Requêtes parallèles ; redondant avec ParallelSearch déjà cité,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4414689470,Search and Refine During Think (NeurIPS 2025),Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7106813105,s3 (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7108325177,LLM Agents with Trajectory-Level Self-Evaluation,Doute,,résumé (9 nov.),Inclus (proposition),,Entraînement QLoRA d'un agent de recherche : faisabilité du volet B à petit budget,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416256501,ReSearch,Déjà au corpus,,titre,Déjà au corpus,,,Déjà au corpus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4417422257,Search-R1,Déjà au corpus,,titre,Déjà au corpus,,,Déjà au corpus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7140304544,TIPS,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7138195392,RAG-R1 (AAAI 2026),Doute,,résumé (9 nov.),Exclu,E1,Requêtes parallèles ; redondant avec ParallelSearch déjà cité,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7162092276,Search-E1,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4414880168,DynaSearcher,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7116391219,AdaSearch,Déjà au corpus,,titre,Déjà au corpus,,,Déjà au corpus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7163551182,SA-RAG,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7168399467,Exploration-and-Thinking (graphes),Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416353973,CriticSearch,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7154774180,IG-Search,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7224441376,Action-Level Credit Assignment,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7168872944,Beneficial Reasoning Behaviors (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416290984,Thinking Forward and Backward (arXiv),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4417291509,RouteRAG,Doute,,résumé (9 nov.),Exclu,E1,Recherche hybride texte et graphe,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7215077125,PhantomEnvironments,Doute,,résumé (9 nov.),Exclu,E1,Environnements synthétiques d'entraînement,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7162770303,SAAS (sur-recherche),Inclus (proposition),,résumé,Inclus (proposition),,,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7166808507,Beneficial Reasoning Behaviors (Findings ACL 2026),Doute,,résumé (9 nov.),Inclus (proposition),,Comportements de raisonnement tirés de trajectoires réussies et ratées : volet C (taxonomie des échecs),Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4415315432,Beneficial Reasoning Behaviors (arXiv),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4407130538,QA juridique vietnamien,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7155061330,MTSearch-R1,Doute,,résumé (9 nov.),Exclu,E1,Plusieurs outils de recherche,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416452578,O2-Searcher,Doute,,résumé (9 nov.),Exclu,E3,Questions ouvertes sans réponse unique,Exclu,E3,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7162997851,ElasticMem,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7128686752,RAG-R1 (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7127289422,Synthetic Semantic Information Gain Reward,Doute,,résumé (9 nov.),Inclus (proposition),,Gain d'information comme récompense : proche du « gain espéré » du cadre du fourragement,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7169522730,LOTAPO,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7168272857,Adaptive and Retriever-friendly RAG via RL,Doute,,résumé (9 nov.),Doute,,Critique les stratégies de recherche statiques ou heuristiques,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7204133053,AdaRAG (budget),Doute,,résumé (9 nov.),Inclus (proposition),,"Budget de recherche explicite (nombre de tours et de passages) : coût, H3",Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7164148351,Recycling Zero-Variance Queries,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7133216801,Truncated Step-Level Sampling,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7171517895,Multi-Agent Protocol Distillation,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7162501308,UnityMAS-O,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7221758497,Strive-R1,Doute,,résumé (9 nov.),Doute,,Contrôle stratégique de la recherche (titre ; résumé absent d'OpenAlex),Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4414972172,Beyond Outcome Reward,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416036494,Search Wisely (EMNLP 2025),Inclus (proposition),,résumé,Inclus (proposition),,,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7131319509,Personal Context QA (arXiv),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7168401363,Personal Context QA (SIGIR 2026),Exclu,E3,titre,Exclu,E3,,Exclu,E3,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7133790487,SE-Search,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7223698975,VSRL,Doute,,résumé (9 nov.),Exclu,E3,Domaines verticaux spécialisés,Exclu,E3,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4414886075,Acting Less is Reasoning More,Déjà au corpus,,titre,Déjà au corpus,,,Déjà au corpus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7220986876,Beyond Outcome Rewards: Retrieval Credit,Doute,,résumé (9 nov.),Inclus (proposition),,Étude systématique des récompenses intermédiaires : nuance Jin et al. (étude empirique),Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7153078816,SubSearch,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7172409897,Search-GRT,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7139026625,CP-Search (AAAI 2026),Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7224235699,Observation-Aware Stabilization,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7204208687,GTA-RAG,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416018134,TimeRAG,Doute,,résumé (9 nov.),Exclu,E1,Raisonnement temporel,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4415343699,OpenTable-R1,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7162685022,Plan Before Search,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7204181592,EDGE,Doute,,résumé (9 nov.),Exclu,E1,"RL agentique général, pas la recherche",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4415317961,Tool-Augmented Policy Optimization,Doute,,résumé (9 nov.),Exclu,E1,"Outils de calcul, raisonnement mathématique",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7117106678,Graph-O1,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7172481893,FLARE,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7166899400,Eval-RAR,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7155370836,OThink-SRR1,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7128767543,SIGHT,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7106788143,Search Wisely (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7128687735,CP-Search (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7119503143,QA médical,Exclu,E3,titre,Exclu,E3,,Exclu,E3,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7161389352,ER-MedRAG,Exclu,E3,titre,Exclu,E3,,Exclu,E3,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7155506905,Multi-Agent Open Deep Search (SSRN),Doute,,résumé (9 nov.),Doute,,Architecture multi-agents de recherche web ; résumé absent,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7127982019,TKG-Thinker,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416048525,EvolveSearch (arXiv),Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7106854244,EvolveSearch (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4417100464,RECON,Doute,,résumé (9 nov.),Inclus (proposition),,Coût en jetons des observations accumulées : mesure du coût,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7203685820,TRCA,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7214723760,SIPO,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7163074432,LongTraceRL,Doute,,résumé (9 nov.),Exclu,E1,Raisonnement en contexte long,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4415926835,MARAG-R1,Doute,,résumé (9 nov.),Exclu,E1,Plusieurs outils de recherche ; pas la décision de chercher,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4414448325,AI-SearchPlanner,Déjà au corpus,,titre,Déjà au corpus,,,Déjà au corpus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7168846564,SPARKLE (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7125777723,Dep-Search,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416159268,Q-RAG,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7197019678,UniDocVLM,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7223829943,CalibraRL,Doute,,résumé (9 nov.),Exclu,E1,"Calibration et abstention, pas la décision de chercher",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7172417946,CoEvoKG,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7148259409,ORBIT,Doute,,résumé (9 nov.),Exclu,E1,Génération de données d'entraînement,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7162262881,Multi-Agent RAG with Minimalist RL,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4393987334,ChatGPT et efficacité commerciale,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7168369263,ChatR1,Exclu,E3,titre,Exclu,E3,,Exclu,E3,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7165433033,Policy over Prompt (DiVA),Inclus (proposition),,résumé,Inclus (proposition),,,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7155414154,ReflectiveRAG,Doute,,résumé (9 nov.),Inclus (proposition),,"Oppose top-k fixe, reranking et politiques RL coûteuses : débat harnais contre RL",Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7214890894,BRIDGE,Doute,,résumé (9 nov.),Inclus (proposition),,Les échecs dus au retriever sont imputés à la politique : lien avec H4,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416621886,Plan Then Retrieve (graphes),Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7204889407,AgenticRag-R1,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4415035625,MaskSearch,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7166826935,SPARKLE (ACL 2026),Doute,,résumé (9 nov.),Inclus (proposition),,Politique de recherche adaptative ajoutée à un modèle gelé : alternative au RL de bout en bout,Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7203687570,SmartMM,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7202346014,LoongReflect,Déjà candidat,,titre,Déjà candidat,,,Déjà candidat,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7208524746,Enhancing Search Systems (thèse),Doute,,résumé (9 nov.),Exclu,E1,Thèse sur les systèmes de recherche en général,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W4416037508,QuestionRAG (EMNLP industrie),Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7172406067,SearchMaster,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7106853652,QuestionRAG (Underline),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7225083931,"Search When Needed, Proceed When Reliable",Doute,,résumé (9 nov.),Inclus (proposition),,"Décider de chercher ou de répondre de mémoire, avec une supervision de fiabilité : au cœur de H2 et H3",Inclus,,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7216536839,RAG and Self-Verification (JECIR),Doute,,résumé (9 nov.),Exclu,E1,Auto-vérification sans décision de recherche,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7223102112,RANGER (graphes),Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7222933001,Information Geometric Uncertainty,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7222918660,ReaRAG,Doute,,résumé (9 nov.),Exclu,E1,Distillation à la place du RL ; pas de comparaison à des harnais fixes,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7162637406,Deep GraphRAG (WWW 2026),Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7124797028,Deep GraphRAG (arXiv),Exclu,E4,titre,Exclu,E4,,Exclu,E4,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7167709631,Information Gain Rollout Policy Optimization,Doute,,résumé (9 nov.),Exclu,E1,"Méthode d'entraînement (récompense, crédit, données, distillation) sans comparaison aux harnais fixes ni mesure du coût",Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"
+W7136889252,Portail d'analyse de documents,Exclu,E1,titre,Exclu,E1,,Exclu,E1,"Claude, par délégation de l'étudiant (9 nov. 2026)"

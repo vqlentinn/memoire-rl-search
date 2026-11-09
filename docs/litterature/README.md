@@ -6,6 +6,7 @@ Constitué le 3 novembre 2026.
 | Fichier | Contenu |
 | --- | --- |
 | `corpus.csv` | Une ligne par article : clé BibTeX, identifiant arXiv, titre, auteurs, thème, volet, priorité, rôle dans le mémoire, lien, statut de lecture. S'ouvre dans Excel ou LibreOffice (UTF-8). |
+| `corpus_final.csv` | **Corpus retenu pour la revue (65 articles)**, avec la règle d'inclusion (R1 à R3) et la clé de citation dans l'article. Produit par `scripts/selection_corpus.py`. |
 | `corpus.bib` | Entrées BibTeX (`@misc`, avec `eprint` arXiv), prêtes pour `\cite{clé}`. |
 
 ## Contenu par thème
