@@ -20,6 +20,8 @@ if [ "$RESULTATS" = "results/fictif" ]; then
 fi
 echo "== Analyse de $RESULTATS"
 "$PY" analysis/analyse_mini.py --indir "$RESULTATS"
+echo "== Analyses exploratoires"
+"$PY" analysis/analyse_approfondie.py --indir "$RESULTATS" | tail -2
 echo "== Sélection du corpus de la revue (règles R1 à R3)"
 "$PY" scripts/selection_corpus.py --meta docs/litterature/openalex_equation3_retenus.json | tail -3
 echo "== Puissance (simulation)"

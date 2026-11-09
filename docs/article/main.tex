@@ -28,6 +28,9 @@
 \newcommand{\valPerdues}[1]{\csname valPerdues-#1\endcsname}   % questions « connues » (A0 juste) ratées
 \newcommand{\valSansRep}[1]{\csname valSansRep-#1\endcsname}   % sorties sans réponse (budget épuisé, format) sur 200
 \newcommand{\valAbst}[1]{\csname valAbst-#1\endcsname}         % abstentions explicites sur 200
+% genere/approf_valeurs.tex est écrit par analysis/analyse_approfondie.py (analyses exploratoires).
+\input{genere/approf_valeurs.tex}
+\newcommand{\valAp}[1]{\csname valAp-#1\endcsname}             % ex. \valAp{rl-em_t}, \valAp{ox-lire}
 \newcommand{\valBest}[2]{\csname valBest-#1-#2\endcsname}     % EM du meilleur système d'une famille (rl, harnais)
 \newcommand{\valBestNom}[2]{\csname valBestNom-#1-#2\endcsname}
 % genere/puissance_valeurs.tex est écrit par analysis/puissance.py (simulation, indépendante des données).
@@ -365,13 +368,86 @@ Le tableau~\ref{tab:tests} applique les règles de décision fixées avant le ru
 
 \paragraph{HA3b (\valHA{HA3b}{verdict}\fictif).} Sur les \valHA{HA3b}{n} questions auxquelles A0 répond juste, l'écart avec ReAct reste de \valHA{HA3b}{d} recherche par question [\valHA{HA3b}{lo}\,; \valHA{HA3b}{hi}]. Sur ces questions, ni les agents ni ReAct ne s'abstiennent de chercher.
 
-\paragraph{Analyse exploratoire : ce que la recherche fait perdre.} Cette analyse n'était pas prévue dans le plan d'analyse ; elle est rapportée comme exploratoire. Sur les \valConnues{} questions que le modèle résout sans chercher, les harnais se trompent après avoir cherché sur \valPerdues{A1} (RAG), \valPerdues{A2} (ReAct) et \valPerdues{A3} (IRCoT) d'entre elles ; les agents entraînés sur \valPerdues{A4} (A4) et \valPerdues{A5} (A5). Les trajectoires montrent des harnais qui reprennent un passage voisin mais hors sujet. À la question de l'entrée du half-pipe à ski aux Jeux olympiques (2014), le RAG répond « 1998 », date tirée d'un passage sur le snowboard ; à la question du lieu où sont absorbés la plupart des nutriments (« small intestine »), il répond « jejunum and ileum », repris d'un passage sur le duodénum. Le modèle seul répondait juste dans les deux cas. Le modèle Instruct semble faire davantage confiance aux passages qu'à ses propres connaissances, quand les agents entraînés gardent une bonne réponse malgré des passages qui ne la contiennent pas.
-
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{genere/fig_cout.pdf}
 \caption{Précision et coût. Chaque point est un système : en abscisse, le nombre moyen de recherches par question ; en ordonnée, l'EM. Mêmes données et mêmes effectifs que la figure~\ref{fig:em}. Un système placé plus haut et plus à gauche obtient plus avec moins de recherches.}
 \label{fig:cout}
+\end{figure}
+
+
+\subsection{Où se joue l'avantage : analyses exploratoires}\label{sec:exploratoire}
+Les analyses de cette section n'étaient pas prévues dans le plan d'analyse : elles ont été choisies après avoir vu les résultats, et ne portent aucun verdict. Elles décomposent l'avantage des agents selon les trois moments d'une recherche : trouver l'information, la lire, et répondre quand elle manque. Une réponse est dite « dans les passages » quand une des réponses attendues, normalisée comme pour l'EM, apparaît telle quelle dans un passage lu ; c'est une estimation, car un passage peut contenir la chaîne sans la justifier.
+
+\paragraph{Ce que la recherche fait gagner et perdre.} Comparée au modèle seul, question par question, la recherche ne fait pas qu'ajouter des bonnes réponses : elle en retire aussi (figure~\ref{fig:transitions}). Les trois harnais gagnent de \valAp{A2-gagnees} à \valAp{A3-gagnees} questions mais en perdent presque autant, de \valAp{A1-perdues} à \valAp{A3-perdues} ; leur bilan est presque nul. Les agents entraînés gagnent davantage (\valAp{A4-gagnees} et \valAp{A5-gagnees}) et perdent peu (\valAp{A4-perdues} et \valAp{A5-perdues}). Les trajectoires des harnais montrent des réponses reprises d'un passage voisin mais hors sujet : à la question de l'entrée du half-pipe à ski aux Jeux olympiques (2014), le RAG répond « 1998 », date tirée d'un passage sur le snowboard ; à la question du lieu où sont absorbés la plupart des nutriments (« small intestine »), il répond « jejunum and ileum », repris d'un passage sur le duodénum. Le modèle seul répondait juste dans les deux cas.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_transitions.pdf}
+\caption{Ce que la recherche fait gagner et perdre par rapport au modèle seul. À droite, les questions que A0 rate et que le système réussit ; à gauche, celles que A0 réussit et que le système rate. 200 questions (NQ et TriviaQA réunis), une barre par système.}
+\label{fig:transitions}
+\end{figure}
+
+\paragraph{Trouver ou lire.} La figure~\ref{fig:decomposition} sépare les deux moments. Les systèmes trouvent la réponse à peu près aussi souvent : elle figure dans les passages lus pour \valAp{harnais-trouvee}~\% des trajectoires des harnais et \valAp{rl-trouvee}~\% de celles des agents. Ils diffèrent surtout dans ce qu'ils en font : quand la réponse est dans les passages, les harnais la donnent dans \valAp{harnais-em_t}~\% des cas, les agents dans \valAp{rl-em_t}~\% ; quand elle n'y est pas, les agents répondent encore juste dans \valAp{rl-em_nt}~\% des cas, contre \valAp{harnais-em_nt}~\% pour les harnais (figure~\ref{fig:arbre}).
+
+Une décomposition contrefactuelle chiffre ces trois contributions. L'écart moyen d'EM entre agents et harnais, \valAp{ox-total}~points [\valAp{ox-total-lo}\,; \valAp{ox-total-hi}], s'écrit exactement comme la somme de trois termes : trouver plus souvent la réponse, \valAp{ox-trouver}~points [\valAp{ox-trouver-lo}\,; \valAp{ox-trouver-hi}], soit \valAp{ox-trouver-part}~\% de l'écart ; mieux la lire quand elle est là, \valAp{ox-lire}~points [\valAp{ox-lire-lo}\,; \valAp{ox-lire-hi}], soit \valAp{ox-lire-part}~\% ; mieux répondre quand elle manque, \valAp{ox-sans}~points [\valAp{ox-sans-lo}\,; \valAp{ox-sans-hi}], soit \valAp{ox-sans-part}~\%. Les intervalles sont obtenus par bootstrap sur les questions. L'essentiel de l'avantage se joue donc après la recherche, non pendant.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_decomposition.pdf}
+\caption{Trouver ou lire. À gauche, part des questions où la réponse attendue figure dans les passages lus ; au centre et à droite, EM selon que la réponse y figure ou non, avec son intervalle bootstrap à 95~\%. 200 questions par système ; effectifs de chaque cas dans \texttt{analysis/analyse\_approfondie.py}.}
+\label{fig:decomposition}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.92, every node/.style={transform shape},
+  q/.style={draw, rounded corners, align=center, fill=gray!10, minimum height=0.9cm, font=\small},
+  n/.style={draw, rounded corners, align=center, minimum width=3.6cm, minimum height=1cm, font=\small, fill=white},
+  f/.style={draw, rounded corners, align=center, minimum width=3.4cm, minimum height=1cm, font=\small, fill=green!8},
+  >={Stealth[length=2.2mm]}]
+  \node[q] (r) at (0,0) {Une question,\\ un système qui cherche};
+  \node[n] (t) at (4.6,1.4) {Réponse dans\\ les passages lus\\ {\footnotesize\textcolor{blue!70!black}{H \valAp{harnais-trouvee}\,\%} \quad \textcolor{orange!80!black}{RL \valAp{rl-trouvee}\,\%}}};
+  \node[n] (nt) at (4.6,-1.4) {Réponse absente\\ des passages\\ {\footnotesize (le reste des trajectoires)}};
+  \node[f] (tj) at (9.6,1.4) {Réponse juste\\ {\footnotesize\textcolor{blue!70!black}{H \valAp{harnais-em_t}\,\%} \quad \textcolor{orange!80!black}{RL \valAp{rl-em_t}\,\%}}};
+  \node[f] (ntj) at (9.6,-1.4) {Réponse juste\\ {\footnotesize\textcolor{blue!70!black}{H \valAp{harnais-em_nt}\,\%} \quad \textcolor{orange!80!black}{RL \valAp{rl-em_nt}\,\%}}};
+  \draw[->, thick] (r) -- node[above, sloped, font=\footnotesize] {trouver} (t);
+  \draw[->, thick] (r) -- (nt);
+  \draw[->, thick] (t) -- node[above, font=\footnotesize] {lire} (tj);
+  \draw[->, thick] (nt) -- node[above, font=\footnotesize] {sans appui} (ntj);
+  \node[font=\footnotesize, align=left, anchor=west] at (11.5,1.4) {+\valAp{ox-lire} pt\\ (\valAp{ox-lire-part}\,\%)};
+  \node[font=\footnotesize, align=left, anchor=west] at (11.5,-1.4) {+\valAp{ox-sans} pt\\ (\valAp{ox-sans-part}\,\%)};
+  \node[font=\footnotesize, align=center] at (2.2,2.25) {+\valAp{ox-trouver} pt (\valAp{ox-trouver-part}\,\%)};
+\end{tikzpicture}
+\caption{Arbre de décomposition de l'avantage des agents. Pour chaque moment de la recherche : la proportion observée pour les harnais (H, en bleu, A1 à A3 réunis, 600 trajectoires) et pour les agents entraînés (RL, en orange, A4 et A5, 400 trajectoires), puis, à droite, la part de l'écart d'EM qui s'y joue d'après la décomposition contrefactuelle.}
+\label{fig:arbre}
+\end{figure}
+
+\paragraph{Quoi chercher.} Le tableau~\ref{tab:requetes} décrit les requêtes. La première requête trouve la réponse aussi souvent pour tous les systèmes qui cherchent, autour d'un tiers des questions (de \valAp{A2-trouvee1} à \valAp{A1-trouvee1}~\%), et les agents ne formulent pas de meilleures premières requêtes : A5 recopie la question dans \valAp{A5-copie1}~\% des cas, A4 dans \valAp{A4-copie1}~\%. Leurs recherches suivantes ajoutent peu : elles font trouver la réponse sur \valAp{A4-reform}~\% des questions de plus pour A4 et \valAp{A5-reform}~\% pour A5, et une question sur quatre environ contient une requête répétée mot pour mot (\valAp{A4-repetees}~\% pour A4, \valAp{A5-repetees}~\% pour A5). Une part du surcoût mesuré par HA3a est donc un gaspillage au sens strict. En jetons générés, en revanche, agents et harnais itératifs coûtent à peu près autant (environ \valAp{A2-jetons} jetons pour ReAct, \valAp{A5-jetons} pour A5).
+
+\begin{table}[ht]
+\centering\small
+\input{genere/approf_requetes.tex}
+\caption{Les requêtes émises, sur 200 questions. Recouvrement : indice de Jaccard entre les mots de la requête et ceux de la question (1 = mêmes mots). Requête répétée : part des questions où une même requête est émise deux fois. Jetons : nombre moyen de jetons générés par question.}
+\label{tab:requetes}
+\end{table}
+
+\paragraph{Typologie des erreurs.} La figure~\ref{fig:erreurs} classe automatiquement chaque réponse fausse en quatre types. L'absence de la réponse dans les passages domine pour tous les systèmes : c'est la limite du corpus réduit. Deux types distinguent pourtant les familles. Les harnais laissent passer la bonne réponse sous leurs yeux (de \valAp{A1-err2} à \valAp{A3-err2} questions), deux à trois fois plus souvent que A5 (\valAp{A5-err2}). IRCoT ne répond pas du tout sur \valAp{A3-err0} questions, surtout par abstention. Les agents, eux, ont plus de réponses proches mais mal formulées (\valAp{A4-err1} et \valAp{A5-err1}, F1 au moins 0,5), comme « Dame Judi Dench » pour « Judi Dench » : la correspondance exacte les pénalise un peu.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_erreurs.pdf}
+\caption{Typologie automatique des réponses fausses, sur 200 questions par système. Sans réponse : sortie sans réponse exploitable ou abstention explicite. Réponse proche : F1 d'au moins 0,5 avec une réponse attendue. Bonne réponse dans les passages : réponse fausse alors qu'une réponse attendue figurait dans un passage lu. Réponse absente : ni l'un ni l'autre.}
+\label{fig:erreurs}
+\end{figure}
+
+\paragraph{Toutes les comparaisons.} La figure~\ref{fig:matrice} donne l'écart d'EM pour les quinze paires de systèmes. Elle fait apparaître deux blocs : entre eux, les quatre systèmes à règle fixe, réponse directe comprise, ne se distinguent pas ; les deux agents dominent chacun de ces quatre systèmes ; entre eux, A4 et A5 ne se distinguent pas.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\linewidth]{genere/fig_matrice.pdf}
+\caption{Écart d'EM entre chaque paire de systèmes (ligne moins colonne, en points), sur les 200 questions. Orange : la ligne fait mieux ; bleu : la colonne fait mieux. Astérisque : test de McNemar significatif au seuil de 5~\% avec correction de Bonferroni pour les 15 paires. Analyse descriptive, hors du plan d'analyse.}
+\label{fig:matrice}
 \end{figure}
 
 \FloatBarrier
