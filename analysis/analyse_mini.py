@@ -199,6 +199,11 @@ def ecrire_tex(r, outdir, fictif):
         v.append(f"\\expandafter\\def\\csname valEM-{s}-{j}\\endcsname{{{fr(100 * x['em'][0], 0)}}}")
         v.append(f"\\expandafter\\def\\csname valRech-{s}-{j}\\endcsname{{{fr(x['rech'][0])}}}")
         v.append(f"\\expandafter\\def\\csname valEpuise-{s}-{j}\\endcsname{{{x['epuise']}}}")
+    for j in JEUX:  # meilleur système de chaque famille, pour le résumé : \valBest{rl}{nq}, \valBestNom{rl}{nq}
+        for fam, membres in (("rl", RL), ("harnais", HARNAIS)):
+            s = max(membres, key=lambda m: d[(m, j)]["em"][0])
+            v.append(f"\\expandafter\\def\\csname valBest-{fam}-{j}\\endcsname{{{fr(100 * d[(s, j)]['em'][0], 0)}}}")
+            v.append(f"\\expandafter\\def\\csname valBestNom-{fam}-{j}\\endcsname{{{s}}}")
     for k, h in T.items():
         for c in ("d", "lo", "hi", "n", "nb_ok", "ecart_nq", "ecart_tqa"):
             if c in h:
@@ -206,6 +211,8 @@ def ecrire_tex(r, outdir, fictif):
                 txt = str(x) if c in ("n", "nb_ok") else (fr(100 * x, 1) if k in ("HA2",) else fr(x))
                 v.append(f"\\expandafter\\def\\csname valHA-{k}-{c}\\endcsname{{{txt}}}")
         v.append(f"\\expandafter\\def\\csname valHA-{k}-verdict\\endcsname{{{h['verdict']}}}")
+        if "d" in h and k != "HA2":  # version anglaise (point décimal) pour l'abstract
+            v.append(f"\\expandafter\\def\\csname valHAen-{k}-d\\endcsname{{{h['d']:.2f}}}")
     (outdir / "valeurs.tex").write_text("\n".join(v) + "\n")
 
 

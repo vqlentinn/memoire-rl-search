@@ -33,3 +33,6 @@ outputs/
 
 # Claude Code local
 .claude/settings.local.json
+
+# Dossier de rendu (régénéré par scripts/rendu.sh)
+rendu/
