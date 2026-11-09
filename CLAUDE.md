@@ -57,6 +57,9 @@ reposent sur des données FICTIVES (`analysis/donnees_fictives.py` -> `results/f
 (`docs/article/genere/`) avec les vrais runs ; le texte des résultats sera alors à réécrire. Il n'y a pas de cours ni de gabarit :
 c'est le sujet de mémoire de l'utilisateur, la trame Mercanti-Guérin (PDF à la racine, non versionné) sert de référence de forme.
 Compilation locale : `tectonic -X compile main.tex` dans `docs/article/` (préambule compatible XeTeX et pdfLaTeX).
+Tout relancer : `PY=<python> scripts/rendu.sh` (fictif) ou `RESULTATS=results` (vrais runs) -> `rendu/` (non versionné).
+Puissance : `analysis/puissance.py` (200 questions + Holm : écart de 10 points détecté à 54 % ; 500 par jeu : 96 %).
+Bibliographie : 46 références vérifiées dans OpenAlex le 9 novembre, zéro rouge (3 trouvées par DOI seulement).
 
 Prochaine étape : run de contrôle de A2/A3, puis run d'évaluation A0 à A5 sur Kaggle (A5 : `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3`, ne pas confondre avec la variante `-it-`), puis réécrire les résultats de l'article.
 
