@@ -1,0 +1,300 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{iftex}
+\ifXeTeX\usepackage{fontspec}\else\usepackage[utf8]{inputenc}\usepackage[T1]{fontenc}\fi % XeTeX (tectonic) ou pdfLaTeX (Overleaf)
+\IfFileExists{french.ldf}{\usepackage[french]{babel}}{\usepackage[english]{babel}}
+\ifXeTeX\usepackage{microtype}\else\usepackage{lmodern,microtype}\fi
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{booktabs,longtable,array,xcolor,enumitem}
+\usepackage[hidelinks]{hyperref}
+\setlist{nosep,leftmargin=1.4em}
+\setlength{\parskip}{4pt}\setlength{\parindent}{0pt}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\f}[1]{\texttt{\small #1}}
+\newcommand{\ia}{\textcolor{blue!60!black}{\textsf{\small[IA]}}}
+\newcommand{\moi}{\textcolor{green!45!black}{\textsf{\small[moi]}}}
+
+\title{Carnet de bord\\[2pt]\large Travailler avec l'IA sur le mémoire « Chercher ou répondre ? »}
+\author{Valentin Proux}
+\date{Version du 9 novembre 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Comment ce carnet a été écrit}
+
+Ce carnet suit les quatre rubriques demandées par la trame : les outils utilisés, mes difficultés, mon rapport d'étonnement, ce que j'aimerais approfondir. J'y ajoute deux parties qui me paraissent nécessaires pour un mémoire expérimental : le registre des décisions de méthode, avec leur justification, et la déclaration des données.
+
+\textbf{Qui a écrit quoi.} Le carnet a été tenu au fil de l'eau par Claude Code (assistant de programmation d'Anthropic), à ma demande. Il part de nos échanges, de l'historique git du dépôt et des fichiers produits. Je l'ai relu. J'ai demandé à Claude de ne rien y inventer : un carnet de bord qui raconterait des choses qui ne sont pas arrivées n'aurait aucune valeur de preuve. Chaque fait renvoie donc à un fichier, à un commit ou à un résultat que l'on peut rouvrir. Les durées viennent des horaires des commits ; quand je ne les connais pas, je ne les donne pas.
+
+\textbf{Convention.} Dans le registre des décisions, \moi{} marque une décision que j'ai prise ou imposée, \ia{} une proposition de l'IA que j'ai acceptée. Une décision \ia{} acceptée reste sous ma responsabilité : c'est moi qui la défends.
+
+\textbf{Dépôt.} Tout le code, l'article et ce carnet sont dans le dépôt public \f{github.com/vqlentinn/memoire-rl-search}. Les commits sont à mon nom, sans mention de l'IA : c'est un choix de forme pour l'historique du code, pas une dissimulation. La part de l'IA est déclarée ici et dans la section « Limites » de l'article.
+
+\tableofcontents
+
+\section{Le projet en bref}
+
+\textbf{Question.} À corpus et questions identiques, un agent de recherche entraîné par renforcement (Search-R1) décide-t-il mieux \emph{quand} et \emph{quoi} chercher qu'un harnais fixe (RAG, ReAct, IRCoT), et à quel coût ?
+
+\textbf{Contraintes.} Budget de 0~€ : pas de crédit d'API, calcul uniquement sur les GPU gratuits de Kaggle (deux T4 ou une P100, environ 30~h par semaine, 20~Go de sortie). Ces contraintes expliquent la plupart des choix du registre (section~\ref{sec:registre}).
+
+\textbf{Livrables.} L'article (\f{docs/article/main.pdf}) est une mini-expérience tirée du mémoire : six systèmes, deux jeux de 100 questions. Le mémoire, lui, prévoit sept jeux, 500 questions par jeu et trois volets (inférence, entraînement, analyse des échecs).
+
+\textbf{État au 9 novembre.} Introduction, revue, cadre, modèle, hypothèses, méthode et limites sont rédigés. Les systèmes A0 à A3 ont tourné en mise au point sur Kaggle (10 questions par jeu, hors évaluation) ; la chaîne A4 a été validée par un test de fumée. Le run d'évaluation n'a pas encore eu lieu : les résultats, la discussion et la conclusion du premier rendu reposent sur des \textbf{données fictives}, déclarées comme telles (section~\ref{sec:donnees}).
+
+\section{La trame, étape par étape}
+
+La trame suppose un article de cours rédigé dans Word, converti en LaTeX avec le gabarit du cours, et des données traitées dans Google Colab. Mon cas diffère : il n'y a pas de cours, c'est mon sujet de mémoire, et l'expérience demande un GPU. J'ai donc suivi la trame comme référence de méthode, et non comme une suite d'outils imposés. Le tableau dit, pour chaque étape, ce qui a été fait, ce qui a été adapté et pourquoi.
+
+\small
+\begin{longtable}{@{}P{1.9cm}P{2.6cm}P{11.2cm}@{}}
+\toprule
+Étape & Statut & Ce qui a été fait, et pourquoi cette forme\\
+\midrule\endhead
+1. Comptes, connecteur & Fait, adapté & Connecteur OpenAlex branché sur Claude et utilisé à partir de l'étape 5 (reprise). Overleaf pas encore utilisé : l'article compile en local avec \f{tectonic}, ce qui me permet de régénérer tableaux et figures depuis le code sans copier de fichiers à la main. L'import dans Overleaf reste prévu pour le rendu de la source.\\
+2. Projet Claude & Fait & Projet « memoire-rl-search », avec la description du mémoire. Le contexte durable du projet est aussi dans \f{CLAUDE.md}, lu par Claude Code à chaque session.\\
+3. Problématique & Partiel & La question et les hypothèses H1 à H4 existaient avant ces séances : elles sont de moi. Plugin ChatGPT non utilisé, parce que la question était déjà formulée. Consensus utilisé (10 articles, tous favorables au RL, pas de Consensus Meter fourni par l'outil). Open Knowledge Maps non fait.\\
+4. Introduction & Fait & Structure en entonnoir : contexte, deux familles de solutions, problème des comparaisons faites par les auteurs, lacune, question, plan. Le skill « entonnoir » du site n'a pas été installé ; l'introduction a été rédigée avec Claude Code sur ce modèle.\\
+5. Revue & Fait, à finir & Revue \emph{narrative} : le champ est récent (surtout des préprints de 2025--2026) et le but est de situer la lacune, pas d'estimer un effet moyen. Équation OpenAlex en trois versions avec mesure de précision, boule de neige, vérification des références. Le tri des 116 résultats de l'équation 3 est une proposition de Claude que je n'ai pas encore relue.\\
+6. Cadre, modèle, hypothèses & Fait & Refait une fois après la lecture de la trame (section~\ref{sec:registre}, D13 et D14). NotebookLM non utilisé : Claude Code a lu les PDF en accès libre directement, et la vérification qui comptait (la théorie est-elle vraiment mobilisée dans les articles ?) s'est faite dans les textes.\\
+7. Données & Fait, adapté & Kaggle à la place de Colab (D2). Fiche données remplie (\f{fiche\_donnees.md}). Le principe de la trame est respecté : l'IA écrit le programme, la plateforme l'exécute, je vérifie le résultat. Données fictives produites pour tester la chaîne (point 7.6 de la trame), déclarées section~\ref{sec:donnees}.\\
+8. Analyse qualitative & Non applicable ici & L'article est quantitatif. Le mémoire prévoit une analyse qualitative des échecs (volet C : 300 trajectoires, dont 100 annotées à la main). La lecture des trajectoires de mise au point a quand même été décisive : c'est elle qui a révélé le bogue de A3 (difficultés, section~\ref{sec:difficultes}).\\
+9. Dataviz & Fait (données fictives) & Deux figures produites par programme (\f{analysis/analyse\_mini.py}), avec tableau de contrôle imprimé à chaque exécution et les cinq contrôles de la trame (section~\ref{sec:donnees}).\\
+10. Discussion & Fait (sur données fictives) & Les cinq mouvements de la trame. Le texte sert d'exemple de forme : il sera réécrit avec les vrais résultats.\\
+11. Abstract & Fait & Cinq mouvements : contexte, lacune, méthode, résultats, apport. Résultats et apport marqués « fictif ».\\
+12. LaTeX & Fait, adapté & Écrit directement en LaTeX : il n'y avait ni texte Word à convertir ni gabarit de cours. Le préambule est donc le mien, avec les éléments de la trame (TikZ pour les schémas, \f{natbib}, macro \f{\textbackslash aremplir}). Bibliographie de 46 références, vérifiées dans OpenAlex au fil des ajouts ; la vérification d'ensemble demandée par la trame avant le rendu (« zéro rouge ») reste à faire sur la version finale.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{Les outils utilisés}
+
+\small
+\begin{longtable}{@{}P{1.1cm}P{2.6cm}P{5.4cm}P{6.6cm}@{}}
+\toprule
+Étape & Outil & Ce que je lui ai demandé & Ce que j'ai gardé, refait ou vérifié\\
+\midrule\endhead
+3 & Consensus & Ma question en version fermée & Gardé comme indice d'un biais de publication : les 10 articles sont favorables au RL. Pas de répartition à rapporter, l'outil ne donnant pas de Consensus Meter.\\
+5 & Claude Code, Hugging Face Papers, API arXiv & Premier corpus thématique & 91 articles en 9 thèmes. Recoupés automatiquement avec l'API arXiv (titre, premier auteur, date : 0 écart). Corpus gardé, mais repris ensuite avec OpenAlex parce que la trame demande une équation.\\
+5.2 & Claude + OpenAlex & Équation par blocs, précision, boule de neige, vérification des références & Équation 1 abandonnée (précision 7/20). Équation 3 retenue (environ 15/20). Rappel mesuré : 1 témoin sur 5 seulement. 9 références citaient un préprint au lieu de la version publiée : corrigées.\\
+5.2 & Claude + OpenAlex & Tri des 116 titres & 4 inclus, 58 doutes, 38 exclus proposés. Non relu par moi : reste une proposition.\\
+5 & Recherche sémantique (Claude) & Ce que l'équation aurait manqué & A trouvé Zhao et al. (2026), qui m'a obligé à préciser la lacune (D13).\\
+6 & Claude Code, OpenAlex (texte intégral), PDF & Cadre, modèle, hypothèses, schémas TikZ & Première version (Stigler, Simon) refaite après contrôle dans les textes. Je n'ai pas réécrit le texte moi-même ; j'ai demandé la reprise et validé les choix.\\
+7 & Claude Code, Kaggle (GPU T4), vLLM & Code des six systèmes, script de run avec reprise, notebooks & Bogue de A3 trouvé à la lecture des trajectoires, pas par les tests. Prompts de A2 et A3 corrigés en mise au point (D8). J'ai fixé le protocole et validé chaque lancement ; je n'ai pas réécrit le code.\\
+7 & Claude Code & Données fictives au format exact des vrais fichiers & Générateur gardé et documenté. Chaque ligne porte \f{"fictif": true}.\\
+9 & Claude Code, matplotlib & Figures, tableaux, tests des hypothèses & Programme gardé. Figures relues en image. Tableau de contrôle vérifié (D15).\\
+10, 11 & Claude Code & Discussion et résumé sur les données fictives & Gardés comme exemple de forme seulement : à réécrire.\\
+12 & Claude Code, \f{tectonic} & Mise en page, schéma du modèle complet et du protocole & Pages relues en image après chaque compilation. Deux erreurs de compilation corrigées (difficultés).\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{Registre des décisions de méthode}\label{sec:registre}
+
+Chaque décision est donnée avec les options écartées, la raison du choix, la trace qui permet de la vérifier, et son coût pour l'interprétation. Les décisions qui touchent au protocole ont toutes été prises \emph{avant} de voir la moindre question d'évaluation.
+
+\newcommand{\dec}[6]{\par\medskip\noindent\textbf{#1}\quad #2\par
+\begin{itemize}
+\item \emph{Options écartées.} #3
+\item \emph{Pourquoi.} #4
+\item \emph{Trace.} #5
+\item \emph{Ce que ça coûte.} #6
+\end{itemize}}
+
+\subsection*{Cadrage}
+
+\dec{D1. Question et hypothèses H1 à H4}{\moi}
+{Une reproduction de Search-R1 ; une étude de l'entraînement seul.}
+{Ce qui m'intéresse est la \emph{décision} de chercher, et elle ne se juge qu'en comparant l'agent entraîné à des règles fixes placées dans les mêmes conditions. Un résultat négatif est acceptable dès le départ : le projet est construit pour qu'une absence d'effet soit interprétable.}
+{\f{CLAUDE.md}, section « Sujet du mémoire ».}
+{Les scores absolus ne seront pas comparables à ceux de l'article de Search-R1 : seule la comparaison relative compte, et l'article le dit.}
+
+\dec{D2. Kaggle plutôt que Google Colab}{\moi}
+{Colab gratuit (proposé par la trame) ; une API payante.}
+{Un modèle de 3 milliards de paramètres servi par vLLM demande un GPU pendant plusieurs heures. Kaggle donne environ 30~h de GPU par semaine en sessions de 9 à 12~h, et son client en ligne de commande permet de lancer un run et de récupérer les fichiers sans copier-coller. Le budget de 0~€ exclut les API.}
+{\f{notebooks/kaggle\_mini\_experience.ipynb} ; test de fumée réussi le 3 novembre (version 6).}
+{Deux contraintes techniques découvertes en route : JAX (importé par \f{bm25s}) réservait la mémoire du GPU, d'où \f{JAX\_PLATFORMS=cpu} ; vLLM doit démarrer en mode \f{spawn}.}
+
+\dec{D3. Corpus réduit à un million de passages, retriever E5}{\ia{} accepté, à valider par la direction du mémoire}
+{Le corpus complet (Wikipédia 2018, environ 132~Go avec son index) ; 100\,000 passages avec BM25.}
+{Le corpus complet ne tient pas dans les 20~Go de Kaggle. Entre les sous-corpus disponibles, j'ai \emph{mesuré} la part des questions dont la réponse figure dans les trois premiers passages : avec BM25 sur 100\,000 passages, de 3 à 12~\% selon le jeu, ce qui rendait toute comparaison ininterprétable ; avec E5 sur un million, 25~\% pour NQ et 44~\% pour TriviaQA. E5 est en outre le retriever avec lequel Search-R1 a été entraîné : l'agent n'est pas pénalisé par un outil inconnu. L'index a été contrôlé (similarité minimale de 0,9997 sur 50 passages).}
+{\f{scripts/measure\_coverage.py} ; \f{results/coverage\_*.jsonl} (non versionnés, régénérables).}
+{Le plafond de précision des systèmes qui cherchent est bas. C'est la première limite de l'article.}
+
+\dec{D4. NQ (vu) et TriviaQA (non vu), pas HotpotQA et Bamboogle}{\ia{} accepté}
+{Le plan initial de l'article : HotpotQA (vu) et Bamboogle (non vu), deux jeux multi-étapes.}
+{Même mesure de couverture : 17~\% pour HotpotQA et 10~\% pour Bamboogle. Avec si peu de réponses accessibles, une différence entre systèmes refléterait surtout le hasard du corpus. NQ et TriviaQA gardent le contraste vu / non vu dont HA2 a besoin.}
+{\f{configs/mini\_experience.yaml}, commentaire en tête.}
+{Les questions multi-étapes, où chercher plusieurs fois devrait le plus compter, sortent de l'article. Elles restent dans le mémoire.}
+
+\dec{D5. 100 questions par jeu, une graine (42)}{\ia{} accepté}
+{500 questions par jeu, comme prévu dans le mémoire.}
+{Six systèmes, deux jeux : 1\,200 trajectoires. C'est ce qu'une session Kaggle permet de faire tourner avec une marge pour relancer un run coupé.}
+{\f{scripts/run\_volet\_a.py} (\f{EVAL\_N = 100}).}
+{Des intervalles d'environ $\pm 10$ points : seuls des écarts importants seront détectables. Le premier rendu sur données fictives le montre concrètement (étonnement n\textsuperscript{o}~7).}
+
+\subsection*{Systèmes}
+
+\dec{D6. Modèle Instruct pour A0 à A3, modèle de base pour A4 et A5}{\ia{} accepté, sans objection de ma part}
+{Le modèle de base partout ; les points de contrôle Search-R1 de la variante \f{-it-} partout.}
+{Découvert en lisant le \f{config.json} des points de contrôle : A4 et A5 partent de Qwen2.5-3B, le modèle de base. Un harnais par prompt (ReAct, IRCoT) demande un modèle qui suit des consignes, donc la version Instruct. Les points de contrôle A4 et A5 sont ceux qui sont décrits dans l'article de Search-R1.}
+{Carnet du 3 novembre ; tableau 4 et limites de l'article.}
+{L'écart mesuré mélange la règle de recherche et le modèle. C'est dit dans l'article, et la variante \f{-it-} permettra de le réduire dans le mémoire.}
+
+\dec{D7. Mêmes conditions pour tous les systèmes}{\moi}
+{Laisser chaque système dans sa configuration d'origine.}
+{C'est le cœur de la question : mêmes questions, même corpus, même retriever, trois passages, au plus quatre recherches, décodage glouton. Sans cela, on retombe sur les comparaisons que l'article critique.}
+{\f{configs/mini\_experience.yaml} ; figure 3 de l'article.}
+{Aucun, sinon que les harnais tournent dans des conditions qui ne sont pas toujours celles de leur article d'origine.}
+
+\dec{D8. Prompts de A2 et A3 corrigés après la mise au point}{\ia{} proposé, \moi{} validé}
+{Garder les premiers prompts ; corriger après avoir vu les résultats d'évaluation.}
+{La mise au point (10 questions par jeu, graine 7) a montré que A2 répétait ses requêtes et que A3 s'abstenait. Un harnais mal réglé aurait gonflé l'avantage du RL : le corriger rend la comparaison plus dure pour mon hypothèse, pas plus facile. La correction a eu lieu \emph{avant} toute question d'évaluation, et les scores de la mise au point n'ont pas guidé les choix.}
+{Commit \f{7ba2f95} ; trajectoires d'avant correction gardées dans \f{results/dev/prompts\_v1/}.}
+{Les prompts restent les miens : d'autres prompts donneraient d'autres scores (limite de l'article). Le run de contrôle après correction n'a pas encore été fait.}
+
+\dec{D9. Questions de mise au point disjointes des questions d'évaluation}{\ia{}}
+{Supposer qu'une autre graine donne d'autres questions.}
+{Vérifié, c'était faux : la graine 7 reprenait 3 questions d'évaluation sur 110 pour NQ et 2 pour TriviaQA. Régler un prompt sur une question d'évaluation, même une seule, est une fuite.}
+{\f{select\_questions} dans \f{scripts/run\_volet\_a.py} ; test associé.}
+{Aucun.}
+
+\dec{D10. Critère du test de fumée : « la chaîne fonctionne »}{\moi}
+{Exiger 18 réponses sur 20.}
+{Le nombre de réponses variait entre deux exécutions (18 puis 17) à cause de passages ex aequo, et ce taux est une mesure à rapporter, pas un critère de bon fonctionnement. Les ex aequo sont désormais départagés par l'indice du passage, ce qui rend la recherche reproductible d'une machine à l'autre (65 recherches Kaggle reproduites à l'identique sur le Mac).}
+{\f{scripts/smoke\_test.py} ; \f{CLAUDE.md}.}
+{La répétabilité de la génération elle-même n'est pas encore testée.}
+
+\subsection*{Analyse}
+
+\dec{D11. Règles de décision écrites avant le run, correction de Holm}{\ia{} proposé, \moi{} validé}
+{Décider après coup de ce qui compte comme un effet.}
+{Choisir le test après avoir vu les chiffres, c'est pouvoir trouver un effet n'importe où. HA1 compte six comparaisons (deux agents contre trois harnais) : sans correction, le risque d'au moins un faux positif peut atteindre 26~\% ($1 - 0{,}95^6$). Les verdicts sont calculés par le programme, pas rédigés à la main.}
+{Tableau 3 de l'article ; fonction \f{holm} et son test dans \f{tests/test\_analyse.py}.}
+{Une puissance plus faible : la correction rend les écarts modestes encore plus difficiles à déclarer significatifs.}
+
+\dec{D12. Revue narrative}{\ia{} accepté}
+{Revue systématique ou de portée.}
+{Le champ est jeune, fait surtout de préprints, et le but de la revue est de montrer qu'une comparaison contrôlée RL contre harnais manque. Une revue narrative suffit à cela, à condition de dire comment le corpus a été construit : l'article donne l'équation, les volumes et le rappel.}
+{Section 2.1 de l'article ; \f{docs/litterature/journal\_requetes\_*.md}.}
+{Pas de prétention à l'exhaustivité : l'article écrit « nous n'avons pas repéré », jamais « il n'existe pas ».}
+
+\dec{D13. Cadre : le fourragement de l'information (Pirolli et Card), avec Stigler}{\ia{} proposé, \moi{} demandé la reprise}
+{Première version : l'économie de l'information de Stigler et de Simon.}
+{La trame demande si la théorie est mobilisée dans les articles retenus. Pour Stigler et Simon, non. Une recherche en texte intégral (58 résultats, 5 PDF contrôlés) a montré que le fourragement n'est vraiment mobilisé que par InForage. Simon a été retiré : la trame conseille une théorie, deux au plus. La lacune a aussi été précisée après la découverte de Zhao et al. (2026), qui comparent des méthodes de RL entre elles, pas le RL aux harnais.}
+{Carnet du 3 novembre ; section 3 de l'article.}
+{Je n'ai pas eu accès au texte de Pirolli et Card : sa présentation passe par InForage, et l'article le dit. Le transfert d'une théorie humaine à un modèle de langage est une analogie.}
+
+\dec{D14. HA3 coupée en HA3a et HA3b}{\ia{}}
+{Garder une hypothèse unique sur le mécanisme.}
+{HA3 portait sur deux flèches à la fois, contre la règle « une flèche, une hypothèse » de la trame. Séparer l'effet (plus de recherches) de sa modération (même quand le modèle sait déjà) rend chacune testable par une colonne précise.}
+{Figure 2 et tableau 3 de l'article.}
+{Une hypothèse de plus, donc un test de plus.}
+
+\dec{D15. Un premier rendu sur données fictives}{\moi{} demandé, \ia{} réalisé}
+{Attendre les vrais runs ; laisser les sections vides.}
+{Avoir un article complet tôt permet de tester toute la chaîne (fichiers, tests, tableaux, figures, compilation) avant de dépenser du quota GPU, et de voir la forme finale. La trame autorise ce seul usage des données fabriquées : « tester votre programme avant d'avoir les vraies données » (point 7.6).}
+{\f{analysis/donnees\_fictives.py} ; section~\ref{sec:donnees}.}
+{Le risque est de s'attacher à une histoire écrite d'avance. Garde-fous : les paramètres n'ont pas été réglés pour obtenir un verdict, les verdicts sortent du programme, et tout le texte des résultats, de la discussion et de la conclusion est déclaré « à réécrire ».}
+
+\dec{D16. Écrire directement en LaTeX, sans gabarit de cours}{\moi}
+{Rédiger dans Word puis convertir, comme le prévoit l'étape 12.}
+{Il n'y a pas de cours, donc pas de gabarit. Écrire directement en LaTeX évite une conversion qui peut perdre ou réécrire du texte, et permet d'inclure tableaux et figures générés par le code : quand les vrais résultats arriveront, une commande les remplacera, sans recopie à la main.}
+{\f{docs/article/main.tex} ; \f{docs/article/genere/}.}
+{La forme suit la trame (TikZ, natbib, macro de champs à remplir) mais pas un modèle imposé.}
+
+\section{Données}\label{sec:donnees}
+
+\subsection*{Données réelles}
+\begin{itemize}
+\item \textbf{Questions.} Natural Questions et TriviaQA dans le format FlashRAG (\f{RUC-NLPIR/FlashRAG\_datasets}, split \f{test}), 100 questions par jeu tirées avec la graine 42.
+\item \textbf{Corpus.} \f{maknee/wiki-18-subsets}, fichier \f{wiki-18-1m.jsonl.gz} et index \f{e5\_Flat-1m.index}. Jeu tiers sans fiche descriptive : l'alignement entre index et corpus a été vérifié.
+\item \textbf{Trajectoires.} Produites par ce projet sur Kaggle. Une ligne par question et par système. Seules existent à ce jour les trajectoires de mise au point (10 questions par jeu, graine 7, A0 à A3), qui ne sont pas des résultats.
+\item \textbf{Nettoyage.} Aucun : pas de question retirée. Seul ajout, comme dans Search-R1 : un « ? » en fin de question s'il manque.
+\item \textbf{Licences.} À vérifier avant le rendu final (FlashRAG, sous-corpus, Qwen2.5, points de contrôle Search-R1).
+\end{itemize}
+Le détail est dans \f{docs/article/fiche\_donnees.md}.
+
+\subsection*{Données fictives (déclaration)}
+La trame est claire : des données fabriquées sont déclarées comme telles, avec le programme qui les produit ; les présenter comme réelles est une fraude.
+\begin{itemize}
+\item \textbf{Programme.} \f{analysis/donnees\_fictives.py}, graine 2026. Il écrit 1\,200 lignes dans \f{results/fictif/}, au format exact des vrais fichiers, chacune marquée \f{"fictif": true}.
+\item \textbf{Mécanisme.} Chaque question reçoit une « facilité » commune à tous les systèmes, ce qui rend les réponses corrélées d'un système à l'autre, comme dans la réalité. Chaque système a une probabilité de bonne réponse visée, choisie à la main, et une règle simple pour le nombre de recherches.
+\item \textbf{Ce qu'elles ne sont pas.} Une prédiction. Les valeurs sont arbitraires ; elles disent ce que j'ai mis dans le programme, rien sur les modèles.
+\item \textbf{Marquage dans l'article.} Le script d'analyse détecte le marqueur et fait apparaître : un filigrane sur toutes les pages, un encadré rouge en tête des sections concernées et en première page, et l'exposant « fictif » sur chaque verdict. Avec les vrais fichiers, ces marques disparaissent d'elles-mêmes, mais le texte devra être réécrit.
+\end{itemize}
+
+\subsection*{Contrôle des figures (étape 9.4 de la trame)}
+\begin{itemize}
+\item \textbf{Les comptes tombent juste.} 100 lignes par système et par jeu, aucune écartée ; le script refuse de tourner si un fichier manque ou si les systèmes n'ont pas les mêmes questions.
+\item \textbf{Valeurs à la main.} Le tableau de contrôle imprimé par le script et le tableau 5 de l'article donnent les mêmes valeurs : ils viennent du même calcul.
+\item \textbf{Axes.} EM de 0 à 1 sur les deux figures, titres et unités en français. Pas de barres : des points avec leur intervalle, qui montrent l'incertitude au lieu de la cacher.
+\item \textbf{Rien n'a disparu.} Les six systèmes et les deux jeux sont présents.
+\item \textbf{Couleurs.} Gris pour la réponse directe, bleu pour les harnais, orange pour le RL : la couleur suit la famille de systèmes, et chaque point porte aussi son nom. Le bleu et l'orange sont les deux premières couleurs d'une palette de référence déjà validée pour les daltonismes ; je n'ai pas relancé le validateur moi-même.
+\end{itemize}
+
+\section{Part de l'IA dans le travail}
+
+\small
+\begin{longtable}{@{}P{3.2cm}P{6.3cm}P{6.3cm}@{}}
+\toprule
+Domaine & Ce que l'IA a fait & Ce qui reste à moi\\
+\midrule\endhead
+Question, hypothèses & Reformulations, découpage de HA3 & Le sujet, H1 à H4, le choix d'accepter un résultat négatif\\
+Bibliographie & Recherche, équations, tri proposé, vérification dans OpenAlex & Relire le tri (pas encore fait), lire les articles essentiels (pas encore fait)\\
+Code & Tout le code : systèmes, boucle de recherche, statistiques, analyse, tests & Le protocole, la validation de chaque lancement, la lecture des sorties\\
+Rédaction & Premier jet de toutes les sections & Relecture, choix de ce qui reste, réécriture des résultats après les runs\\
+Vérification & Tests automatiques, rendu des pages en image, contrôle des références & Le jugement final sur ce qui est vrai\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+Je ne cache pas que l'IA a écrit l'essentiel du code et du texte. Ma façon de rester responsable a été de fixer les règles avant de voir les résultats, d'exiger que chaque chiffre vienne d'un fichier, et de faire relire les sorties (trajectoires, pages compilées) plutôt que de me fier aux statuts « réussi ». Cette façon de faire a déjà rattrapé deux erreurs de l'IA : un bogue que les tests ne voyaient pas, et une affirmation fausse sur la machine (difficultés, ci-dessous).
+
+\section{Mes difficultés}\label{sec:difficultes}
+
+\begin{itemize}
+\item \textbf{Faire tourner vLLM sur Kaggle} (3 novembre, environ 2~h~30 d'après les commits, de 9~h~14 à 11~h~44, six versions du notebook). JAX réservait la mémoire du GPU, vLLM devait démarrer en mode \f{spawn}, et les passages ex aequo de BM25 rendaient les runs non reproductibles. \emph{Résolu.}
+\item \textbf{Accès aux bases bibliographiques.} Depuis l'environnement de l'IA, les API arXiv, Semantic Scholar et Crossref étaient bloquées (erreur 403 ou nom d'hôte introuvable). Contournement par Hugging Face Papers et le navigateur intégré, puis reprise complète avec le connecteur OpenAlex. \emph{Résolu.}
+\item \textbf{Une équation précise qui ne trouve pas les bons articles.} Précision d'environ 75~\% mais rappel d'un témoin sur cinq : trois témoins sont des harnais fixes, exclus par construction du bloc RL, et R1-Searcher n'emploie pas les mots de l'équation. \emph{Compris, non corrigé} : les articles manquants viennent de la première collecte.
+\item \textbf{Équation non conservée.} 103 résultats le matin, 116 l'après-midi : l'équation exacte du matin n'ayant pas été gardée, l'écart ne s'explique pas. \emph{Non résolu} ; l'OQL est maintenant noté à chaque fois.
+\item \textbf{Références « exactes » mais pas les bonnes.} 35 références sur 35 trouvées dans OpenAlex, dont 9 citaient le préprint alors qu'une version publiée existe. \emph{Résolu.}
+\item \textbf{Un bogue invisible.} Le système A3 (IRCoT) ne faisait qu'une recherche par question alors que tous les tests passaient : le faux modèle des tests n'écrivait jamais tout son raisonnement d'un bloc, le vrai si. Trouvé en lisant les trajectoires. \emph{Résolu}, avec un test ajouté.
+\item \textbf{Une affirmation fausse de l'IA.} Claude a affirmé qu'il n'y avait pas de LaTeX sur ma machine ; \f{tectonic} était installé. L'article n'a pas été recompilé ce jour-là. \emph{Résolu} le 9 novembre.
+\item \textbf{Git et machine virtuelle.} Le dossier de travail de la littérature pointait vers une machine virtuelle absente du Mac ; un commit portant encore la mention de l'IA est apparu pendant la réécriture de l'historique, créé par une autre session. \emph{Résolu.}
+\item \textbf{Compilation du premier rendu} (9 novembre). Deux erreurs : un nom de style TikZ (\f{out}) qui était déjà une clé réservée, et une commande (\f{\textbackslash text}) sans son paquet. \emph{Résolu} en lisant le message d'erreur complet, comme le conseille la trame.
+\end{itemize}
+
+\section{Mon rapport d'étonnement}
+
+Chaque étonnement est un écart entre ce que j'attendais et ce qui s'est passé.
+
+\begin{enumerate}
+\item \textbf{La précision d'une équation.} \emph{Attendu :} une équation large, aux bons mots, suffit. \emph{Observé :} 7 articles pertinents sur 20 tirés au hasard.
+\item \textbf{Précise n'est pas complète.} \emph{Attendu :} une équation précise à 75~\% est bonne. \emph{Observé :} elle ne retrouve qu'un témoin sur cinq, et une requête en langage naturel a trouvé une étude clé qu'elle avait manquée.
+\item \textbf{Les citations dépendent de l'outil.} \emph{Attendu :} un nombre de citations est un fait. \emph{Observé :} 14 citations de Search-R1 dans OpenAlex, plus de 1\,600 selon Consensus.
+\item \textbf{Une référence trouvée n'est pas une référence sûre.} \emph{Attendu :} ce qui sort d'OpenAlex est fiable. \emph{Observé :} SEM n'y existe que sous une copie Zenodo douteuse ; il a fallu retrouver la vraie notice arXiv.
+\item \textbf{Une graine différente ne donne pas des questions différentes.} \emph{Attendu :} graine 7 et graine 42, deux tirages disjoints. \emph{Observé :} 3 questions communes sur 110 pour NQ.
+\item \textbf{« Tous les tests passent » ne veut pas dire « ça marche ».} \emph{Attendu :} A3 fonctionnait. \emph{Observé :} il ne faisait jamais qu'une recherche, sans aucune erreur. Seule la lecture des sorties l'a montré.
+\item \textbf{On ne retrouve même pas ce qu'on a mis.} \emph{Attendu :} la trame prévient que des données fabriquées font « découvrir » ce qu'on y a écrit. \emph{Observé :} j'avais donné au meilleur agent 9 points d'avance sur le RAG pour NQ ; avec 100 questions, l'échantillon n'en montre que 7, et aucune des six comparaisons n'est significative après correction. Avec cette taille d'échantillon, un vrai effet de cette taille peut passer inaperçu. C'est la leçon la plus utile du premier rendu : la taille de l'échantillon décide de ce que l'expérience peut voir.
+\item \textbf{Le résumé ne suffit pas.} \emph{Attendu :} le résumé de Wu et al. parle « d'un modèle » qui fait 27,7~\% de recherches évitables. \emph{Observé :} le texte précise qu'il s'agit de Search-R1, l'un de mes systèmes.
+\end{enumerate}
+
+\section{Ce que j'aimerais approfondir}
+
+\begin{itemize}
+\item \textbf{La puissance de l'expérience.} Combien de questions faut-il pour détecter un écart de 5 points avec un test de McNemar apparié ? L'étonnement n\textsuperscript{o}~7 montre que 100 ne suffisent pas ; le générateur de données fictives permet de simuler la réponse avant de dépenser du GPU.
+\item \textbf{Le coût d'une recherche dans la récompense} (H3 du mémoire). C'est la suite logique du cadre : si l'agent cherche trop parce que rien ne lui coûte, une pénalité devrait le corriger. À tester avec un petit entraînement GRPO (volet B).
+\item \textbf{Le biais de publication des articles de méthode.} Les 10 articles de Consensus sont favorables au RL. Une comparaison contrôlée, avec un résultat négatif possible, est une façon d'y répondre.
+\item \textbf{Lire les textes.} Le statut de tous les articles « essentiels » est encore « non lu » ; relire les 58 « doutes » du tri de l'équation 3.
+\end{itemize}
+
+\section*{Annexes}
+\begin{itemize}
+\item Carnet des requêtes OpenAlex : \f{docs/litterature/journal\_requetes\_openalex.md} et \f{journal\_requetes\_complement.md}.
+\item Journal brut, tenu au jour le jour : \f{docs/article/journal\_brut.md}.
+\item Fiche données : \f{docs/article/fiche\_donnees.md}.
+\item Code de l'analyse et des données fictives : \f{analysis/}.
+\end{itemize}
+
+\end{document}

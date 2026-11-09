@@ -1,8 +1,10 @@
-# Carnet de bord : travail avec les IA
+# Journal brut du travail avec les IA
 
-Brouillon tenu au fil de l'eau par Claude Code, à relire et à reprendre par l'étudiant avant le rendu. Il ne contient que ce
-qui s'est réellement passé. Les passages entre crochets `[à compléter]` sont ceux que seul l'étudiant peut écrire (son
-ressenti, ses choix, ce qu'il a refait lui-même).
+Notes prises au jour le jour. La version mise en forme, à rendre, est `carnet_de_bord.tex` (PDF : `carnet_de_bord.pdf`).
+
+Tenu au fil de l'eau par Claude Code, à la demande de l'étudiant, qui lui a aussi demandé de remplir les rubriques personnelles
+le 3 novembre. Il ne contient que ce qui s'est réellement passé, d'après les échanges et les fichiers. À relire par l'étudiant avant
+le rendu.
 
 ## Journal
 
@@ -21,7 +23,7 @@ volet, priorité et rôle dans le mémoire (`docs/litterature/`).
 - Vérification : titre, premier auteur et date de chacune des 91 entrées comparés à l'API arXiv par empreinte, zéro écart.
 - Limite reconnue : la trame demande des références vérifiées dans OpenAlex, ce qui n'a pas été fait. Aucun article n'a
   été lu en entier ; les rôles sont des propositions tirées du titre et du résumé.
-- Gardé tel quel par l'étudiant : [à compléter]. Refait par l'étudiant : [à compléter].
+- Gardé tel quel par l'étudiant : le corpus de 91 articles et ses thèmes. Refait par l'étudiant : rien à ce stade.
 
 **Travail annexe sur git.** L'étudiant a demandé que les commits soient à son nom, sans mention de Claude. Historique
 local réécrit (filter-branch), sauvegarde par bundle, règle ajoutée dans `CLAUDE.md`. Le push a dû être lancé par
@@ -76,7 +78,8 @@ méthode de la trame.
 - A5 : `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3`, trouvé dans la collection Search-R1-v0.3 de Hugging
   Face. Il existe aussi une variante `-it-em-` : à ne pas confondre.
 - Écart repéré, non tranché : d'après leur `config.json`, A4 et A5 partent de `Qwen/Qwen2.5-3B` alors que A0 à A3 utilisent
-  `Qwen/Qwen2.5-3B-Instruct`. La comparaison ne change donc pas seulement le harnais. [à compléter : décision]
+  `Qwen/Qwen2.5-3B-Instruct`. La comparaison ne change donc pas seulement le harnais. Décision : garder cette
+  configuration, sur recommandation de Claude et sans objection de l'étudiant, et le signaler comme limite dans l'article.
 - Tirage de mise au point : la graine 7 seule reprenait 3 questions d'évaluation sur NQ et 2 sur TriviaQA (sur 110 tirées).
   Ces questions sont maintenant exclues ; vérifié sur les vrais jeux, 0 recouvrement sur les 10 questions de chaque jeu.
   TriviaQA a été chargé pour la première fois à cette occasion.
@@ -96,15 +99,16 @@ explicitement, tri de l'équation non fait, rappel sur les témoins non testé.
   je ne peux pas dire si l'écart vient de ma réécriture ou de la base. L'OQL est maintenant noté.
 - Rappel : 1 témoin sur 5. Trois témoins sont des harnais fixes, que le bloc RL exclut par construction. R1-Searcher manque
   parce que son résumé n'emploie pas les mots de l'équation.
-- Tri des 116 titres par Claude : 4 inclus proposés, 58 doutes, 38 exclus, 11 déjà candidats, 5 déjà au corpus. Décision de
-  l'étudiant : [à compléter].
+- Tri des 116 titres par Claude : 4 inclus proposés, 58 doutes, 38 exclus, 11 déjà candidats, 5 déjà au corpus. Non relu par
+  l'étudiant à ce jour : ce tri reste une proposition.
 - Une requête sémantique a trouvé ce que l'équation avait manqué, dont Zhao et al. (2026), une étude contrôlée des méthodes
   d'entraînement. Elle m'oblige à préciser la lacune de l'article : la comparaison contrôlée existe entre méthodes de RL, pas
   à notre connaissance entre RL et harnais fixes. La formulation reste prudente : résumés lus, textes non lus.
 - Zhao et al. signalent aussi un défaut de couverture du corpus Wikipédia 2018, celui de notre expérience.
 
 **Article.** Ajout d'une section sur la démarche de la revue, de 6 références et de la précision sur les modèles de A4 et A5.
-Non recompilé : pas de LaTeX sur cette machine, `main.pdf` est donc en retard sur `main.tex`.
+Non recompilé sur le moment : Claude a affirmé qu'il n'y avait pas de LaTeX sur cette machine, ce qui était faux (`tectonic` était
+installé, découvert plus tard).
 
 **Étape 7 : run Kaggle.** Essai A1 réussi du premier coup (version 1 du kernel, NQ, 10 questions, graine 7, E5 sur 1m) :
 10 réponses `answer` sur 10, 0 anomalie, code 0, 297 s. E5 sur le second T4 ne gêne pas vLLM (14,41 Gio libres sur 14,56 au
@@ -126,6 +130,40 @@ Ces deux changements de prompt améliorent les harnais fixes : c'est voulu, pour
 sont faits avant toute question d'évaluation. Les EM de ce run (10 questions) ne valent pas comme résultat et n'ont pas guidé ces
 choix. Trajectoires gardées dans `results/dev/prompts_v1/`. Nouveau run de contrôle : [à faire].
 
+**Étape 6 : reprise du cadre, du modèle et des hypothèses.** Demandée par l'étudiant après lecture de la trame.
+- La trame demande si la théorie est mobilisée dans les articles retenus. Stigler et Simon ne l'étaient pas : point faible déjà noté.
+- Recherche en texte intégral dans OpenAlex : « information foraging » avec agents de recherche, 58 résultats. PDF contrôlés : dans 4 sur
+  5, le terme n'apparaît que dans une même référence, InForage (Qian et Liu, 2025). C'est lui qui mobilise vraiment la théorie : lu dans
+  son texte. Sans ce contrôle, on pouvait croire à un usage répandu.
+- Décision : cadre du fourragement de l'information (Pirolli et Card, 1999), avec Stigler pour la logique du coût. Simon est retiré :
+  la trame conseille une théorie, deux au plus, et rien dans les textes contrôlés ne le mobilisait. Pirolli et Card n'est pas en accès
+  libre : présenté d'après InForage, ce que l'article dit clairement.
+- Modèle : cinq variables au lieu de quatre. HA3 mêlait deux flèches, contre la règle « une flèche, une hypothèse » : elle devient HA3a
+  (mode et nombre de recherches) et HA3b (modération par la connaissance préalable).
+- Règles de décision écrites avant tout run complet, avec correction de Holm (ajoutée car HA1 compte 6 comparaisons).
+- `refs.bib` : 46 références. Les 6 ajouts sont vérifiés dans OpenAlex.
+- Article compilé : 13 pages. Le code d'analyse de ces tests (Holm, écart d'écarts) reste à écrire.
+
+### 9 novembre 2026
+
+**Premier rendu complet de l'article, sur données fictives.** Demandé par l'étudiant : « un premier rendu, même si la
+donnée est fausse, mais en suivant la forme du PDF » (la trame), avec « le schéma complet ».
+- Données fictives : `analysis/donnees_fictives.py`, graine 2026, 1 200 lignes au format exact de `run_volet_a.py`, chacune
+  marquée `"fictif": true`, écrites dans `results/fictif/`. Usage autorisé par la trame (7.6 : tester le programme).
+- Analyse : `analysis/analyse_mini.py` applique les règles de décision du tableau 3 (McNemar + Holm, bootstrap) et écrit
+  tableaux, valeurs citées et figures dans `docs/article/genere/`. Sur ces données : HA1 et HA2 non soutenues, HA3a et
+  HA3b soutenues. Paramètres non réglés pour obtenir un verdict.
+- Constat : j'avais donné à A4 9 points d'avance sur A1 pour NQ ; l'échantillon de 100 questions n'en montre que 7, et
+  aucune paire n'est significative après Holm. La puissance de l'expérience est faible.
+- Article : modèle conceptuel complet (H3 et H4 du mémoire en pointillé), schéma du protocole, résultats, discussion en
+  cinq mouvements, résumé et conclusion. Filigrane, encadrés et exposant « fictif » activés automatiquement par le marqueur.
+- Compilation avec `tectonic` : deux erreurs corrigées (style TikZ `out`, `\text` sans `amsmath`). 16 pages relues en image.
+- Tests : `tests/test_analyse.py` ajouté ; 19 tests réussis dans un venv temporaire (les tests qui demandent `datasets`
+  et `bm25s` n'ont pas été lancés ce jour-là).
+- Pas de cours ni de gabarit : la mention « à valider avec l'enseignante » devient « avec la direction du mémoire ».
+- Carnet de bord mis en forme en LaTeX (`carnet_de_bord.tex`), avec un registre des décisions justifiées ; ce journal
+  devient une annexe.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |
@@ -133,11 +171,11 @@ choix. Trajectoires gardées dans `results/dev/prompts_v1/`. Nouveau run de cont
 | 5 | Claude Code, Hugging Face Papers, API arXiv | recherche, tri, corpus de 91 articles | Corpus gardé tel quel après recoupement automatique avec l'API arXiv (0 écart). Aucun article lu en entier : les rôles dans le mémoire sont des propositions à confirmer |
 | 5 | OpenAlex (équations, `resolve_references`, `list_citations`) | vérification des 91 références, trois équations, candidats | Résultats gardés. Équation 1 abandonnée après mesure de sa précision (35 %). Tri des 83 résultats restants et test sur les articles témoins non faits |
 | 3 | Consensus | test de la question en version fermée, 10 articles | Résultats comparés au corpus (4 absents). Pas de Consensus Meter fourni par l'outil, donc pas de répartition à reporter |
-| 3 | Open Knowledge Maps | non utilisé à ce stade | [à compléter : à faire par l'étudiant] |
-| 5.2 | OpenAlex via Claude Code | vérification de `refs.bib`, liste de l'équation 3, tri proposé | Références corrigées vers les versions publiées. Tri : proposition seulement, [à compléter : décisions de l'étudiant] |
-| 6 | Claude Code, OpenAlex | cadre théorique, modèle, hypothèses | Stigler et Simon vérifiés dans OpenAlex. [à compléter : ce que l'étudiant a gardé ou refait, avis de l'enseignante] |
-| 7 | Claude Code, Kaggle (GPU T4) | systèmes A0 à A3, script de run, notebook | Trame prévue avec Colab : Kaggle choisi pour le GPU. Tests relancés (22 réussis). [à compléter] |
-| 12 | Claude Code | premier jet LaTeX, modèle TikZ | Gabarit du cours absent, préambule provisoire. [à compléter] |
+| 3 | Open Knowledge Maps | non utilisé | Étape de la trame non faite à ce jour |
+| 5.2 | OpenAlex via Claude Code | vérification de `refs.bib`, liste de l'équation 3, tri proposé | Références corrigées vers les versions publiées. Tri : proposition de Claude, non relue par l'étudiant à ce jour |
+| 6 | Claude Code, OpenAlex, PDF d'articles | cadre théorique, modèle, hypothèses, schémas TikZ | Première version (Stigler, Simon) refaite après vérification dans les textes : Simon retiré, fourragement de l'information ajouté. L'étudiant a demandé cette étape et n'a pas réécrit le texte. Cadre pas encore soumis à l'enseignante. NotebookLM non utilisé |
+| 7 | Claude Code, Kaggle (GPU T4) | systèmes A0 à A3, script de run, notebook | Trame prévue avec Colab : Kaggle choisi pour le GPU. Bug de A3 trouvé à la lecture des trajectoires. L'étudiant a fixé le protocole et validé les lancements ; le code n'a pas été refait à la main |
+| 12 | Claude Code | premier jet LaTeX, modèle TikZ | Gabarit du cours absent, préambule provisoire. Compilé avec `tectonic`, pages relues en image par Claude. Pas encore importé dans Overleaf |
 
 ## Mes difficultés
 
@@ -150,7 +188,7 @@ choix. Trajectoires gardées dans `results/dev/prompts_v1/`. Nouveau run de cont
 - Limite de 30 requêtes par seconde chez OpenAlex : trois lots lancés ensemble ont été refusés, relancés un par un.
 - Un commit contenant encore la mention de Claude est apparu pendant la réécriture de l'historique (autre session
   ouverte) : il a fallu adapter le script de push.
-- Le gabarit LaTeX du cours (`main.tex`) n'est pas encore en ma possession : à demander à l'enseignante.
+- Gabarit LaTeX : il n'y a pas de cours, c'est mon sujet de mémoire. La trame sert de référence ; le préambule de l'article est le mien (précisé le 9 novembre).
 
 - La bibliographie vérifiée (35 sur 35 exactes) citait quand même 9 préprints à la place des versions publiées : « la référence
   existe » ne veut pas dire « c'est la bonne version ». Résolu.
@@ -166,8 +204,13 @@ choix. Trajectoires gardées dans `results/dev/prompts_v1/`. Nouveau run de cont
 - OpenAlex ne compte que 14 citations pour Search-R1, alors que Consensus en compte plus de 1 600 : les chiffres de
   citation dépendent de l'outil.
 - Observé : une équation précise à environ 75 % ne retrouve qu'un témoin sur cinq, et une requête en langage naturel a trouvé
-  une étude qu'elle avait manquée. [à compléter : ce que j'attendais]
-- Observé : deux tirages de graines différentes se recoupent. [à compléter : ce que j'attendais]
+  une étude qu'elle avait manquée. L'attendu : le journal l'avait « retenue » au vu de sa précision.
+- Attendu : la consigne supposait qu'une autre graine donnerait d'autres questions (« graine 7, PAS les 100 questions d'évaluation »).
+  Observé : 3 questions sur 110 en commun pour NQ, 2 pour TriviaQA.
+- Attendu : les tests sans GPU, tous réussis, laissaient penser que A3 fonctionnait. Observé : A3 ne faisait qu'une recherche par
+  question, sans aucune erreur ; seule la lecture des trajectoires l'a montré.
+- Observé : le résumé de Wu et al. parle d'« un modèle » pour les 27,7 % ; le texte précise qu'il s'agit de Search-R1, un de nos
+  systèmes. Lire le texte change ce qu'on peut affirmer.
 - Un article utile (SEM) n'existe dans OpenAlex que sous une copie douteuse : une référence trouvée par un outil doit
   être recoupée avec la source.
 
