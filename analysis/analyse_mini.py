@@ -111,6 +111,20 @@ def analyser(donnees):
                 "epuise": sum(x == "budget_exhausted" for x in statut),
                 "n": len(em),
             }
+    # Descriptifs pour la discussion : part des questions sans recherche, pertes sur les questions
+    # « connues » (A0 juste), abstentions explicites. Calculés ici pour que le texte ne cite que des sorties.
+    connues = [(j, i) for j in JEUX for i in ids[j] if donnees[("A0", j)][i]["em"] == 1]
+    abst = re.compile(r"not (provided|mentioned|available|given)|cannot|unknown|no information", re.I)
+    r["connues"] = len(connues)
+    r["extra"] = {}
+    for s in SYSTEMES[1:]:
+        lignes = [donnees[(s, j)][i] for j in JEUX for i in ids[j]]
+        r["extra"][s] = {
+            "sans_rech": sum(l["n_search"] == 0 for l in lignes) / len(lignes),
+            "perdues": sum(donnees[(s, j)][i]["em"] == 0 for j, i in connues),
+            "abst": sum(bool(l.get("prediction")) and bool(abst.search(l["prediction"] or "")) for l in lignes),
+            "sans_rep": sum(l["status"] != "answer" for l in lignes),
+        }
     # HA1 : McNemar sur les deux jeux réunis, 6 paires RL x harnais, Holm.
     paires = [(a, b) for a in RL for b in HARNAIS]
     brut = []
@@ -199,6 +213,12 @@ def ecrire_tex(r, outdir, fictif):
         v.append(f"\\expandafter\\def\\csname valEM-{s}-{j}\\endcsname{{{fr(100 * x['em'][0], 0)}}}")
         v.append(f"\\expandafter\\def\\csname valRech-{s}-{j}\\endcsname{{{fr(x['rech'][0])}}}")
         v.append(f"\\expandafter\\def\\csname valEpuise-{s}-{j}\\endcsname{{{x['epuise']}}}")
+    v.append(f"\\def\\valConnues{{{r['connues']}}}")
+    for sy, x in r["extra"].items():
+        v.append(f"\\expandafter\\def\\csname valSansRech-{sy}\\endcsname{{{fr(100 * x['sans_rech'], 0)}}}")
+        v.append(f"\\expandafter\\def\\csname valPerdues-{sy}\\endcsname{{{x['perdues']}}}")
+        v.append(f"\\expandafter\\def\\csname valAbst-{sy}\\endcsname{{{x['abst']}}}")
+        v.append(f"\\expandafter\\def\\csname valSansRep-{sy}\\endcsname{{{x['sans_rep']}}}")
     for j in JEUX:  # meilleur système de chaque famille, pour le résumé : \valBest{rl}{nq}, \valBestNom{rl}{nq}
         for fam, membres in (("rl", RL), ("harnais", HARNAIS)):
             s = max(membres, key=lambda m: d[(m, j)]["em"][0])
