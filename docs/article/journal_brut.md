@@ -191,6 +191,16 @@ l'article […], recheck si on suit bien la trame ».
   questions « connues », les harnais en perdent 18 à 24 après recherche, les agents 6 et 10. Exemples vérifiés dans les passages.
 - Résumé, résultats, discussion et conclusion réécrits ; relecture « rapporteur » avec le prompt de la trame : 6 corrections.
 
+**Analyses approfondies (9 novembre, après-midi).** Demandées par l'étudiant (« article pas assez consistant, plus de schémas,
+analyse poussée »). `analysis/analyse_approfondie.py`, exploratoire, sur les 1 200 trajectoires :
+- Trouver ou lire : réponse présente dans les passages pour 38 % des trajectoires des harnais et 42 % de celles des agents ;
+  EM si présente 50 % contre 69 % ; EM si absente 6 % contre 12 %.
+- Décomposition contrefactuelle de l'écart (13,6 points [9,2 ; 18,2]) : trouver 2,1 [0,9 ; 3,4], lire 8,0 [4,9 ; 11,4],
+  répondre sans appui 3,5 [0,7 ; 6,4]. Bootstrap sur les questions.
+- Requêtes : la 1re requête trouve la réponse pour 31 à 37 % des questions selon le système ; A5 recopie la question à 90 %,
+  A4 à 70 % ; requête répétée pour 29 % (A4) et 26 % (A5) des questions. Jetons : environ 150 à 166 pour les systèmes itératifs.
+- Gains / pertes face à A0, typologie automatique des erreurs, matrice des 15 comparaisons (Bonferroni), arbre TikZ.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |

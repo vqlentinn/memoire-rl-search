@@ -136,9 +136,6 @@ def _parts(rows_h, rows_r):
 
 def decomposer(D, toutes, n_boot=1000, seed=0):
     """Décomposition contrefactuelle, avec intervalles bootstrap (rééchantillonnage des questions)."""
-    def lignes(membres, idx):
-        return np.array([[trouvee(D[(s, toutes[k][0])][toutes[k][1]]), D[(s, toutes[k][0])][toutes[k][1]]["em"]]
-                         for s in membres for k in idx], dtype=float)
     cache = {s: np.array([[trouvee(D[(s, j)][i]), D[(s, j)][i]["em"]] for j, i in toutes], dtype=float)
              for s in HARNAIS + RL}
     pile = lambda membres, idx: np.vstack([cache[s][idx] for s in membres])  # noqa: E731

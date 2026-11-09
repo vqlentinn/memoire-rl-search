@@ -110,7 +110,7 @@ Modèle : 3 à 5 variables, tableau théorie $\rightarrow$ modèle (6.2) & Table
 Une flèche, une hypothèse, chacune justifiée et testable (6.3) & Section 4.2 et tableau 3 & Fait\\
 Section Données depuis la fiche données (7.8) & Section 5.2 et annexe C & Fait\\
 Données fabriquées déclarées, avec leur programme (7.6) & Encadrés, filigrane, exposant ; annexe C & Fait\\
-Figure : légende normalisée, tableau de contrôle, 5 contrôles (9.4--9.6) & Figures 4 et 5 ; contrôles en section~\ref{sec:donnees} & Fait\\
+Figure : légende normalisée, tableau de contrôle, 5 contrôles (9.4--9.6) & Figures 4 à 10, arbre TikZ ; contrôles en section~\ref{sec:donnees} & Fait\\
 Commentaire de figure avec limite et mise en garde causale (9.6) & Section 6.1 & Fait\\
 Discussion en cinq mouvements, sans répéter les chiffres (10.1--10.2) & Section 7 & Fait, sur les vrais résultats\\
 Implications « qui fait quoi », pas génériques (10.2) & Section 7.4, trois recommandations ciblées & Fait\\
@@ -281,6 +281,12 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {\f{scripts/selection\_corpus.py}, \f{docs/litterature/corpus\_final.csv}, annexe A de l'article.}
 {Je n'ai pas fait moi-même le tri que la trame attend de l'étudiant ; je peux en revanche défendre chaque règle, et les rejouer. Les décisions sur les doutes de l'équation 3 et des candidats reposent sur le résumé ou, à défaut, sur le titre : aucun texte n'a été lu en entier pour trier.}
 
+\dec{D24. Des analyses approfondies, exploratoires}{\moi{} demandé, \ia{} réalisé}
+{S'en tenir aux moyennes et aux quatre tests prévus.}
+{J'ai trouvé l'article trop mince sur l'analyse. Les trajectoires contiennent les passages lus et les requêtes : on peut donc mesurer où se joue l'avantage. Six analyses ont été ajoutées (section 6.3 de l'article) : gains et pertes face au modèle seul, « trouver ou lire », décomposition contrefactuelle de l'écart (trouver 2,1 points, lire 8,0, répondre sans appui 3,5, avec intervalles bootstrap), analyse des requêtes, typologie automatique des erreurs, matrice des quinze comparaisons, et un arbre de décision en TikZ. Toutes ont été choisies après avoir vu les résultats : l'article les déclare exploratoires et ne leur fait porter aucun verdict.}
+{\f{analysis/analyse\_approfondie.py} ; figures 6 à 10 de l'article.}
+{« Réponse présente dans les passages » est une estimation par chaîne de caractères ; la typologie des erreurs est automatique, pas annotée à la main (ce sera le volet C du mémoire).}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}
@@ -361,6 +367,7 @@ Chaque étonnement est un écart entre ce que j'attendais et ce qui s'est passé
 \item \textbf{Une référence introuvable n'est pas forcément inventée.} \emph{Attendu :} d'après l'exemple de la trame, « aucune correspondance » signale une référence fabriquée. \emph{Observé :} trois références réelles, dont deux citées des dizaines de fois, n'étaient pas trouvées par leur titre, et une quatrième était appariée à un autre article de mêmes auteurs ; par le DOI, toutes étaient exactes. La vérification automatique dit où regarder, pas ce qu'il faut conclure.
 \item \textbf{Les vraies données ont démenti le scénario fictif.} \emph{Attendu :} les paramètres fictifs, choisis à la main, faisaient des agents entraînés des systèmes à peine meilleurs et surtout plus coûteux. \emph{Observé :} ils gagnent de 10 à 17 points sur toutes les comparaisons, et les harnais font même moins bien que le modèle seul sur NQ. Le texte écrit sur le fictif était entièrement à jeter : c'est la meilleure preuve que les données fictives ne servent qu'à tester la chaîne.
 \item \textbf{Chercher peut faire perdre ce que l'on savait.} \emph{Attendu :} une recherche ajoute de l'information, au pire elle ne sert à rien. \emph{Observé :} sur les 44 questions que le modèle résout seul, le RAG en perd 18 après avoir lu les passages ; à une question sur le half-pipe à ski, il répond la date d'entrée du snowboard aux Jeux.
+\item \textbf{Les agents ne cherchent pas mieux, ils lisent mieux.} \emph{Attendu :} un agent entraîné à chercher formule de meilleures requêtes. \emph{Observé :} sa première requête trouve la réponse aussi souvent que celle d'un harnais (environ un tiers des questions), A5 recopie la question dans 90~\% des cas, et une question sur quatre contient une requête répétée mot pour mot ; l'essentiel de l'écart (59~\%) se joue une fois la réponse dans les passages.
 \item \textbf{Le résumé ne suffit pas.} \emph{Attendu :} le résumé de Wu et al. parle « d'un modèle » qui fait 27,7~\% de recherches évitables. \emph{Observé :} le texte précise qu'il s'agit de Search-R1, l'un de mes systèmes.
 \end{enumerate}
 
