@@ -10,7 +10,7 @@
 \usepackage[round,authoryear]{natbib}
 \usepackage[hidelinks]{hyperref}
 \usepackage{setspace}\onehalfspacing
-\usepackage{eso-pic,amsmath}
+\usepackage{eso-pic,amsmath,placeins}
 \usepackage{fvextra}% consignes des systèmes en annexe, avec retour à la ligne
 \newcommand{\aremplir}[1]{\textbf{\textcolor{red}{[À remplir : #1]}}}
 
@@ -303,6 +303,8 @@ Le sous-corpus n'est qu'une petite partie du corpus complet, ce qui limite ce qu
 \subsection{Mesures et statistiques}
 La précision est la correspondance exacte (EM) et le score F1, avec la normalisation de Search-R1. Le coût est le nombre de recherches par question et le nombre de jetons générés. Nous donnons des intervalles de confiance à 95~\% par bootstrap \citep{efron1979bootstrap} (1\,000 rééchantillonnages de questions) et comparons deux systèmes sur les mêmes questions par le test de McNemar \citep{mcnemar1947note}, avec une correction de Holm \citep{holm1979simple}. Les règles de décision sont celles du tableau~\ref{tab:test}. Avec 100 questions par jeu, les intervalles font environ $\pm 10$ points.
 
+\paragraph{Plan d'analyse fixé avant le run.} Les quatre règles de décision (tableau~\ref{tab:test}) et le programme qui les applique ont été versionnés dans le dépôt public (commits \texttt{bd044e7} et \texttt{00bd108}, 9 novembre 2026 à 8~h~54) avant le lancement du run d'évaluation (commit \texttt{07c1fbb}, 9~h~17). Le programme a été testé sur des données fictives de même format, qui ne contiennent aucune question d'évaluation. L'historique git permet à chacun de vérifier que les tests n'ont pas été choisis après avoir vu les résultats.
+
 \subsection{Puissance de l'expérience}
 Avant tout run, nous avons estimé par simulation ce que l'expérience peut détecter (tableau~\ref{tab:puissance}). Le modèle de simulation suppose une EM de référence de 25~\%, l'ordre de grandeur de la couverture de NQ, et des réponses corrélées entre systèmes par une difficulté commune à chaque question ; il est décrit dans \texttt{analysis/puissance.py}. Pour HA1, qui porte sur 200 questions avec six comparaisons, un vrai écart de 10 points n'a qu'environ \valPuiss{200}{10}{holm} de chances d'être déclaré significatif après correction de Holm, et un écart de 5 points \valPuiss{200}{5}{holm}. Avec 500 questions par jeu, comme prévu dans le mémoire, la puissance atteint \valPuiss{500}{10}{holm} pour un écart de 10 points. L'article ne peut donc conclure qu'à l'absence d'écarts \emph{importants} ; un écart de quelques points passerait inaperçu. HA2, qui compare deux écarts mesurés chacun sur 100 questions, est la moins bien dotée.
 
@@ -313,6 +315,7 @@ Avant tout run, nous avons estimé par simulation ce que l'expérience peut dét
 \label{tab:puissance}
 \end{table}
 
+\FloatBarrier
 \section{Résultats}\label{sec:resultats}
 
 \fictifnote{Tableaux et figures produits par \texttt{analysis/analyse\_mini.py} à partir des fichiers fictifs. Avec les vrais runs, la même commande les régénère ; le texte de cette section devra être réécrit.}
@@ -359,6 +362,7 @@ Le tableau~\ref{tab:tests} applique les règles de décision fixées avant le ru
 \label{fig:cout}
 \end{figure}
 
+\FloatBarrier
 \section{Discussion}\label{sec:discussion}
 
 \fictifnote{Cette discussion commente des résultats fictifs. Elle montre la forme attendue (les cinq mouvements de la trame) ; son contenu sera réécrit après les runs.}
@@ -379,21 +383,42 @@ Le cadre du fourragement de l'information (section~\ref{sec:cadre}) éclaire ces
 \textbf{Pratique.} Trois recommandations, chacune pour un acteur précis. L'équipe qui construit un assistant de questions-réponses sur un petit corpus devrait commencer par mesurer la couverture de ce corpus (la part des questions dont la réponse figure dans les premiers passages) : la mesure prend une vingtaine de minutes sur un processeur gratuit et borne ce que tout système peut atteindre. Elle devrait ensuite comparer un RAG simple et un ReAct par prompt avant d'envisager un entraînement, puisqu'à précision voisine ils coûtent moins de recherches. Enfin, l'équipe qui entraîne un agent devrait mesurer le nombre de recherches sur les questions que le modèle sait déjà résoudre, et ajouter un coût par recherche à la récompense si ce nombre reste élevé ; c'est l'hypothèse H3 du mémoire.
 
 \subsection{Limites et pistes}
-Ces limites valent quels que soient les résultats.
-\begin{itemize}
-  \item \textbf{Échantillon et puissance.} 100 questions par jeu, une seule graine, des intervalles d'environ $\pm 10$ points. D'après la simulation du tableau~\ref{tab:puissance}, un vrai écart de 10 points n'aurait qu'environ \valPuiss{200}{10}{holm} de chances d'être détecté pour HA1 : une absence d'effet significatif ne prouve pas l'absence d'effet.
-  \item \textbf{Corpus.} Un million de passages, avec une couverture de 25~\% (NQ) et 44~\% (TriviaQA) pour la réponse dans les trois premiers passages. Le plafond de précision d'un système qui dépend de la recherche est donc bas, et A4 et A5 ont été entraînés avec le corpus complet.
-  \item \textbf{Modèles.} A0 à A3 utilisent Qwen2.5-3B-Instruct, A4 et A5 un modèle entraîné par renforcement à partir de Qwen2.5-3B (base) : l'écart observé mélange la règle de recherche et le modèle. Des points de contrôle partant de la version Instruct existent : ils permettraient de réduire cet écart dans le mémoire.
-  \item \textbf{Prompts.} Ceux de A2 et A3 sont écrits pour ce projet avec deux exemples ; d'autres prompts pourraient changer les résultats.
-  \item \textbf{Connaissance préalable.} Elle est mesurée par une seule réponse de A0, produite par le modèle Instruct, et non par le modèle de base dont partent A4 et A5.
-  \item \textbf{Causalité.} Nous comparons des systèmes ; nous ne pouvons pas attribuer un écart à un seul facteur.
-  \item \textbf{Part de l'IA dans la démarche.} Le corpus bibliographique, le code des systèmes et une première version de ce texte ont été produits avec un assistant (Claude). Les références ont été vérifiées dans OpenAlex ; les articles n'ont pas été lus en entier ; les choix de protocole et l'interprétation sont ceux de l'auteur. Le détail figure dans le carnet de bord, et la méthode de recherche documentaire en annexe~\ref{ann:requetes}.
-\end{itemize}
+Ces limites valent quels que soient les résultats. Le tableau~\ref{tab:validite} les range selon le type de validité qu'elles menacent.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}p{2.1cm}p{5.2cm}p{6.6cm}@{}}
+\toprule
+Validité & Menace & Ce qui a été fait, ce qui reste\\
+\midrule
+Interne & A0 à A3 utilisent Qwen2.5-3B-Instruct, A4 et A5 un modèle entraîné à partir de Qwen2.5-3B (base) : l'écart mélange règle de recherche et modèle. & Même famille, même taille, même budget. Les agents issus de la version Instruct permettront de séparer les deux dans le mémoire.\\
+Interne & Les prompts de A2 et A3 ont été corrigés en mise au point. & Correction faite sur d'autres questions (graine 7), puis gel. A3 s'abstient encore sur environ 15~\% des questions de mise au point : il est probablement sous-estimé.\\
+Construit & L'EM compte comme fausses des réponses justes formulées autrement. & F1 rapporté à côté de l'EM ; même normalisation que Search-R1 pour tous.\\
+Construit & La connaissance préalable est mesurée par une seule réponse de A0, produite par le modèle Instruct. & Le mémoire prévoit huit échantillons par question (oracle de connaissance).\\
+Statistique & 100 questions par jeu, une graine : un vrai écart de 10 points n'a qu'environ \valPuiss{200}{10}{holm} de chances d'être détecté pour HA1. & Règles fixées d'avance, correction de Holm, intervalles rapportés. Une absence d'effet significatif ne prouve pas l'absence d'effet. Le mémoire passe à 500 questions par jeu.\\
+Statistique & Décodage glouton : la répétabilité exacte de la génération entre deux machines n'est pas testée. & La recherche est rendue déterministe (ex aequo départagés) ; la génération reste à tester.\\
+Externe & Corpus d'un million de passages : réponse dans les trois premiers passages pour 25~\% (NQ) et 44~\% (TriviaQA) des questions ; A4 et A5 ont été entraînés sur le corpus complet. & Couverture mesurée et rapportée. Le plafond de précision est bas pour tous les systèmes qui cherchent.\\
+Externe & Deux jeux à une étape, en anglais, Wikipédia 2018, modèles de 3 milliards de paramètres. & Les jeux multi-étapes et d'autres retrievers sont prévus dans le mémoire (H4).\\
+\bottomrule
+\end{tabular}
+\caption{Menaces à la validité. Interne : l'écart vient-il bien de la règle de recherche ? Construit : mesure-t-on ce que l'on croit mesurer ? Statistique : l'échantillon permet-il de conclure ? Externe : le résultat vaut-il ailleurs ?}
+\label{tab:validite}
+\end{table}
+
+\noindent\textbf{Causalité.} Nous comparons des systèmes complets : aucun écart ne peut être attribué à un seul facteur.
+
 \textbf{Pistes.} Deux hypothèses du mémoire ne sont pas testées ici : une pénalité par recherche dans la récompense réduit-elle le nombre d'appels sans perte forte de précision (entraînement GRPO à petite échelle), et un changement de retriever dégrade-t-il plus les agents entraînés que les harnais fixes ? Une analyse qualitative des échecs sur des trajectoires annotées compléterait la mesure : le mémoire prévoit d'en annoter 100 à la main et d'en faire classer 300 par un juge automatique, avec un accord mesuré par le kappa de Cohen.
 
+\FloatBarrier
 \section{Conclusion}\label{sec:conclusion}
 \fictifnote{Conclusion écrite sur les résultats fictifs, à réécrire.}
 Nous avons comparé, à corpus, retriever, budget et questions identiques, deux agents de recherche entraînés par renforcement et quatre systèmes à règle fixe. Sur 200 questions, l'apprentissage ne se traduit pas par un gain de précision détectable, mais par un coût plus élevé : les agents entraînés cherchent plus, même quand ils n'en ont pas besoin\fictif. Le cadre du fourragement de l'information explique cet écart par l'absence de coût dans la récompense. Ces conclusions valent pour un petit corpus, un petit modèle et un petit échantillon. Le mémoire les mettra à l'épreuve sur sept jeux de questions, en testant une pénalité par recherche (H3) et un changement de retriever (H4).
+
+\section*{Déclaration d'usage de l'IA générative}
+Un assistant d'IA (Claude, Anthropic) a été utilisé à chaque étape : recherche documentaire par OpenAlex, écriture de tout le code (systèmes, statistiques, analyse, figures), premier jet de toutes les sections, mise en page LaTeX. L'auteur a fixé la question, les hypothèses et le protocole, validé chaque décision de méthode et chaque lancement, et relu le texte. Les références ont toutes été vérifiées dans OpenAlex ; les articles n'ont pas tous été lus en entier. Le carnet de bord joint détaille, étape par étape, ce que l'IA a fait, ce qui a été gardé, refait ou vérifié, et les erreurs de l'IA qui ont été rattrapées.
+
+\section*{Disponibilité du code et des données}
+Le code, les consignes données aux modèles, les règles d'analyse et ce texte sont publics : \url{https://github.com/vqlentinn/memoire-rl-search}. Les questions (FlashRAG), le corpus (\texttt{maknee/wiki-18-subsets}) et les modèles sont publics sur Hugging Face. Les trajectoires produites ne sont pas versionnées dans le dépôt, mais se régénèrent avec \texttt{scripts/run\_volet\_a.py} sur un GPU gratuit ; l'article se régénère avec \texttt{scripts/rendu.sh}.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

@@ -14,6 +14,7 @@ Complète `journal_requetes_openalex.md` (même dossier).
 | 15 | OpenAlex `search_works` (texte intégral) | Modèles économiques, satisficing ou rationalité limitée ET agents de recherche ET RL | 57 | Aucune mention de Stigler, d'Azzopardi ni de satisficing dans les 10 PDF contrôlés | Simon retiré du cadre |
 | 16 | OpenAlex `resolve_references` | Pirolli et Card 1999, Azzopardi 2011, Holm 1979, Qian et Liu 2025, Zhang et al. 2026, Poudel et al. 2026 | 6 | 6 exactes | Ajoutés à `refs.bib` |
 | 17 | OpenAlex `resolve_references` (9 novembre) | Les 46 références de `refs.bib`, par DOI ou par titre (lots de 25 et 21) | 46 | 43 exactes ; 3 non trouvées par le titre (R1-Searcher, apparié à tort à R1-Searcher++ ; la synthèse de Lin et al. ; ParallelSearch), toutes exactes par leur DOI arXiv. 0 rétractée | Vérification finale de l'étape 12 : zéro rouge. DOI arXiv ajoutés aux 3 entrées. 6 entrées passées à leur version publiée signalée par OpenAlex (FlashRAG, Adaptive-RAG, Active RAG, Mallen et al., InForage, Zhang et al.) |
+| 18 | API OpenAlex (résumés), 9 novembre | Les 58 « doutes » du tri de l'équation 3 | 58 | 56 résumés lus : 11 inclus proposés, 44 exclus (E1, E3), 3 doutes (dont 2 sans résumé) | Seconde proposition de Claude, colonnes `proposition_v2`, `motif_v2`, `commentaire_v2` de `tri_equation3_proposition.csv`. La colonne `decision_etudiant` reste à l'étudiant (règle 9 de l'étape 5.2) |
 
 OQL de l'équation 3 :
 
