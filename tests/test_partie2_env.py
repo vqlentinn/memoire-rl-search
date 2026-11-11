@@ -1,0 +1,115 @@
+"""Partie 2 : environnement fermé (HotpotQA distracteurs, BM25 par question) et boucle à n tirages."""
+import sys
+import types
+from pathlib import Path
+from unittest import mock
+
+import numpy as np
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from retrieval.closed_bm25 import BM25Okapi, ClosedBM25Retriever  # noqa: E402
+
+PARAS = ["Ed Wood\nEdward Davis Wood Jr. was an American filmmaker.",
+         "Scott Derrickson\nScott Derrickson is an American director.",
+         "Tyler Bates\nTyler Bates is a composer.",
+         "Woodson, Arkansas\nWoodson is a town in Arkansas."]
+
+
+def test_bm25_classe_le_bon_paragraphe():
+    r = ClosedBM25Retriever([{"id": "q1", "paragraphs": PARAS}])
+    assert r.search_in("q1", "Who is Scott Derrickson?", k=1)[0].startswith("Scott Derrickson")
+    assert r.search_in("q1", "composer Tyler Bates", k=2)[0].startswith("Tyler Bates")
+
+
+def test_idf_negatif_remplace_par_le_plancher():
+    """« american » est dans 2 paragraphes sur 4 : idf = log(2,5/2,5) = 0 ; « is » dans 4 sur 4 : négatif."""
+    bm = BM25Okapi(PARAS)
+    assert all(v >= 0 for v in bm.idf.values())
+    assert bm.idf["is"] == pytest.approx(0.25 * np.mean([np.log((4 - n + 0.5) / (n + 0.5))
+                                                        for n in [len([p for p in bm.toks if m in p]) for m in bm.idf]]))
+
+
+def test_ex_aequo_departages_par_l_ordre_du_fichier():
+    r = ClosedBM25Retriever([{"id": "q", "paragraphs": ["A\nx", "B\nx", "C\nx"]}])
+    assert [p[0] for p in r.search_in("q", "requête sans rapport", k=3)] == ["A", "B", "C"]
+
+
+def test_format_identique_a_search_r1():
+    out = ClosedBM25Retriever.format_searchr1(["Titre\nTexte\nsuite"])
+    assert out == "Doc 1(Title: Titre) Texte\nsuite\n"
+
+
+def _df(n_bridge=6, n_comp=4):
+    import pandas as pd
+    ctx = {"title": [f"T{i}" for i in range(10)], "sentences": [[f"s{i}."] for i in range(10)]}
+    lignes = [{"id": f"b{i}", "question": f"qb{i}", "answer": f"a{i}", "type": "bridge", "level": "hard",
+               "supporting_facts": {"title": ["T0", "T1"], "sent_id": [0, 0]}, "context": ctx} for i in range(n_bridge)]
+    lignes += [{"id": f"c{i}", "question": f"qc{i}", "answer": "yes" if i < 2 else f"x{i}", "type": "comparison",
+                "level": "hard", "supporting_facts": {"title": ["T2"], "sent_id": [0]}, "context": ctx} for i in range(n_comp)]
+    lignes.append({"id": "court", "question": "q", "answer": "a", "type": "bridge", "level": "hard",
+                   "supporting_facts": {"title": ["T0"], "sent_id": [0]},
+                   "context": {"title": ["T0"], "sentences": [["s."]]}})
+    return pd.DataFrame(lignes)
+
+
+def test_preparer_exclut_oui_non_et_contextes_incomplets():
+    from data.hotpot_distractor import preparer
+    qs = preparer(_df())
+    ids = {q["id"] for q in qs}
+    assert "court" not in ids and "c0" not in ids and "c1" not in ids
+    assert len(qs) == 6 + 2 and qs[0]["paragraphs"][0] == "T0\ns0."
+
+
+def test_tirage_reproductible_et_exclusion(tmp_path):
+    from data.hotpot_distractor import charger
+    f = tmp_path / "v.parquet"
+    _df(n_bridge=30).to_parquet(f)
+    a = charger(f, "bridge", n=10, seed=42)
+    assert [q["id"] for q in a] == [q["id"] for q in charger(f, "bridge", n=10, seed=42)]
+    b = charger(f, "bridge", n=10, seed=7, exclure=[q["id"] for q in a])
+    assert not {q["id"] for q in a} & {q["id"] for q in b}
+
+
+class _Out:
+    def __init__(self, text, stop, finish="stop"):
+        self.outputs = [types.SimpleNamespace(text=text, stop_reason=stop, token_ids=[0], finish_reason=finish)]
+
+
+class _LLM:
+    script = []
+
+    def __init__(self, *a, **k):
+        self.i = 0
+
+    def get_tokenizer(self):
+        return types.SimpleNamespace(apply_chat_template=lambda m, **k: "CHAT:" + m[0]["content"])
+
+    def generate(self, prompts, params, use_tqdm=False):
+        """Un tour = un appel : toutes les questions actives reçoivent la sortie prévue pour ce tour."""
+        sortie = self.script[min(self.i, len(self.script) - 1)]
+        self.i += 1
+        return [_Out(*sortie) for _ in prompts]
+
+
+def _systeme(script, **kw):
+    fake_vllm = types.SimpleNamespace(LLM=_LLM, SamplingParams=lambda **k: None)
+    with mock.patch.dict(sys.modules, {"vllm": fake_vllm}):
+        sys.modules.pop("systems.searchr1", None)
+        from systems.searchr1 import SearchR1System
+        _LLM.script = script
+        return SearchR1System("faux", ClosedBM25Retriever([{"id": "q1", "paragraphs": PARAS}]), **kw)
+
+
+def test_boucle_recherche_fermee_et_tirages_multiples():
+    s = _systeme([("<search>Scott Derrickson</search>", "</search>"), ("<answer>American</answer>", None)])
+    t = s.run_samples([{"id": "q1", "question": "Q?", "golds": ["American"]}], n=3)
+    assert len(t) == 3 and [x["sample"] for x in t] == [0, 1, 2]
+    assert all(x["docs"][0][0].startswith("Scott Derrickson") for x in t)
+
+
+def test_troncature_signalee_et_prompt_brut():
+    s = _systeme([("<answer>coupé", None, "length")], use_chat_template=False)
+    assert not s._initial_prompt("Q?").startswith("CHAT:")
+    t = s.run([{"id": "q1", "question": "Q?", "golds": ["x"]}])[0]
+    assert t["truncated"] is True
