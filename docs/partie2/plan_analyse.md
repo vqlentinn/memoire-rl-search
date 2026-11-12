@@ -95,6 +95,10 @@ Sur les 50 questions de mise au point, n = 32, T = 4, pour les deux paires Instr
 2. Le taux de réponses au bon format, avec et sans gabarit de chat pour le modèle de base.
 3. Le taux de troncature à 512 jetons par tour.
 4. La distribution des réussites par question, qui calibre une simulation de puissance avant de fixer N.
+5. La part des questions **hors de portée** du modèle de départ (aucune réussite en n essais). C'est la marge
+   d'élargissement : si elle est proche de 0, pass@n sature à 1 et un élargissement est indétectable quelle que
+   soit la taille de l'étude. Dans ce cas, il faudra des questions plus difficiles (ou un n plus petit), à décider
+   avant le gel du plan.
 
 Ordre de grandeur à vérifier : 4 modèles × 2 valeurs de T × 1 000 questions × 32 tirages = 256 000 trajectoires,
 contre 1 200 en 1 h 12 pour la partie 1 en décodage glouton. Repli si c'est trop lent : n = 16, paires Instruct
