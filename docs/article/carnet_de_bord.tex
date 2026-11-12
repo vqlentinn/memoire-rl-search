@@ -299,6 +299,36 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {Section 3 (équations 1 et 2) et annexe D de l'article.}
 {La formalisation décrit l'entraînement d'après l'article de Search-R1 ; nous ne l'avons pas reproduit.}
 
+\dec{D27. Partie 2 : arrêter la génération à la balise de réponse}{\ia{} constaté et corrigé, \moi{} informé puis accord (« oui go »)}
+{Garder l'arrêt sur la seule balise de recherche, comme dans le pilote ; ou couper les trajectoires après coup, à l'analyse.}
+{Au pilote v2, l'agent \texttt{it-em-ppo} continuait d'écrire après sa réponse et répétait \texttt{<answer>…</answer>} jusqu'à 1~024 jetons dans 42~\% des trajectoires, ce qui divisait son débit par quatre. Le code officiel de Search-R1 coupe la sortie au premier \texttt{</answer>} : arrêter là est donc fidèle à l'entraînement, et non un réglage de notre part. Couper seulement à l'analyse aurait gardé le coût en calcul. Avant de corriger, le pilote a été rescoré hors ligne au premier \texttt{</answer>} : les tendances ne changent pas.}
+{\f{systems/searchr1.py} ; journal du 12 novembre ; plan, section « Mesures ».}
+{Le débit corrigé n'est pas encore mesuré : le budget de l'étude repose sur une estimation.}
+
+\dec{D28. Partie 2 : geler le plan avant le premier run principal}{\moi{} décidé, \ia{} rédigé}
+{Lancer l'étude, puis choisir les règles de décision au vu des courbes ; ou fixer $N$ d'après la « puissance » simulée sur le pilote.}
+{Les courbes pass@k laissent beaucoup de libertés (quels $k$, bande ponctuelle ou simultanée, quel sous-ensemble) : les choisir après coup permettrait de trouver un « élargissement » partout. Le plan v1.0 (\f{docs/partie2/plan\_analyse.md}) a donc été commité avant la session 1, avec $N = 500$, $n = 32$, les règles de H1 et H2 et la correction de Holm. La puissance simulée sur le pilote valait 0~\%, mais parce que le pilote ne montre aucun élargissement : ce chiffre ne dit rien de la taille utile. On a donc calculé l'écart minimal détectable à partir de l'écart-type observé : environ 4 points à $k = 32$ avec 500 questions, 3 avec 1~000, pour deux fois le coût.}
+{Plan v1.0 et précisions opératoires datées ; \f{analysis/confirmatoire\_partie2.py}, testé sur données simulées.}
+{Les précisions (p-valeur de Holm, protocole de H3) ont été écrites pendant que la session 1 tournait, sans en avoir vu les résultats ; c'est vérifiable dans l'historique Git, pas autrement.}
+
+\dec{D29. Partie 2 : un sous-ensemble difficile, et un garde-fou de lecture}{\ia{} proposé et écrit, délégation de \moi{}}
+{Juger l'élargissement sur l'échantillon complet seulement.}
+{En écrivant les tests, une simulation a montré qu'un agent qui ne fait que fiabiliser « gagne » des questions où le modèle de départ a peu de chances et les rate par hasard en 32 essais. Un gain à $k = n$ ne suffit donc pas. Le mot « élargissement » sans réserve ne sera employé que si le verdict tient aussi sur un sous-ensemble difficile, présélectionné sur des tirages indépendants (réutiliser les mêmes tirages fabriquerait un élargissement, ce qu'un autre test montre).}
+{Plan, précisions opératoires ; \f{tests/test\_confirmatoire\_partie2.py}, \f{tests/test\_passk.py} ; sessions 3 et 4.}
+{Le sous-ensemble ne contient que les questions de ponts, environ 150 à 200 : sa puissance sera plus faible.}
+
+\dec{D30. Partie 2 : H3 par lecture croisée}{\ia{} proposé et écrit, délégation de \moi{}}
+{Reprendre la décomposition contrefactuelle de la partie 1 (trouver, lire, sans appui), fondée sur des indicateurs calculés après coup.}
+{La partie 1 attribuait l'écart à la lecture par une décomposition additive, sans expérience. Ici, on peut la faire : chaque modèle lit les recherches de l'autre (requêtes et passages, raisonnement retiré dans les quatre cases), puis répond sans chercher. À chercheur fixé, l'écart entre lecteurs isole la lecture ; à lecteur fixé, l'écart entre chercheurs isole la recherche. C'est une manipulation, plus probante qu'une décomposition.}
+{\f{scripts/run\_lecture.py}, \f{analysis/lecture\_croisee.py}, session 5.}
+{Retirer le raisonnement du chercheur change la situation du lecteur ; c'est le même retrait dans les quatre cases, mais l'agent lisant ses propres recherches sans son raisonnement n'est plus tout à fait l'agent.}
+
+\dec{D31. Partie 2 : lancer deux sessions Kaggle en parallèle, pas trois}{\ia{} décidé, délégation de \moi{}}
+{Enchaîner les cinq sessions une à une ; ou les lancer toutes.}
+{Les sessions 1 (ponts) et 2 (comparaisons) sont indépendantes et tournent ensemble depuis le 12 novembre au soir. La session 3 attend le débit mesuré de la session 1 : avec les estimations actuelles, trois sessions de front approcheraient le quota hebdomadaire (environ 30 h), et un dépassement pourrait couper un run en cours. Les sessions 4 et 5 dépendent des sorties des sessions 3 et 1.}
+{\f{scripts/genere\_notebooks\_partie2.py}, \f{kaggle/partie2\_s*/}.}
+{Le quota restant de la semaine n'est pas lisible depuis la ligne de commande ; la marge est estimée.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}
