@@ -1,6 +1,6 @@
 # Partie 2 : plan d'analyse
 
-**Statut : version 0, avant le pilote (11 novembre 2026).** Les paramètres marqués « [pilote] » seront fixés
+**Statut : version 0.1, avant le pilote (12 novembre 2026), après la recherche documentaire.** Les paramètres marqués « [pilote] » seront fixés
 d'après la session pilote, puis le plan sera gelé et commité **avant** tout run principal. Toute modification
 ultérieure sera datée et signalée dans l'article.
 
@@ -48,11 +48,22 @@ pour les paires Instruct ; pour les paires base, gabarit de chat ou prompt brut 
 - Pilote : 50 questions de ponts tirées avec la graine 7, **disjointes** des questions d'évaluation.
 - HotpotQA fait partie de l'entraînement de Search-R1 (partie train) : les questions de validation sont « vues »
   en distribution, jamais en contenu. À dire dans l'article.
+- **Sous-ensemble difficile (ajouté le 12 novembre).** Un élargissement n'est mesurable que sur les questions que le
+  modèle de départ ne résout jamais (MATH-Beyond ; Yuan et al.). Procédure en deux temps, sur des tirages
+  **indépendants** :
+  1. *Présélection* : le modèle de départ tire n_pré = 16 générations (graine de génération 1) sur un vivier de
+     questions de ponts **distinct** des 500 de l'échantillon principal ; on garde celles qui n'ont aucune réussite.
+  2. *Évaluation* : sur ces questions, les deux modèles de la paire tirent n = 32 générations **nouvelles** (graine
+     de génération 0, comme l'échantillon principal).
+  Réutiliser les tirages de la présélection donnerait au modèle de départ un pass@k nul par construction, et donc un
+  élargissement fabriqué. Le test `test_selection_sur_les_memes_tirages_fabrique_un_elargissement` le montre sur
+  simulation. Taille du vivier [pilote], cible : 150 à 200 questions difficiles.
 
 ## Mesures
 
 - n = 32 générations par question et par modèle, température 0,7 (comme Zhai et al.) [pilote : n peut descendre à 16].
-- T (recherches au plus) : 4 et 0 d'abord ; 1 et 2 ensuite si le budget le permet. T = 0 : aucune recherche permise ;
+- T (recherches au plus) : 4 et 0 d'abord ; 1 et 2 ensuite si le budget le permet. Zhu et al. (2611.06483)
+  montrent que l'avantage du RL dépend du budget d'interaction et peut s'inverser à petit T. T = 0 : aucune recherche permise ;
   une trajectoire qui tente de chercher se termine sans réponse.
 - 512 jetons par tour, identiques pour les deux modèles d'une paire.
 - Juste : correspondance exacte (normalisation de Search-R1). F1 et correspondance souple en sensibilité.
@@ -72,7 +83,8 @@ pour les paires Instruct ; pour les paires base, gabarit de chat ou prompt brut 
 
 ## Hypothèses et règles de décision
 
-Tests principaux : H2 sur les ponts à T = 4, pour les deux paires Instruct ; correction de Holm sur ces 2 tests.
+Tests principaux : H2 sur les ponts à T = 4, pour les deux paires Instruct, sur l'échantillon complet ; correction de
+Holm sur ces 2 tests. Le sous-ensemble difficile est secondaire, rapporté avec la même règle et sans correction.
 Tout le reste est secondaire et rapporté comme tel.
 
 | Hypothèse | Énoncé | Règle de décision |
@@ -82,6 +94,23 @@ Tout le reste est secondaire et rapporté comme tel.
 | H2' (secondaire) | Sur les comparaisons et à T = 0, l'écart se referme ou s'inverse | Mêmes règles ; aucune correction, rapporté comme exploratoire |
 | H3 (secondaire) | À passages identiques, l'avantage vient de la lecture | Échange des plans de recherche entre les deux modèles ; protocole précis à écrire après le pilote |
 | H4 (option) | Un fine-tuning supervisé LoRA sur les traces réussies de l'agent récupère la frontière | Ouvert seulement après les résultats principaux |
+
+### Prédictions écrites avant le run (d'après la littérature)
+
+- **H1 : soutenue** (gain au premier essai attendu, déjà observé dans la partie 1 à température nulle).
+- **H2 sur l'échantillon complet : « fiabilisation seule » plus probable qu'« élargissement ».** Search-R1 est un RL
+  standard (récompense de résultat, KL inverse), la cible de presque toutes les méthodes qui prétendent élargir ; et
+  pass@32 risque de saturer.
+- **H2 sur le sous-ensemble difficile : élargissement faible possible** sur les ponts (Zhai et al., tâches
+  compositionnelles ; Yuan et al., des questions insolubles deviennent solubles).
+- **H2' : pas d'élargissement à T = 0**, et un avantage plus faible à petit T (Zhu et al.).
+Ces prédictions ne sont pas des règles de décision ; elles servent à montrer, après coup, ce qui était attendu.
+
+### Bras optionnel : harnais contre RL à pass@k
+
+Si le budget le permet, le modèle Instruct avec le harnais ReAct de la partie 1 (`prompts/react.txt`), dans le même
+environnement fermé. Kim et al. (2610.27889) montrent que les gains au premier essai d'un harnais peuvent s'inverser à
+grand nombre d'essais : la partie 1 comparait RL et harnais au premier essai seulement.
 
 Les trois issues de H2 sont publiables : un élargissement qui résiste serait une réplication indépendante de Zhai
 et al. sur des modèles publics ; un élargissement qui ne résiste pas serait le symétrique, pour les agents, du

@@ -94,7 +94,8 @@ les agents 6 et 10. A3 s'abstient 30 fois sur 200. L'article et le carnet sont �
 Partie 2 (branche `partie2-passk`, 11 novembre 2026) : le renforcement élargit-il ce que l'agent sait faire (pass@k),
 ou le fiabilise-t-il seulement ? Paires exactes checkpoint / modèle de départ (variantes `-it-` vérifiées sur Hugging Face),
 HotpotQA distracteurs avec BM25 fermé par question. Note vérifiée : `docs/partie2/note_litterature.md` (deux références
-introuvables retirées). Plan v0 : `docs/partie2/plan_analyse.md`. Code : `analysis/passk.py`, `data/hotpot_distractor.py`,
+introuvables retirées). Plan v0.1 : `docs/partie2/plan_analyse.md` (sous-ensemble difficile sur tirages indépendants, prédictions écrites).
+Recherche documentaire : `docs/partie2/journal_requetes_partie2.md`, corpus de 43 articles vérifiés `docs/partie2/corpus_partie2.csv`. Code : `analysis/passk.py`, `data/hotpot_distractor.py`,
 `retrieval/closed_bm25.py`, `scripts/run_passk.py`. Prochaine étape : session pilote Kaggle (débit, format, troncature).
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour

@@ -228,6 +228,13 @@ partie 2 devient le cœur du mémoire, l'article rendu en devient la partie 1.
   plan v0. Découvertes : 447 réponses oui/non à exclure ; deux paragraphes utiles ramenés par la question seule dans
   45 % des cas seulement ; risque de plafond de pass@n.
 - Pilote Kaggle lancé le 12 novembre (version 1 de `memoire-partie2-pilote`).
+- Recherche documentaire de la partie 2 (12 novembre) : équation OpenAlex P1 (302 résultats, environ 55 % de précision),
+  P2 agents en deux versions (642 puis 138, précision faible : littérature mince), boule de neige sur Zhai et al. et
+  Yue et al., deux questions Consensus, index arXiv. Corpus de 43 articles, tous vérifiés (42 exacts, 1 incertain).
+  Pas de recoupement : Zhu et al. (2611.06483, Pass@(K,T) sur des agents) ne touche ni la recherche documentaire ni
+  Search-R1. Biais de publication : presque tous les « oui » proposent une nouvelle méthode. Conséquences : sous-ensemble
+  difficile présélectionné sur des tirages indépendants (le test montre qu'une réutilisation fabrique un élargissement),
+  T comme variable, bras harnais optionnel, prédictions écrites avant le run.
 
 ## Les outils utilisés
 

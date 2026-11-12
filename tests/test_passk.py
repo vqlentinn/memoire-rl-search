@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from analysis.passk import (bootstrap_multiplicateur, difference_appariee, frontiere,  # noqa: E402
-                            grille_k, pass_at_k)
+                            grille_k, pass_at_k, sous_ensemble_difficile)
 
 
 @pytest.mark.parametrize("n,c,k", [(5, 2, 1), (5, 2, 3), (6, 0, 4), (6, 6, 2), (8, 3, 5), (8, 1, 8)])
@@ -77,3 +77,18 @@ def test_couverture_des_bandes_simultanees():
 def test_frontiere():
     f = frontiere([0, 3, 1, 0, 2], [1, 0, 1, 0, 0])
     assert (f["rl"], f["base"], f["gagnees"], f["perdues"]) == (3, 2, 2, 1)
+
+
+def test_selection_sur_les_memes_tirages_fabrique_un_elargissement():
+    """Sans aucun effet réel (agent = départ), sélectionner les questions ratées par le départ puis réutiliser les
+    mêmes tirages fait croire à un élargissement ; des tirages nouveaux le font disparaître."""
+    rng = np.random.default_rng(4)
+    n, ks = 16, grille_k(16)
+    p = rng.beta(0.3, 3.0, size=3000)  # beaucoup de questions difficiles
+    presel = rng.binomial(n, p)
+    ids = sous_ensemble_difficile(dict(enumerate(presel)))
+    agent = rng.binomial(n, p[ids])  # même modèle : aucun effet
+    _, D_biaise = difference_appariee(agent, presel[ids], n, ks)
+    _, D_juste = difference_appariee(agent, rng.binomial(n, p[ids]), n, ks)
+    assert D_biaise[-1] > 0.05          # élargissement fabriqué
+    assert abs(D_juste[-1]) < 0.03      # disparaît avec des tirages nouveaux
