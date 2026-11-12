@@ -40,14 +40,21 @@ def preparer(df):
     return out
 
 
-def charger(chemin=None, type_question="bridge", n=500, seed=42, exclure=()):
-    """n questions d'un type, tirées avec la graine `seed` ; `exclure` : ids à écarter (mise au point)."""
+def charger(chemin=None, type_question="bridge", n=500, seed=42, exclure=(), ids=None):
+    """n questions d'un type, tirées avec la graine `seed` ; `exclure` : ids à écarter (mise au point).
+    `ids` : liste explicite (sous-ensemble difficile) ; renvoie ces questions dans cet ordre, sans tirage."""
     import pandas as pd
     if type_question not in TYPES:
         raise ValueError(f"type inconnu : {type_question}")
     chemin = chemin or telecharger()
     eligibles = [q for q in preparer(pd.read_parquet(chemin))
                  if q["type"] == type_question and q["id"] not in set(exclure)]
+    if ids is not None:
+        par_id = {q["id"]: q for q in eligibles}
+        manquants = [i for i in ids if i not in par_id]
+        if manquants:
+            raise ValueError(f"{len(manquants)} ids absents ou d'un autre type, par exemple {manquants[:3]}")
+        return [par_id[i] for i in ids]
     rng = np.random.default_rng(seed)
     idx = rng.choice(len(eligibles), size=min(n, len(eligibles)), replace=False)
     return [eligibles[i] for i in sorted(idx)]

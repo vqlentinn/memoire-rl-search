@@ -67,7 +67,12 @@ def bootstrap_multiplicateur(d, n_boot=2000, alpha=0.05, seed=0):
     z = norm.ppf(1 - alpha / 2)
     t = np.where(sigma > 0, D / sigma_sur, 0.0)
     z_uni = norm.ppf(1 - alpha)
+    max_boot = t_boot.max(axis=1)
     return {
+        # p-valeurs : ponctuelle unilatérale (D(k) > 0) et simultanée bilatérale (ajustée sur tous les k)
+        "p_uni": norm.sf(t), "p_simul": np.array([np.mean(max_boot >= abs(x)) for x in t]),
+        # Test d'intersection-union : p = max des p unilatérales (Berger, 1982)
+        "p_dominance": float(norm.sf(t).max()),
         "D": D, "sigma": sigma, "t": t,
         "bande_ponct": (D - z * sigma, D + z * sigma),
         "bande_simul": (D - q_simul * sigma, D + q_simul * sigma),

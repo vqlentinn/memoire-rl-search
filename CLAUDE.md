@@ -96,7 +96,13 @@ ou le fiabilise-t-il seulement ? Paires exactes checkpoint / modèle de départ 
 HotpotQA distracteurs avec BM25 fermé par question. Note vérifiée : `docs/partie2/note_litterature.md` (deux références
 introuvables retirées). Plan v0.1 : `docs/partie2/plan_analyse.md` (sous-ensemble difficile sur tirages indépendants, prédictions écrites).
 Recherche documentaire : `docs/partie2/journal_requetes_partie2.md`, corpus de 43 articles vérifiés `docs/partie2/corpus_partie2.csv`. Code : `analysis/passk.py`, `data/hotpot_distractor.py`,
-`retrieval/closed_bm25.py`, `scripts/run_passk.py`. Prochaine étape : session pilote Kaggle (débit, format, troncature).
+`retrieval/closed_bm25.py`, `scripts/run_passk.py`.
+Pilote v2 (12 nov., kernel `memoire-partie2-pilote` v2, `results/partie2_pilote_v2/`, non versionné) : 6 runs complets. Défaut
+corrigé : it-em-ppo répétait `<answer>` jusqu'à la limite (arrêt à `</answer>` ajouté, comme Search-R1). Plan GELÉ v1.0
+(N = 500, n = 32, 1 024 jetons par tour) + précisions opératoires datées. Session 1 (ponts, T = 4, paires Instruct)
+lancée le 12 nov. au soir : kernel `valentinproux/memoire-partie2-principal`. Sessions 2 à 4 : `scripts/genere_notebooks_partie2.py`
+-> `kaggle/partie2_s{2,3,4}/` (la 4 lit `difficiles_ponts.txt` produit par la 3). Analyse : `analysis/confirmatoire_partie2.py`
+(verdicts H1/H2, Holm, figures, tableaux LaTeX) ; Python avec matplotlib requis.
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour
 séparer règle de recherche et modèle ; H4 (BM25).

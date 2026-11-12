@@ -68,6 +68,9 @@ def main():
     ap.add_argument("--seed", type=int, default=0, help="graine de génération (vLLM)")
     ap.add_argument("--seed-questions", type=int, default=SEED_EVAL,
                     help="autre que 42 : tirage de mise au point, disjoint des questions d'évaluation")
+    ap.add_argument("--exclure-tirage", action="append", default=[], metavar="GRAINE:N",
+                    help="écarte aussi un tirage antérieur (ex. 7:50, le pilote) ; répétable")
+    ap.add_argument("--ids", default=None, help="fichier d'ids (un par ligne) : sous-ensemble difficile, sans tirage")
     ap.add_argument("--shard", default=None, help="« i/m » : seulement les questions i, i+m, i+2m… (deux GPU en parallèle)")
     ap.add_argument("--outdir", default="results/partie2")
     args = ap.parse_args()
@@ -77,21 +80,34 @@ def main():
     from systems.searchr1 import SearchR1System
 
     tag = "brut" if args.no_chat_template else "chat"
+    exclure = []
+    if args.seed_questions != SEED_EVAL or args.exclure_tirage:  # pilote, vivier : aucune question d'évaluation
+        eval_ids = [q["id"] for q in charger(args.data, args.type, n=N_EVAL, seed=SEED_EVAL)]
+        exclure = list(eval_ids)
+        for t in args.exclure_tirage:  # tirages antérieurs, faits eux-mêmes hors évaluation (comme le pilote)
+            g, n = map(int, t.split(":"))
+            exclure += [q["id"] for q in charger(args.data, args.type, n=n, seed=g, exclure=eval_ids)]
+    if args.ids:
+        ids = [l.strip() for l in Path(args.ids).read_text().split("\n") if l.strip()]
+        questions = charger(args.data, args.type, ids=ids)
+        if args.n_questions != len(questions):
+            print(f"  --n-questions remplacé par la taille de la liste : {len(questions)}")
+            args.n_questions = len(questions)
+    else:
+        questions = charger(args.data, args.type, n=args.n_questions, seed=args.seed_questions, exclure=exclure)
+    if args.shard:  # le tirage des questions est fait en entier, puis découpé : mêmes questions qu'en un seul run
+        i, m = map(int, args.shard.split("/"))
+        questions = questions[i::m]
     out = Path(args.outdir) / (f"{nom_court(args.model)}_{args.type}_q{args.n_questions}_n{args.n_samples}"
                                f"_T{args.max_turns}_temp{args.temperature}_{tag}"
                                f"{'' if args.seed_questions == SEED_EVAL else f'_seed{args.seed_questions}'}"
+                               f"{'' if not args.ids else '_ids' + Path(args.ids).stem.replace('_', '-')}"
+                               f"{'' if args.seed == 0 else f'_g{args.seed}'}"
                                f"{'' if not args.shard else '_shard' + args.shard.replace('/', 'of')}.jsonl")
     out.parent.mkdir(parents=True, exist_ok=True)
     faits = Counter()
     if out.exists():
         faits = Counter(json.loads(l)["id"] for l in out.read_text().split("\n") if l.strip())
-    exclure = []
-    if args.seed_questions != SEED_EVAL:  # pilote : aucune question d'évaluation
-        exclure = [q["id"] for q in charger(args.data, args.type, n=N_EVAL, seed=SEED_EVAL)]
-    questions = charger(args.data, args.type, n=args.n_questions, seed=args.seed_questions, exclure=exclure)
-    if args.shard:  # le tirage des questions est fait en entier, puis découpé : mêmes questions qu'en un seul run
-        i, m = map(int, args.shard.split("/"))
-        questions = questions[i::m]
     a_faire = [q for q in questions if faits[q["id"]] < args.n_samples]
     print(f"{nom_court(args.model)} {args.type} T={args.max_turns} : {len(questions) - len(a_faire)} questions "
           f"déjà complètes, {len(a_faire)} à faire -> {out}", flush=True)

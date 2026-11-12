@@ -1,0 +1,13 @@
+{
+  "id": "valentinproux/memoire-partie2-s3",
+  "title": "memoire-partie2-s3",
+  "code_file": "../../notebooks/kaggle_partie2_s3.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": []
+}

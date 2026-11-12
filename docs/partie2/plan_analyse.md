@@ -169,3 +169,28 @@ complets de 1 600 trajectoires (50 questions de ponts, graine 7, n = 32, T = 4).
 3. Session 3 : T = 0, ponts et comparaisons (H2') ; présélection du sous-ensemble difficile (Instruct, n_pré = 16).
 4. Session 4 : sous-ensemble difficile, n = 32, tirages nouveaux.
 5. Ensuite seulement : paires base, T ∈ {1, 2}, H3, bras harnais, H4.
+
+## Précisions opératoires (12 novembre 2026, avant toute donnée de la session 1)
+
+Écrites pendant que la session 1 tourne, sans avoir vu ses résultats ; elles précisent la mise en œuvre sans changer
+les règles de décision.
+
+- **Holm :** la p-valeur d'« élargissement » d'une paire est max(p_dominance, p_simultanée(k = 32)), puisque les deux
+  conditions doivent être réunies (intersection-union) ; p_dominance = max_k p_unilatérale(k) (Berger, 1982) ;
+  p_simultanée(k) = part des tirages bootstrap où max_k |t*(k)| ≥ |t(k)|. Holm porte sur ces deux p-valeurs (paires
+  it-em-ppo et it-em-grpo, ponts, T = 4). Un « élargissement » non rejeté après Holm est requalifié « fiabilisation
+  seule » si H1 est soutenue, « indéterminé » sinon. Code : `analysis/confirmatoire_partie2.py`, testé sur données
+  simulées (`tests/test_confirmatoire_partie2.py`).
+- **Questions incomplètes :** seules les questions avec n tirages pour les deux modèles entrent dans l'analyse ; leur
+  nombre est rapporté.
+- **Lecture d'un gain de frontière à n fini (piège noté en écrivant les tests) :** un agent qui ne fait que
+  fiabiliser peut « gagner » des questions où le modèle de départ a une probabilité de succès faible mais non nulle
+  et les rate par hasard en n essais. Un gain à k = n sur l'échantillon complet ne distingue donc pas à lui seul
+  « élargir » de « fiabiliser les questions rares ». D'où le poids du sous-ensemble difficile (présélection sur
+  tirages indépendants : la probabilité de succès du départ y est petite, et on mesure si l'agent la dépasse
+  nettement) et la règle : le mot « élargissement » sans réserve n'est employé dans l'article que si le verdict tient
+  aussi sur le sous-ensemble difficile.
+- **Sessions 2 à 4 :** notebooks générés par `scripts/genere_notebooks_partie2.py`. Vivier de présélection :
+  1 000 ponts, graine 43, hors évaluation et hors pilote, 16 tirages, graine de génération 1 ; évaluation du
+  sous-ensemble difficile : graine de génération 0 (tirages nouveaux). Vérifié en local : évaluation, pilote et vivier
+  sont disjoints (ponts : 500, 50, 1 000 ; il ne reste que 449 comparaisons hors évaluation et pilote).
