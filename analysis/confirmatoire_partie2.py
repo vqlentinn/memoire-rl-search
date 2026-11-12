@@ -108,8 +108,22 @@ def analyser_paire(c_rl, c_b, n, n_boot=2000):
         "perte_certifiee": r["perte_certifiee"], "gain_certifie": r["gain_certifie"],
         "H1": bool(r["bande_ponct"][0][0] > 0), "H2": verdict_h2(r, ks),
         "hors_portee_depart": float(np.mean(c_b == 0)), "hors_portee_agent": float(np.mean(c_rl == 0)),
-        "frontiere": f,
+        "frontiere": f, "transitions": transitions(c_rl, c_b, n),
+        "c_agent": c_rl.tolist(), "c_depart": c_b.tolist(),
     }
+
+
+def zone(c, n):
+    return np.where(c == 0, "jamais", np.where(c == n, "toujours", "parfois"))
+
+
+def transitions(c_rl, c_b, n):
+    """Exploratoire : tableau 3 × 3 des questions selon leur zone (jamais / parfois / toujours résolue en n essais)
+    chez le modèle de départ (lignes) et chez l'agent (colonnes). Fiabiliser déplace « parfois » vers « toujours » ;
+    élargir déplace « jamais » vers « parfois » ou « toujours »."""
+    zb, za = zone(np.asarray(c_b), n), zone(np.asarray(c_rl), n)
+    noms = ("jamais", "parfois", "toujours")
+    return {b: {a: int(np.sum((zb == b) & (za == a))) for a in noms} for b in noms}
 
 
 def holm(pvals, alpha=ALPHA):
@@ -146,6 +160,28 @@ def figure(res, titre, chemin):
         a.spines[["top", "right"]].set_visible(False)
         a.grid(axis="y", color="#e5e7eb", lw=0.6)
     fig.suptitle(titre, fontsize=10)
+    fig.tight_layout()
+    fig.savefig(chemin)
+    plt.close(fig)
+
+
+def figure_dispersion(res, n, titre, chemin):
+    """Exploratoire : réussite par question, départ (x) contre agent (y), aire proportionnelle au nombre de questions.
+    Au-dessus de la diagonale : l'agent fait mieux. Sur l'axe vertical (x = 0) : questions que le départ ne résout
+    jamais ; un point haut sur cet axe est un candidat à l'élargissement."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from collections import Counter as C
+    paires = C(zip(res["c_depart"], res["c_agent"]))
+    x, y, t = zip(*[(b / n, a / n, m) for (b, a), m in paires.items()])
+    fig, ax = plt.subplots(figsize=(4.2, 4.2))
+    ax.plot([0, 1], [0, 1], color="#9ca3af", lw=1, ls="--")
+    ax.scatter(x, y, s=[18 * m for m in t], color="#2563eb", alpha=0.55, edgecolor="white", lw=0.8)
+    ax.set(xlim=(-0.04, 1.04), ylim=(-0.04, 1.04), xlabel="réussite du modèle de départ (c / n)",
+           ylabel="réussite de l'agent (c / n)")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.set_title(titre.replace(" (", "\n("), fontsize=9)
     fig.tight_layout()
     fig.savefig(chemin)
     plt.close(fig)
@@ -241,10 +277,14 @@ def main(argv=None):
         print(f"    H1 {'soutenue' if r['H1'] else 'non soutenue'} | H2 : {r['H2']} | p élargissement "
               f"{r['p_elargissement']:.3g}" + (f" (Holm {p['p_holm']:.3g})" if "p_holm" in p else "")
               + f" | frontière {r['frontiere']}")
+        print(f"    transitions (lignes : départ ; colonnes : agent ; jamais / parfois / toujours) : "
+              + " | ".join(f"{b} -> " + "/".join(str(v) for v in d.values()) for b, d in r["transitions"].items()))
         if not args.sans_figures:
             nom = f"passk_{court(p['agent'])}_{p['cond'][0]}_T{p['cond'][3]}_{p['cond'][5]}_q{p['cond'][6]}.pdf"
-            figure(r, f"{court(p['agent'])} contre {p['depart']} ({p['cond'][0]}, T = {p['cond'][3]}, "
-                      f"{r['questions']} questions)", out / nom)
+            titre = (f"{court(p['agent'])} contre {p['depart']} ({p['cond'][0]}, T = {p['cond'][3]}, "
+                     f"{r['questions']} questions)")
+            figure(r, titre, out / nom)
+            figure_dispersion(r, p["cond"][2], titre, out / nom.replace("passk_", "dispersion_"))
 
     (out / "resultats.json").write_text(json.dumps({
         "runs": [{"modele": k[0], "condition": k[1], **v} for k, v in desc.items()],
