@@ -46,7 +46,7 @@ def charger(indir):
         if not m:
             continue
         s, jeu = m.group(1), m.group(2)
-        lignes = [json.loads(l) for l in f.read_text().splitlines() if l.strip()]
+        lignes = [json.loads(l) for l in f.read_text().split("\n") if l.strip()]
         fictif |= any(l.get("fictif") for l in lignes)
         donnees[(s, jeu)] = {l["id"]: l for l in lignes}
     manquants = [(s, j) for s in SYSTEMES for j in JEUX if (s, j) not in donnees]

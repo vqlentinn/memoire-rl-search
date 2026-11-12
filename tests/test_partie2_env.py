@@ -83,7 +83,8 @@ class _LLM:
         self.i = 0
 
     def get_tokenizer(self):
-        return types.SimpleNamespace(apply_chat_template=lambda m, **k: "CHAT:" + m[0]["content"])
+        return types.SimpleNamespace(apply_chat_template=lambda m, **k: "CHAT:" + m[0]["content"],
+                                     encode=lambda t: t.split())  # un « jeton » par mot
 
     def generate(self, prompts, params, use_tqdm=False):
         """Un tour = un appel : toutes les questions actives reçoivent la sortie prévue pour ce tour."""
@@ -113,3 +114,21 @@ def test_troncature_signalee_et_prompt_brut():
     assert not s._initial_prompt("Q?").startswith("CHAT:")
     t = s.run([{"id": "q1", "question": "Q?", "golds": ["x"]}])[0]
     assert t["truncated"] is True
+
+
+def test_contexte_depasse_arrete_proprement_la_trajectoire():
+    """Pilote du 12 novembre : un contexte trop long faisait rejeter tout le lot par vLLM."""
+    s = _systeme([("<search>Scott Derrickson</search>", "</search>"), ("<answer>x</answer>", None)],
+                 max_tokens=5, max_model_len=110)  # le prompt (environ 90 « mots ») passe ; après une recherche, non
+    t = s.run([{"id": "q1", "question": "Q?", "golds": ["x"]}])[0]
+    assert t["context_exceeded"] is True and t["truncated"] is True and t["n_search"] == 1
+
+
+def test_lecture_jsonl_robuste_au_separateur_unicode(tmp_path):
+    """splitlines() coupe sur U+2028 (présent dans certains passages) ; split("\\n") non."""
+    import json
+    f = tmp_path / "t.jsonl"
+    f.write_text(json.dumps({"id": "a", "texte": "avant\u2028après"}, ensure_ascii=False) + "\n")
+    assert len(f.read_text().splitlines()) == 2  # le piège
+    lignes = [json.loads(l) for l in f.read_text().split("\n") if l.strip()]
+    assert lignes[0]["texte"] == "avant\u2028après"

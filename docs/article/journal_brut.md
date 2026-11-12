@@ -216,6 +216,35 @@ analyse poussée »). `analysis/analyse_approfondie.py`, exploratoire, sur les 1
 récompense avec coût (r = EM − c · n_rech) dans le cadre théorique, avec lecture en clair ; annexe D sur le gradient de
 politique, l'avantage, PPO, GRPO, la pénalité KL et le masquage des passages ; une phrase dans l'état de l'art.
 
+### 11 et 12 novembre 2026
+
+**Réorientation du mémoire.** L'étudiant a apporté une piste rédigée ailleurs : le renforcement élargit-il ce qu'un agent
+sait faire (pass@k), ou le fiabilise-t-il seulement ? Vérification de chaque référence (arXiv, NeurIPS, Hugging Face) :
+deux introuvables (« RLVR Sharpens the Pencil », Baseten) retirées, Fireworks corrigé (étude Genspark d'octobre 2025,
+plateforme en preview), nuances ajoutées (Zhai et al. entraînent leur agent sur 200 questions ; Yang trouve des
+croisements certifiés à 1,5B). Variantes Instruct de Search-R1 vérifiées. Décision de l'étudiant (12 novembre) : la
+partie 2 devient le cœur du mémoire, l'article rendu en devient la partie 1.
+- Étape 1 (sans GPU) : `analysis/passk.py` (12 tests), environnement fermé HotpotQA, boucle à n tirages, note vérifiée,
+  plan v0. Découvertes : 447 réponses oui/non à exclure ; deux paragraphes utiles ramenés par la question seule dans
+  45 % des cas seulement ; risque de plafond de pass@n.
+- Pilote Kaggle lancé le 12 novembre (version 1 de `memoire-partie2-pilote`).
+- **Pilote v1 (kernel v1, 12 novembre, 15 h 21 à 16 h 19) : en erreur.** Trois runs sur six plantent : contexte de
+  4 096 jetons dépassé (paragraphes HotpotQA longs ; un seul dépassement fait rejeter tout le lot par vLLM). Un
+  quatrième finit ses 1 600 trajectoires mais plante à la relecture : `splitlines()` coupe sur U+2028, présent dans
+  certains passages. Les deux bugs venaient du code écrit par Claude ; corrigés partout (y compris dans les scripts de la
+  partie 1), avec un test chacun. Résultats indicatifs des runs complets : paire base, agent 0,617 contre 0,154 à k = 1,
+  mais 0,740 contre 0,760 à k = 32 (fiabilisation sans élargissement, comme Yue et al.) ; 24 % des questions hors de
+  portée du modèle de départ (pas de plafond) ; agent Instruct GRPO tronqué à 28,5 % avec 512 jetons par tour ; modèle
+  de base au bon format 61 % du temps avec gabarit de chat ; débit environ 2 trajectoires par seconde et par T4.
+  Pilote v2 : 1 024 jetons par tour, contexte de 8 192, les six runs avec les mêmes réglages.
+- Recherche documentaire de la partie 2 (12 novembre) : équation OpenAlex P1 (302 résultats, environ 55 % de précision),
+  P2 agents en deux versions (642 puis 138, précision faible : littérature mince), boule de neige sur Zhai et al. et
+  Yue et al., deux questions Consensus, index arXiv. Corpus de 43 articles, tous vérifiés (42 exacts, 1 incertain).
+  Pas de recoupement : Zhu et al. (2611.06483, Pass@(K,T) sur des agents) ne touche ni la recherche documentaire ni
+  Search-R1. Biais de publication : presque tous les « oui » proposent une nouvelle méthode. Conséquences : sous-ensemble
+  difficile présélectionné sur des tirages indépendants (le test montre qu'une réutilisation fabrique un élargissement),
+  T comme variable, bras harnais optionnel, prédictions écrites avant le run.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |

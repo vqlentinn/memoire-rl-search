@@ -92,7 +92,7 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     done = set()
     if out.exists():
-        done = {json.loads(line)["id"] for line in out.read_text().splitlines() if line.strip()}
+        done = {json.loads(line)["id"] for line in out.read_text().split("\n") if line.strip()}
     questions = [q for q in select_questions(args.dataset, args.n, args.seed) if q["id"] not in done]
     print(f"{args.system} sur {args.dataset} : {len(done)} déjà faites, {len(questions)} à faire -> {out}")
     if not questions:
@@ -109,7 +109,7 @@ def main():
                 f.write(json.dumps(t, ensure_ascii=False) + "\n")
         print(f"  lot {i // args.batch + 1} écrit ({len(trajs)} questions, {time.time() - t0:.0f} s)")
 
-    rows = [json.loads(line) for line in out.read_text().splitlines() if line.strip()]
+    rows = [json.loads(line) for line in out.read_text().split("\n") if line.strip()]
     n = len(rows)
     print(f"EM {sum(r['em'] for r in rows) / n:.3f} | F1 {sum(r['f1'] for r in rows) / n:.3f} | "
           f"recherches par question {sum(r['n_search'] for r in rows) / n:.2f} | n = {n}")

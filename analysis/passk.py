@@ -96,3 +96,12 @@ def grille_k(n):
     if ks[-1] != n:
         ks.append(n)
     return ks
+
+
+def sous_ensemble_difficile(c_presel):
+    """Ids des questions sans aucune réussite du modèle de départ à la présélection.
+
+    `c_presel` : {id: réussites} obtenues sur des tirages de présélection. Les tirages d'évaluation doivent être
+    NOUVEAUX : réutiliser ceux-ci donnerait au modèle de départ un pass@k nul par construction.
+    """
+    return sorted(i for i, c in c_presel.items() if c == 0)

@@ -31,6 +31,7 @@ class SearchR1System:
         self.llm = LLM(model_id, dtype="float16", max_model_len=max_model_len,
                        gpu_memory_utilization=0.85, seed=seed)
         self.use_chat_template = use_chat_template
+        self.max_tokens, self.max_model_len = max_tokens, max_model_len
         self.tok = self.llm.get_tokenizer()
         self.retriever = retriever
         self.topk = topk
@@ -53,6 +54,12 @@ class SearchR1System:
                   for q in questions]
         for turn in range(self.max_turns + 1):
             active = [s for s in states if not s["done"]]
+            # Garde-fou : une trajectoire dont le contexte ne laisse plus la place d'un tour complet est arrêtée et
+            # marquée, au lieu de faire rejeter tout le lot par vLLM (paragraphes longs de HotpotQA, pilote du 12 nov.).
+            for s in active:
+                if len(self.tok.encode(s["text"])) + self.max_tokens > self.max_model_len:
+                    s["done"], s["context_exceeded"], s["truncated"] = True, True, True
+            active = [s for s in active if not s["done"]]
             if not active:
                 break
             outs = self.llm.generate([s["text"] for s in active], self.params, use_tqdm=False)
@@ -85,6 +92,7 @@ class SearchR1System:
             "trajectory": s["gen"], "queries": s["queries"], "docs": s["docs"],
             "n_search": len(s["queries"]), "gen_tokens": s["tokens"],
             "batch_seconds": elapsed, "truncated": s["truncated"], "sample": s["q"].get("sample", 0),
+            "context_exceeded": s.get("context_exceeded", False),
         } for s in states]
 
     def run_samples(self, questions, n):

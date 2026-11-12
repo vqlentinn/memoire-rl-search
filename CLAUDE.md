@@ -9,29 +9,54 @@ Il écrit un mémoire de 40 à 50 pages. **Budget : 0 €.** Calcul uniquement s
 (2×T4 ou 1×P100, environ 30 h par semaine, sessions de 9 à 12 h, 20 Go de sortie). Pas de crédits API.
 Explique brièvement ce que tu fais : l'utilisateur veut comprendre le code, pas seulement l'obtenir.
 
-## Sujet du mémoire
+## Sujet du mémoire (réorienté le 12 novembre 2026)
 
-> À corpus et questions identiques, un agent de recherche entraîné par RL (Search-R1) décide-t-il mieux
-> *quand* et *quoi* chercher qu'un harnais fixe (RAG, ReAct, IRCoT), et à quel coût ?
+> **Que gagne-t-on à entraîner un agent de recherche par renforcement ?** À modèle de départ identique, le
+> renforcement élargit-il l'ensemble des questions que l'agent finit par résoudre, ou augmente-t-il seulement sa
+> réussite au premier essai ? Cet élargissement apparaît-il quand la question oblige à enchaîner les recherches,
+> et résiste-t-il à un test statistique apparié ?
 
-Hypothèses : H1 les gains du RL sont surtout sur les jeux vus à l'entraînement (NQ, HotpotQA) ; H2 le modèle RL
-cherche presque toujours ; H3 une pénalité par recherche réduit les appels pour une perte d'EM limitée ;
-H4 les gains du RL sont plus sensibles au changement de retriever que ceux d'un harnais.
-Un résultat négatif est acceptable. Ce n'est **pas** une reproduction de Search-R1 : les scores absolus ne
-seront pas comparables à ceux de l'article (corpus réduit), seule la comparaison relative compte.
+Pourquoi ça compte : si le renforcement ne fait que fiabiliser, un fine-tuning supervisé ou une distillation des
+bonnes traces obtient l'essentiel pour beaucoup moins cher. L'industrie (Fireworks, Trajectory, Prime Intellect)
+parie sur le renforcement d'agents sans publier de quoi distinguer les deux. Une seule étude sur les agents annonce un
+élargissement (Zhai et al., arXiv 2604.14877 : 7B, agent entraîné par les auteurs sur 200 questions, pas de test formel,
+vérification sur Search-R1 non faite) ; sans outil, l'élargissement résiste rarement à l'inférence appariée
+(Yang, arXiv 2609.22547). Note vérifiée : `docs/partie2/note_litterature.md`.
 
-## Volets
+**Partie 1 (faite, article rendu) :** à conditions égales, Search-R1 bat les harnais fixes (RAG, ReAct, IRCoT), et
+l'avantage se joue à l'usage de l'information trouvée, pas à la requête ni à la sobriété. Limite principale : modèles de
+départ différents (base contre Instruct). C'est elle qui motive la partie 2.
 
-- **A (cœur, inférence seule) :** 6 systèmes. A0 réponse directe, A1 RAG classique, A2 ReAct par prompt,
-  A3 IRCoT, A4 Search-R1 Qwen2.5-3B PPO v0.3, A5 Search-R1 Qwen2.5-3B GRPO v0.3. Sept jeux : NQ, TriviaQA,
-  PopQA, HotpotQA, 2WikiMultiHopQA, MuSiQue, Bamboogle. 500 questions par jeu, graine 42, décodage glouton.
-  Mêmes questions, même corpus, même retriever, top-3 passages pour tous les systèmes.
-- **B (exploratoire) :** mini-GRPO avec TRL (`GRPOTrainer` + `environment_factory`), Qwen 0,5B ou 1,5B, LoRA,
-  récompenses EM, EM − 0,1 × nb de recherches. Décision go/no-go en semaine 10.
-- **C :** taxonomie des échecs sur 300 trajectoires (annotation manuelle de 100 + juge LLM open source, kappa).
-- Oracle de connaissance (pour H2) : 8 échantillons sans recherche ; « connue » si au moins 6 sur 8 justes.
-- Conditions de robustesse : BM25 au lieu de E5, 50 % de distracteurs en plus, passages gold retirés.
-- Statistiques : bootstrap 1000 rééchantillonnages, McNemar apparié, kappa de Cohen.
+**Partie 2 (cœur du mémoire) :** chaque checkpoint Search-R1 face à **son propre** modèle de départ, courbes pass@k
+appariées. Hypothèses (règles de décision dans `docs/partie2/plan_analyse.md`) :
+- H1 (contrôle) : au premier essai, l'agent bat son modèle de départ ;
+- H2 (principale) : sur les questions de pont, l'écart D(k) reste positif quand k augmente (« élargissement ») ;
+  sur les comparaisons et sans outil (T = 0), il se referme ou s'inverse ;
+- H3 : à passages identiques, l'avantage vient de la lecture (échange des plans de recherche entre les deux modèles) ;
+- H4 (option) : un fine-tuning supervisé LoRA sur les traces réussies de l'agent récupère la frontière.
+Les trois issues de H2 sont publiables (élargissement confirmé, non confirmé, rétrécissement).
+Un résultat négatif est acceptable. On n'entraîne rien, sauf l'option H4.
+
+Anciennes hypothèses de la partie 1 devenues perspectives : pénalité par recherche (coût) et changement de retriever.
+
+## Dispositif de la partie 2
+
+- **Paires exactes (vérifiées sur Hugging Face) :** `Qwen/Qwen2.5-3B-Instruct` contre
+  `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-it-em-{ppo,grpo}-v0.3` (principales) ; `Qwen/Qwen2.5-3B` contre
+  `…-qwen2.5-3b-em-{ppo,grpo}-v0.3` (secondaires). Contrôle possible : `R1-nq_hotpotqa_train-qwen2.5-3b-it-em-ppo-v0.2`
+  (renforcement sans moteur de recherche).
+- **Environnement fermé :** HotpotQA distracteurs (validation), 10 paragraphes par question dont 2 utiles, BM25 Okapi
+  par question (k1 1,5, b 0,75), top 3. Questions à 10 paragraphes seulement ; réponses oui/non exclues (447
+  comparaisons), car trouvées au hasard avec 32 tirages. Avec la question seule comme requête, les deux paragraphes
+  utiles ne sont ramenés que dans 45 % (ponts) et 44 % (comparaisons) des cas.
+- **Mesure :** n = 32 tirages par question, température 0,7, T (recherches au plus) dans {0, 4} puis {1, 2} ;
+  500 questions par type (graine 42) [à confirmer par le pilote].
+- **Statistiques :** estimateur sans biais de pass@k, courbe D(k), bootstrap à multiplicateurs par question, bandes
+  simultanées, test de dominance, frontière avec McNemar exact (`analysis/passk.py`). Plan gelé avant les runs.
+- **Pièges connus :** troncature (peut créer ou inverser un croisement : même limite, taux rapporté) ; format du
+  modèle de base (taux rapporté) ; plafond de pass@n (un élargissement n'est visible que sur les questions hors de
+  portée du modèle de départ).
+- Volet C (taxonomie des échecs, juge LLM, kappa) : gardé comme complément possible, non prioritaire.
 
 ## État actuel (3 novembre 2026)
 
@@ -69,7 +94,8 @@ les agents 6 et 10. A3 s'abstient 30 fois sur 200. L'article et le carnet sont �
 Partie 2 (branche `partie2-passk`, 11 novembre 2026) : le renforcement élargit-il ce que l'agent sait faire (pass@k),
 ou le fiabilise-t-il seulement ? Paires exactes checkpoint / modèle de départ (variantes `-it-` vérifiées sur Hugging Face),
 HotpotQA distracteurs avec BM25 fermé par question. Note vérifiée : `docs/partie2/note_litterature.md` (deux références
-introuvables retirées). Plan v0 : `docs/partie2/plan_analyse.md`. Code : `analysis/passk.py`, `data/hotpot_distractor.py`,
+introuvables retirées). Plan v0.1 : `docs/partie2/plan_analyse.md` (sous-ensemble difficile sur tirages indépendants, prédictions écrites).
+Recherche documentaire : `docs/partie2/journal_requetes_partie2.md`, corpus de 43 articles vérifiés `docs/partie2/corpus_partie2.csv`. Code : `analysis/passk.py`, `data/hotpot_distractor.py`,
 `retrieval/closed_bm25.py`, `scripts/run_passk.py`. Prochaine étape : session pilote Kaggle (débit, format, troncature).
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour

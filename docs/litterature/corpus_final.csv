@@ -51,6 +51,11 @@ To Search or Not to Search: Aligning the Decision Boundary of Deep Search Agents
 SEM: Reinforcement Learning for Search-Efficient Large Language Models,2025,,R2,Cité dans la revue de l'article,cité dans l'article (sha2025sem) ; candidat OpenAlex/Consensus,sha2025sem,2505.07903
 "Search When Needed, Proceed When Reliable: Metacognitive Reliability Supervision for Efficient Agentic Search",2026,,R2,Cité dans la revue de l'article,cité dans l'article (sun2026search) ; équation 3 (OpenAlex),sun2026search,2610.41738
 AdaRAG: Budget-Aware Adaptive Retrieval-Augmented Generation via Hierarchical Reinforcement Learning,2026,,R2,Cité dans la revue de l'article,cité dans l'article (sun2026adarag) ; équation 3 (OpenAlex),sun2026adarag,
+Does Reinforcement Learning Really Incentivize Reasoning Capacity in LLMs Beyond the Base Model?,2025,,R2,Cité dans la revue de l'article,cité dans l'article (yue2025does),yue2025does,
+ProRL: Prolonged Reinforcement Learning Expands Reasoning Boundaries in Large Language Models,2025,,R2,Cité dans la revue de l'article,cité dans l'article (liu2025prorl),liu2025prorl,
+When Pass@k Crossovers Are Real -- and Why: Paired Inference and the Markov Kernel of RLVR,2026,,R2,Cité dans la revue de l'article,cité dans l'article (yang2026crossovers),yang2026crossovers,2609.22547
+"Does RL Expand the Capability Boundary of LLM Agents? A PASS@(k,T) Analysis",2026,,R2,Cité dans la revue de l'article,cité dans l'article (zhai2026does),zhai2026does,2604.14877
+What Does Multi-Turn Reinforcement Learning Really Improve in LLM Agents?,2026,,R2,Cité dans la revue de l'article,cité dans l'article (zhu2026what),zhu2026what,2611.06483
 Beyond Outcome Reward: Decoupling Search and Answering Improves LLM Agents,2025,T1,R3,Découple chercher et répondre : la décision de chercher comme objet,candidat OpenAlex/Consensus,,2510.04695
 IG-Search: Step-Level Information Gain Rewards for Search-Augmented Reasoning,2026,"T1,T2",R3,Récompense par gain d'information : lien avec le cadre et avec H3,candidat OpenAlex/Consensus,,2604.15148
 QAgent: A modular Search Agent with Interactive Query Understanding,2025,,R3,Constate les difficultés de généralisation des agents RL : H1 (jeu vu / non vu),équation 3 (OpenAlex),,2510.08383
