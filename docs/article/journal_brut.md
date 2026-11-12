@@ -306,3 +306,15 @@ partie 2 devient le cœur du mémoire, l'article rendu en devient la partie 1.
 
 - Carnet des requêtes : `docs/litterature/journal_requetes_openalex.md` et `journal_requetes_complement.md`.
 - Fiche données : `docs/article/fiche_donnees.md`.
+
+## 12 novembre 2026 (soir) : pilote v2
+
+Kernel v2 terminé (COMPLETE, journaux lus) : 6 runs × 1 600 trajectoires, 50 questions de pont (graine 7, hors évaluation),
+n = 32, T = 4, température 0,7. Seule « erreur » des journaux : avertissement FlashAttention 2 non disponible sur T4 (sans effet).
+- EM par trajectoire : Instruct 0,358 ; it-em-grpo 0,371 ; it-em-ppo 0,431 ; Qwen2.5-3B 0,139 (chat) / 0,200 (brut) ; em-ppo 0,611.
+- Format correct du modèle de base : 62 % avec gabarit de chat, 77 % en prompt brut.
+- Défaut trouvé : it-em-ppo continue après sa réponse et répète « <answer>X</answer> » jusqu'à 1 024 jetons
+  (42 % des trajectoires, 0,24 trajectoire/s contre 1,3 à 1,8 pour les autres). Correction : arrêt aussi à `</answer>`,
+  comme le post-traitement officiel de Search-R1. Rescoré hors ligne au premier `</answer>` : conclusions indicatives inchangées.
+- Indicatif (50 questions, aucune conclusion) : paires Instruct, D(1) ≈ +0,03 à +0,05, D(32) ≈ −0,04 ; frontière 40 contre 42.
+  Paire de base : D(1) +0,47, D(32) +0,02. Questions hors de portée du modèle Instruct : 16 %.

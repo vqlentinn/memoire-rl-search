@@ -37,7 +37,10 @@ class SearchR1System:
         self.topk = topk
         self.max_turns = max_turns
         self.params = SamplingParams(temperature=temperature, max_tokens=max_tokens,
-                                     stop=["</search>"], include_stop_str_in_output=True)
+                                     stop=["</search>", "</answer>"], include_stop_str_in_output=True)
+        # Arrêt aussi à </answer>, comme le post-traitement officiel (generation.py coupe au premier </answer>).
+        # Sans cela, l'agent it-em-ppo répète « <answer>X</answer> » jusqu'à max_tokens (42 % des trajectoires
+        # au pilote v2 du 12 nov., débit divisé par 4).
 
     def _initial_prompt(self, question: str) -> str:
         texte = PROMPT.format(question=question)
