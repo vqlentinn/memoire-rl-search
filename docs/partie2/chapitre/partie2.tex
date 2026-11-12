@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{iftex}
+\ifXeTeX\usepackage{fontspec}\else\usepackage[utf8]{inputenc}\usepackage[T1]{fontenc}\fi
+\usepackage[french]{babel}
+\ifXeTeX\usepackage{microtype}\else\usepackage{lmodern,microtype}\fi
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs,array,graphicx,xcolor,amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage[round,authoryear]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{setspace}\onehalfspacing
+\setlength{\emergencystretch}{1.5em}
+\newcommand{\aremplir}[1]{\textbf{\textcolor{red}{[À remplir : #1]}}}
+% Résultats : écrits par analysis/confirmatoire_partie2.py dans ../genere/ (absents tant que les runs ne sont pas faits).
+\newcommand{\genere}{../genere}
+
+\title{Partie 2 -- Le renforcement élargit-il ce qu'un agent de recherche sait faire ?\\[4pt]
+\large Méthode (plan gelé v1.0) et résultats de la session pilote}
+\author{Valentin Proux}
+\date{Brouillon du 12 novembre 2026 -- résultats principaux en cours de calcul}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent Ce chapitre décrit la seconde partie du mémoire. À modèle de départ identique, on compare chaque agent de recherche Search-R1 entraîné par renforcement à \emph{son propre} modèle de départ, sur plusieurs tirages par question, pour savoir si l'entraînement élargit l'ensemble des questions résolues (pass@k à grand k) ou augmente seulement la réussite au premier essai. Le plan d'analyse a été gelé et commité avant le premier run principal. Les résultats de la session pilote (50 questions, sans valeur de test) sont rapportés ici ; les résultats principaux seront insérés automatiquement depuis les fichiers générés.
+\end{abstract}
+
+\section{Question et lien avec la partie 1}
+
+La partie 1 a montré qu'à corpus et questions identiques, les agents Search-R1 battent les harnais fixes au premier essai, et que l'avantage se joue à l'usage de l'information trouvée. Sa limite principale tenait au modèle de départ : les agents venaient de Qwen2.5-3B (base), les harnais de Qwen2.5-3B-Instruct. Les auteurs de Search-R1 publient aussi des agents entraînés à partir de la version Instruct, ce qui permet une comparaison exacte : un agent face au modèle dont il est issu, même prompt, mêmes questions, même moteur.
+
+La question devient alors celle du débat ouvert sans outil par \citet{yue2025does} : le renforcement rend-il possible ce qui ne l'était pas, ou rend-il seulement plus fiable ce qui l'était déjà ? Pour les agents, une seule étude annonce un élargissement \citep{zhai2026does}, sur des agents entraînés par ses auteurs et sans test apparié ; \citet{zhu2026what} montrent que l'avantage dépend du nombre de tours permis ; et \citet{yang2026crossovers} montrent que la plupart des croisements de courbes publiés sans outil ne résistent pas à une inférence appariée. L'enjeu pratique est direct : si le renforcement ne fait que fiabiliser, un ajustement supervisé sur les bonnes traces en obtient l'essentiel pour bien moins cher.
+
+\section{Dispositif}
+
+\subsection{Paires de modèles}
+
+\begin{table}[h]\centering\small
+\begin{tabular}{llll}\toprule
+Paire & Modèle de départ & Agent (Search-R1, v0.3) & Rôle\\\midrule
+Instruct, PPO & Qwen2.5-3B-Instruct & \texttt{qwen2.5-3b-it-em-ppo} & principale\\
+Instruct, GRPO & Qwen2.5-3B-Instruct & \texttt{qwen2.5-3b-it-em-grpo} & principale\\
+Base, PPO & Qwen2.5-3B & \texttt{qwen2.5-3b-em-ppo} & secondaire\\
+Base, GRPO & Qwen2.5-3B & \texttt{qwen2.5-3b-em-grpo} & secondaire\\\bottomrule
+\end{tabular}
+\caption{Paires comparées. Aucun modèle n'est entraîné par nous. Les paires Instruct sont principales : le modèle de base suit mal le format de Search-R1, et ses échecs de format gonfleraient l'écart.}
+\end{table}
+
+\subsection{Environnement fermé}
+
+Les questions viennent de HotpotQA \citep{yang2018hotpotqa}, cadre « distracteurs », partie validation : chaque question arrive avec 10 paragraphes, dont 2 utiles. Le moteur de recherche est un BM25 Okapi construit \emph{pour chaque question} sur ses 10 paragraphes ($k_1 = 1{,}5$, $b = 0{,}75$, 3 paragraphes par recherche), comme chez \citet{zhai2026does}. La réponse est donc toujours atteignable ; un échec tient à la recherche ou à la lecture, jamais à un corpus incomplet. Avec la question telle quelle comme requête, BM25 ramène les deux paragraphes utiles dans 45~\% des cas seulement (ponts) : une seconde recherche bien choisie est nécessaire plus d'une fois sur deux. Les réponses « oui / non » sont exclues, car un modèle les trouve au hasard en 32 essais.
+
+\subsection{Mesure}
+
+Pour chaque question, chaque modèle produit $n = 32$ trajectoires indépendantes (température 0,7, au plus $T$ recherches, 1~024 jetons par tour). La génération s'arrête à \texttt{</search>} ou \texttt{</answer>}, comme dans le code de Search-R1. Une trajectoire est juste si sa réponse correspond exactement à l'une des réponses de référence (normalisation de Search-R1).
+
+\begin{figure}[h]\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}[font=\small, boite/.style={draw, rounded corners=3pt, align=center, minimum height=1cm, inner sep=4pt}, fl/.style={-{Stealth[length=2.5mm]}, thick}]
+\node[boite, fill=gray!10] (q) {500 questions\\de ponts};
+\node[boite, fill=gray!10, above right=0.2cm and 1cm of q] (b) {modèle de départ\\32 tirages};
+\node[boite, fill=blue!8, below right=0.2cm and 1cm of q] (a) {agent RL\\32 tirages};
+\node[boite, right=1cm of b] (cb) {$c_i^{\text{dép}}$ justes\\sur 32};
+\node[boite, right=1cm of a] (ca) {$c_i^{\text{RL}}$ justes\\sur 32};
+\node[boite, fill=yellow!10, below right=0.2cm and 1cm of cb] (d) {$d_i(k) = \text{pass@}k_i^{\text{RL}} - \text{pass@}k_i^{\text{dép}}$\\$D(k) = \frac{1}{N}\sum_i d_i(k)$};
+\node[boite, right=0.8cm of d] (v) {bandes\\simultanées\\$\Rightarrow$ verdict};
+\draw[fl] (q) -- (b); \draw[fl] (q) -- (a); \draw[fl] (b) -- (cb); \draw[fl] (a) -- (ca);
+\draw[fl] (cb) -- (d); \draw[fl] (ca) -- (d); \draw[fl] (d) -- (v);
+\end{tikzpicture}}
+\caption{Chaîne de mesure. Les deux modèles voient les mêmes questions : la différence est calculée question par question, ce qui retire la variabilité entre questions.}
+\end{figure}
+
+\section{Statistique}
+
+\paragraph{pass@k.} Pour une question où $c$ tirages sur $n$ sont justes, la probabilité qu'au moins un de $k$ tirages pris sans remise soit juste est estimée sans biais par \citep{chen2021evaluating}
+\begin{equation}
+\widehat{\text{pass@}k} = 1 - \binom{n-c}{k}\Big/\binom{n}{k}, \qquad 1 \le k \le n.
+\end{equation}
+À $k = 1$, c'est la réussite moyenne au premier essai ; à $k = n$, c'est 1 si la question est résolue au moins une fois, 0 sinon (la « frontière »).
+
+\paragraph{Courbe appariée et incertitude.} On note $d_i(k)$ l'écart entre l'agent et son modèle de départ sur la question $i$, et $D(k)$ sa moyenne, pour $k \in \{1, 2, 4, 8, 16, 32\}$. L'incertitude est estimée par un bootstrap à multiplicateurs gaussiens par question \citep{chernozhukov2013gaussian}, méthode reprise par \citet{yang2026crossovers} : on tire $\xi_i \sim \mathcal{N}(0,1)$ et l'on calcule $D^*(k) - D(k) = \frac{1}{N}\sum_i \xi_i \,(d_i(k) - D(k))$, 2~000 fois. La bande simultanée à 95~\% est $D(k) \pm q\,\hat\sigma(k)$, où $q$ est le quantile à 95~\% de $\max_k |D^*(k) - D(k)|/\hat\sigma(k)$ : elle couvre la courbe entière à la fois, et non chaque point séparément.
+
+\paragraph{Règles de décision (H2, fixées avant les runs).}
+\begin{itemize}
+\item \textbf{Élargissement :} $D(k) > 0$ pour tout $k$ (test d'intersection-union, chaque $t(k)$ au-dessus du quantile unilatéral à 95~\%, valide sans correction \citep{berger1982multiparameter}) \emph{et} borne basse de la bande simultanée à $k = 32$ positive.
+\item \textbf{Rétrécissement :} bande simultanée entièrement sous 0 en au moins un $k$.
+\item \textbf{Fiabilisation seule :} gain au premier essai (H1), sans élargissement ni rétrécissement.
+\end{itemize}
+Les deux tests principaux (paires Instruct, ponts, $T = 4$) sont corrigés par la méthode de Holm \citep{holm1979simple}. La frontière est aussi comparée directement : questions gagnées ou perdues à $k = n$, test exact de McNemar \citep{mcnemar1947note}.
+
+\paragraph{Un piège noté avant les données.} Un agent qui ne fait que fiabiliser peut « gagner » des questions où le modèle de départ a une probabilité de succès faible mais non nulle et les rate par hasard en 32 essais. Un gain à $k = n$ ne prouve donc pas à lui seul un élargissement. D'où un sous-ensemble difficile, construit sur des tirages \emph{indépendants} : le modèle de départ tire 16 générations sur un vivier de 1~000 questions distinct de l'échantillon principal ; les questions sans aucune réussite sont ensuite évaluées avec 32 tirages nouveaux pour les deux modèles. Réutiliser les tirages de présélection donnerait au modèle de départ un pass@k nul par construction, et donc un élargissement fabriqué ; un test unitaire le montre sur simulation.
+
+\section{Session pilote}
+
+Le pilote (50 questions de ponts tirées à part, $n = 32$, $T = 4$) ne teste rien : il sert à fixer la taille de l'étude et à trouver les défauts. Il en a trouvé trois. Une première version a échoué (contexte de 4~096 jetons trop court pour quatre recherches de trois paragraphes ; lecture des fichiers coupée par un caractère Unicode de fin de paragraphe). Dans la seconde, l'agent \texttt{it-em-ppo} continuait à écrire après sa réponse et répétait \texttt{<answer>…</answer>} jusqu'à la limite de jetons dans 42~\% des trajectoires ; la génération s'arrête désormais à \texttt{</answer>}, comme dans le code officiel.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lrrrr}\toprule
+Modèle & EM par tirage & Bon format & Tronquées & Débit (T4)\\\midrule
+Qwen2.5-3B-Instruct & 0,358 & 99,5~\% & 0,1~\% & 1,34 traj./s\\
+\quad it-em-grpo & 0,371 & 95,1~\% & 15,1~\% & 0,48 traj./s\\
+\quad it-em-ppo & 0,431 & 97,2~\% & 42,0~\% & 0,24 traj./s\\
+Qwen2.5-3B (gabarit de chat / brut) & 0,139 / 0,200 & 62 / 77~\% & 10 / 4~\% & 1,1 / 1,0 traj./s\\
+\quad em-ppo & 0,611 & 99,9~\% & 0,0~\% & 1,82 traj./s\\\bottomrule
+\end{tabular}
+\caption{Session pilote v2, 1~600 trajectoires par modèle. Troncature et débit des agents Instruct mesurés avant l'arrêt à \texttt{</answer>}.}
+\end{table}
+
+Les courbes du pilote, indicatives, ont l'allure d'une fiabilisation : pour les paires Instruct, l'agent gagne 3 à 7 points au premier essai, puis passe environ 4 points sous son modèle de départ à 32 essais (40 questions résolues au moins une fois contre 42). Rien n'est significatif à 50 questions. Le modèle Instruct ne résout jamais 16~\% des questions en 32 essais : pass@32 ne sature pas, un élargissement reste mesurable. L'écart-type par question de $d_i(k)$ varie de 0,19 à 0,30 ; avec $N = 500$, l'écart minimal détectable (puissance 80~\%) est d'environ 4 points à $k = 32$ et de 2 à 3 points au premier essai. Doubler $N$ ne le ramènerait qu'à 3 points pour deux fois le coût : $N = 500$, $n = 32$ ont été retenus.
+
+\section{Résultats principaux}
+
+\IfFileExists{\genere/tableau_verdicts.tex}{%
+\begin{table}[h]\centering\small\resizebox{\linewidth}{!}{\input{\genere/tableau_verdicts.tex}}
+\caption{Verdicts par paire et condition (règles du plan gelé). $p$ (Holm) : tests principaux seulement.}\end{table}
+\begin{table}[h]\centering\small\resizebox{\linewidth}{!}{\input{\genere/tableau_runs.tex}}
+\caption{Description des runs.}\end{table}
+\IfFileExists{\genere/passk_it-em-ppo_bridge_T4_chat_q42.pdf}{%
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{\genere/passk_it-em-ppo_bridge_T4_chat_q42.pdf}\\
+\includegraphics[width=\linewidth]{\genere/passk_it-em-grpo_bridge_T4_chat_q42.pdf}
+\caption{Tests principaux : pass@k des deux modèles (gauche) et écart apparié $D(k)$ avec IC ponctuel et bande simultanée à 95~\% (droite).}
+\end{figure}}{}%
+}{\aremplir{session 1 en cours sur Kaggle (ponts, $T = 4$, paires Instruct) ; tableaux et figures insérés automatiquement par \texttt{analysis/confirmatoire\_partie2.py}}}
+
+\section{Menaces à la validité}
+
+\begin{itemize}
+\item \textbf{Questions « vues » :} HotpotQA fait partie de l'entraînement de Search-R1 (partie train) ; les questions de validation sont vues en distribution, jamais en contenu.
+\item \textbf{Troncature et format :} une limite de jetons peut créer ou inverser un croisement. Même limite pour les deux modèles d'une paire, taux rapportés.
+\item \textbf{Plafond de pass@n :} un élargissement n'est visible que sur les questions hors de portée du modèle de départ ; d'où le sous-ensemble difficile.
+\item \textbf{Un seul jeu, une seule taille :} 3B, HotpotQA, BM25 fermé. Les conclusions ne se transportent pas sans réserve au web ouvert ni aux grands modèles.
+\item \textbf{Débit estimé :} le budget de l'étude a été calculé avant de mesurer le débit des agents avec l'arrêt à \texttt{</answer>}.
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{../../article/refs,refs_partie2}
+\end{document}
