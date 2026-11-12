@@ -216,6 +216,19 @@ analyse poussée »). `analysis/analyse_approfondie.py`, exploratoire, sur les 1
 récompense avec coût (r = EM − c · n_rech) dans le cadre théorique, avec lecture en clair ; annexe D sur le gradient de
 politique, l'avantage, PPO, GRPO, la pénalité KL et le masquage des passages ; une phrase dans l'état de l'art.
 
+### 11 et 12 novembre 2026
+
+**Réorientation du mémoire.** L'étudiant a apporté une piste rédigée ailleurs : le renforcement élargit-il ce qu'un agent
+sait faire (pass@k), ou le fiabilise-t-il seulement ? Vérification de chaque référence (arXiv, NeurIPS, Hugging Face) :
+deux introuvables (« RLVR Sharpens the Pencil », Baseten) retirées, Fireworks corrigé (étude Genspark d'octobre 2025,
+plateforme en preview), nuances ajoutées (Zhai et al. entraînent leur agent sur 200 questions ; Yang trouve des
+croisements certifiés à 1,5B). Variantes Instruct de Search-R1 vérifiées. Décision de l'étudiant (12 novembre) : la
+partie 2 devient le cœur du mémoire, l'article rendu en devient la partie 1.
+- Étape 1 (sans GPU) : `analysis/passk.py` (12 tests), environnement fermé HotpotQA, boucle à n tirages, note vérifiée,
+  plan v0. Découvertes : 447 réponses oui/non à exclure ; deux paragraphes utiles ramenés par la question seule dans
+  45 % des cas seulement ; risque de plafond de pass@n.
+- Pilote Kaggle lancé le 12 novembre (version 1 de `memoire-partie2-pilote`).
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |
