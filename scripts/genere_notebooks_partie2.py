@@ -47,7 +47,49 @@ SESSIONS = {
                   [(GRPO, IDS), (QWEN_IT, IDS + ["--shard", "1/2"])]],
         "sources": ["valentinproux/memoire-partie2-s3"],
     },
+    5: {
+        "titre": "session 5 : lecture croisée (H3)",
+        "texte": ("Chaque lecteur reçoit les requêtes et passages d'un chercheur (8 trajectoires par question de la "
+                  "session 1, raisonnement retiré) et répond sans chercher davantage. Plan 2 × 2 par paire ; la case "
+                  "« départ lit départ » est commune aux deux paires. Sortie de la session 1 attachée au kernel."),
+        # (lecteur, préfixe du nom des fichiers du chercheur)
+        "lecture": [[(PPO, "qwen2.5-3b-it-em-ppo-v0.3_bridge"), (PPO, "Qwen2.5-3B-Instruct_bridge"),
+                     (QWEN_IT, "qwen2.5-3b-it-em-ppo-v0.3_bridge"), (QWEN_IT, "Qwen2.5-3B-Instruct_bridge")],
+                    [(GRPO, "qwen2.5-3b-it-em-grpo-v0.3_bridge"), (GRPO, "Qwen2.5-3B-Instruct_bridge"),
+                     (QWEN_IT, "qwen2.5-3b-it-em-grpo-v0.3_bridge")]],
+        "sources": ["valentinproux/memoire-partie2-principal"],
+    },
 }
+
+CELLULE_LECTURE = '''import os, threading, time, glob
+WORK = Path("/kaggle/working")
+(WORK / "logs").mkdir(exist_ok=True)
+status, verrou = [], threading.Lock()
+
+def fichiers_chercheur(prefixe):
+    # Trajectoires de la session 1 (ponts, T = 4, n = 32), moitiés « shard » comprises
+    f = sorted(glob.glob(f"/kaggle/input/**/{prefixe}_q500_n32_T4_temp0.7_chat*.jsonl", recursive=True))
+    assert f, f"aucun fichier pour {prefixe}"
+    return f
+
+def file_de_lectures(gpu, runs):
+    env = dict(os.environ, VLLM_WORKER_MULTIPROC_METHOD="spawn", CUDA_VISIBLE_DEVICES=str(gpu))
+    for lecteur, prefixe in runs:
+        nom = f"{lecteur.split('/')[-1]}_lit_{prefixe}"
+        cmd = ["python", "-u", "scripts/run_lecture.py", "--lecteur", lecteur, "--chercheur", *fichiers_chercheur(prefixe),
+               "--m", str(M), "--data", PARQUET, "--max-tokens", str(MAX_TOKENS), "--max-model-len", str(MAX_MODEL_LEN),
+               "--outdir", str(WORK / "results" / "partie2_lecture")]
+        t0 = time.time()
+        with open(WORK / "logs" / f"{nom}.log", "a") as f:
+            code = subprocess.run(cmd, cwd=CLONE, env=env, stdout=f, stderr=subprocess.STDOUT).returncode
+        with verrou:
+            status.append((nom, gpu, code, round(time.time() - t0)))
+            print(f"GPU {gpu} : {nom} code {code}, {time.time() - t0:.0f} s", flush=True)
+
+fils = [threading.Thread(target=file_de_lectures, args=(g, runs)) for g, runs in enumerate(FILES)]
+for f in fils: f.start()
+for f in fils: f.join()
+'''
 
 CELLULE_RUNS = '''import os, threading, time
 WORK = Path("/kaggle/working")
@@ -99,14 +141,20 @@ def generer(num, s, modele):
     cellules[0]["source"] = source(
         f"# Partie 2 : étude principale pass@k, {s['titre']}\n\nPlan gelé : `docs/partie2/plan_analyse.md` (v1.0). "
         f"{s['texte']}\n\nNotebook généré par `scripts/genere_notebooks_partie2.py` : le modifier là, pas ici.\n")
-    files = ",\n".join("    [" + ", ".join(f"({m!r}, {o!r})" for m, o in file) + "]" for file in s["files"])
+    files = ",\n".join("    [" + ", ".join(f"({m!r}, {o!r})" for m, o in file) + "]"
+                        for file in s.get("files") or s["lecture"])
     cellules[1]["source"] = source(
         'BRANCH = "partie2-passk"\n'
         "N_QUESTIONS, N_SAMPLES, T, TEMP = 500, 32, 4, 0.7   # valeurs par défaut ; les options d'un run priment\n"
         "MAX_TOKENS, MAX_MODEL_LEN = 1024, 8192   # figés au pilote v2 ; arrêt à </search> et </answer>\n"
-        f"FILES = [\n{files},\n]\n")
-    cellules[4]["source"] = source(CELLULE_RUNS)
+        + ("M = 8   # trajectoires de chercheur par question\n" if "lecture" in s else "")
+        + f"FILES = [\n{files},\n]\n")
+    cellules[4]["source"] = source(CELLULE_LECTURE if "lecture" in s else CELLULE_RUNS)
     resume = "".join(cellules[5]["source"]).replace("resume_principal.json", f"resume_s{num}.json")
+    if "lecture" in s:
+        resume = resume.replace('"partie2").glob', '"partie2_lecture").glob')
+        resume = resume.replace('"questions_completes": sum(v >= N_SAMPLES for v in par_q.values()),', '"questions": len(par_q),')
+        resume = resume.replace('                "recherches": round(sum(l["n_search"] for l in L) / len(L), 2),\n', "")
     cellules[5]["source"] = source(resume)
     if s.get("difficiles"):
         cellules.insert(5, {"cell_type": "code", "metadata": {}, "outputs": [], "execution_count": None,

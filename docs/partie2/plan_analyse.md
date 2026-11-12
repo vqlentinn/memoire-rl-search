@@ -194,3 +194,11 @@ les règles de décision.
   1 000 ponts, graine 43, hors évaluation et hors pilote, 16 tirages, graine de génération 1 ; évaluation du
   sous-ensemble difficile : graine de génération 0 (tirages nouveaux). Vérifié en local : évaluation, pilote et vivier
   sont disjoints (ponts : 500, 50, 1 000 ; il ne reste que 449 comparaisons hors évaluation et pilote).
+- **H3, protocole (écrit avant toute donnée de la session 1) :** lecture croisée en plan 2 × 2 (lecteur ∈ {départ,
+  agent} × chercheur ∈ {départ, agent}), ponts, 8 trajectoires de chercheur par question (tirages 0 à 7 de la
+  session 1). Le lecteur reçoit, après le prompt, les requêtes du chercheur et les passages qu'elles ramènent
+  (raisonnement retiré, dans les 4 cases), puis répond sans recherche supplémentaire (T = 0 ; une tentative compte
+  sans réponse). Les trajectoires de chercheur sans recherche sont écartées et comptées. Effets par question :
+  avantage de lecture (moyenne sur les chercheurs de agent − départ comme lecteur), avantage de recherche, interaction ;
+  IC à 95 % par bootstrap à multiplicateurs. H3 soutenue si l'IC de l'avantage de lecture est au-dessus de 0
+  (secondaire, sans correction). Code : `scripts/run_lecture.py`, `analysis/lecture_croisee.py` ; session 5.

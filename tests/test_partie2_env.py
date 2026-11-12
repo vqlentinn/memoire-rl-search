@@ -132,3 +132,36 @@ def test_lecture_jsonl_robuste_au_separateur_unicode(tmp_path):
     assert len(f.read_text().splitlines()) == 2  # le piège
     lignes = [json.loads(l) for l in f.read_text().split("\n") if l.strip()]
     assert lignes[0]["texte"] == "avant\u2028après"
+
+
+def test_lecture_croisee_prefixe_identique_a_la_boucle_et_transmis_au_modele():
+    """H3 : le début imposé contient les mêmes passages que ceux que la boucle insère, et arrive bien au modèle."""
+    from scripts.run_lecture import construire_prefixe
+    s = _systeme([("<search> Scott Derrickson </search>", "</search>"), ("<answer>American</answer>", None)])
+    t = s.run([{"id": "q1", "question": "Q?", "golds": ["American"]}])[0]
+    pref = construire_prefixe("q1", t["queries"], s.retriever, topk=s.topk)
+    bloc_boucle = t["trajectory"][t["trajectory"].index("<information>"):t["trajectory"].index("</information>")]
+    assert bloc_boucle in pref and pref.startswith("<search> Scott Derrickson </search>\n\n<information>")
+    vus = []
+    lecteur = _systeme([("<answer>American</answer>", None)], max_turns=0)
+    gen = lecteur.llm.generate
+    lecteur.llm.generate = lambda prompts, *a, **k: (vus.extend(prompts), gen(prompts, *a, **k))[1]
+    r = lecteur.run([{"id": "q1", "question": "Q?", "golds": ["American"], "prefixe": pref}])[0]
+    assert vus[0].endswith(pref) and r["trajectory"] == "<answer>American</answer>" and r["n_search"] == 0
+
+
+def test_lecture_croisee_effets(tmp_path):
+    import json
+    from analysis.lecture_croisee import main
+    rng = np.random.default_rng(0)
+    # L'agent lit mieux (+0,2) ; ses plans ne valent pas mieux (0)
+    p = {("A", "A"): 0.6, ("Qwen2.5-3B-Instruct", "A"): 0.4, ("A", "Qwen2.5-3B-Instruct"): 0.6,
+         ("Qwen2.5-3B-Instruct", "Qwen2.5-3B-Instruct"): 0.4}
+    for (lec, che), pr in p.items():
+        lignes = [{"id": f"q{i}", "sample": s, "em": int(rng.random() < pr)} for i in range(300) for s in range(4)]
+        (tmp_path / f"lecteur-{lec}_chercheur-{che}_bridge_m4.jsonl").write_text(
+            "".join(json.dumps(l) + "\n" for l in lignes))
+    r = main(["--indir", str(tmp_path)])["A_bridge"]
+    assert r["H3"] and r["questions"] == 300
+    assert abs(r["lecture"][0] - 0.2) < 0.05 and r["recherche"][1] < 0 < r["recherche"][2]
+    assert abs(r["total"][0] - (r["lecture"][0] + r["recherche"][0])) < 1e-9

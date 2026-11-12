@@ -52,7 +52,9 @@ class SearchR1System:
     def run(self, questions):
         """questions : liste de dicts {id, question, golds}. Renvoie une trajectoire par question."""
         t0 = time.time()
-        states = [{"q": q, "text": self._initial_prompt(q["question"]), "gen": "",
+        # q["prefixe"] (option, lecture croisée H3) : début de trajectoire imposé, ajouté après le prompt et avant
+        # la première génération ; il n'entre ni dans "trajectory" ni dans le décompte des jetons générés.
+        states = [{"q": q, "text": self._initial_prompt(q["question"]) + q.get("prefixe", ""), "gen": "",
                    "queries": [], "docs": [], "tokens": 0, "done": False, "truncated": False}
                   for q in questions]
         for turn in range(self.max_turns + 1):
