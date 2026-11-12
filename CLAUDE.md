@@ -61,7 +61,19 @@ Tout relancer : `PY=<python> scripts/rendu.sh` (fictif) ou `RESULTATS=results` (
 Puissance : `analysis/puissance.py` (200 questions + Holm : écart de 10 points détecté à 54 % ; 500 par jeu : 96 %).
 Bibliographie : 46 références vérifiées dans OpenAlex le 9 novembre, zéro rouge (3 trouvées par DOI seulement).
 
-Prochaine étape : run de contrôle de A2/A3, puis run d'évaluation A0 à A5 sur Kaggle (A5 : `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-3b-em-grpo-v0.3`, ne pas confondre avec la variante `-it-`), puis réécrire les résultats de l'article.
+Run d'évaluation de la mini-expérience fait le 9 novembre 2026 (kernel v4, commit 07c1fbb, 1 h 12) : 1 200 trajectoires dans
+`results/eval_v4/` (non versionné). EM NQ / TriviaQA : A0 15/29, A1 10/40, A2 10/31, A3 9/36, A4 23/47, A5 22/53. HA1 soutenue (6/6),
+HA2 non soutenue, HA3a et HA3b soutenues. Exploratoire : les harnais perdent 18 à 24 des 44 questions « connues » après recherche,
+les agents 6 et 10. A3 s'abstient 30 fois sur 200. L'article et le carnet sont écrits sur ces vrais résultats.
+
+Partie 2 (branche `partie2-passk`, 11 novembre 2026) : le renforcement élargit-il ce que l'agent sait faire (pass@k),
+ou le fiabilise-t-il seulement ? Paires exactes checkpoint / modèle de départ (variantes `-it-` vérifiées sur Hugging Face),
+HotpotQA distracteurs avec BM25 fermé par question. Note vérifiée : `docs/partie2/note_litterature.md` (deux références
+introuvables retirées). Plan v0 : `docs/partie2/plan_analyse.md`. Code : `analysis/passk.py`, `data/hotpot_distractor.py`,
+`retrieval/closed_bm25.py`, `scripts/run_passk.py`. Prochaine étape : session pilote Kaggle (débit, format, troncature).
+
+Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour
+séparer règle de recherche et modèle ; H4 (BM25).
 
 ## Faits vérifiés (ne pas redécouvrir)
 

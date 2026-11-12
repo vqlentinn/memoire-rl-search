@@ -180,6 +180,42 @@ l'article […], recheck si on suit bien la trame ».
 - Carnet : tableau de conformité à la trame, décisions D17 à D19, chronologie, demandes de l'étudiant citées. L'étudiant
   avait autorisé Claude à inventer ; Claude n'a rien inventé de factuel et l'a écrit.
 
+**Run d'évaluation et article sur les vrais résultats (9 novembre, fin de matinée).**
+- Contrôle de A2/A3 déjà fait (kernel v3, commit fcef699) : A2 20/20 réponses sans requête répétée ; A3 3,4 recherches par
+  question mais 3 abstentions sur 20. Prompt de A3 gelé (D20). Notebook passé en mode `complet`, kernel v4 lancé à 9 h 18.
+- Kernel v4 terminé à 10 h 39 : 1 200 trajectoires, 12 runs à code 0, aucune erreur, mêmes questions pour les 6 systèmes,
+  4 324 s de GPU. Trajectoires lues : format Search-R1 correct pour A4 ; anomalies de A2 = vrais ratés de format.
+- Verdicts du programme commité avant le run : HA1 soutenue (6/6, écarts de 10 à 17 points, p Holm < 0,001) ; HA2 non
+  soutenue (12,8 points sur NQ, 14,3 sur TriviaQA) ; HA3a soutenue (+0,92 recherche) ; HA3b soutenue (+0,74 sur 44 questions).
+- Constat non prévu : sur NQ, les trois harnais font moins bien que le modèle seul. Analyse exploratoire (D22) : sur les 44
+  questions « connues », les harnais en perdent 18 à 24 après recherche, les agents 6 et 10. Exemples vérifiés dans les passages.
+- Résumé, résultats, discussion et conclusion réécrits ; relecture « rapporteur » avec le prompt de la trame : 6 corrections.
+
+**Analyses approfondies (9 novembre, après-midi).** Demandées par l'étudiant (« article pas assez consistant, plus de schémas,
+analyse poussée »). `analysis/analyse_approfondie.py`, exploratoire, sur les 1 200 trajectoires :
+- Trouver ou lire : réponse présente dans les passages pour 38 % des trajectoires des harnais et 42 % de celles des agents ;
+  EM si présente 50 % contre 69 % ; EM si absente 6 % contre 12 %.
+- Décomposition contrefactuelle de l'écart (13,6 points [9,2 ; 18,2]) : trouver 2,1 [0,9 ; 3,4], lire 8,0 [4,9 ; 11,4],
+  répondre sans appui 3,5 [0,7 ; 6,4]. Bootstrap sur les questions.
+- Requêtes : la 1re requête trouve la réponse pour 31 à 37 % des questions selon le système ; A5 recopie la question à 90 %,
+  A4 à 70 % ; requête répétée pour 29 % (A4) et 26 % (A5) des questions. Jetons : environ 150 à 166 pour les systèmes itératifs.
+- Gains / pertes face à A0, typologie automatique des erreurs, matrice des 15 comparaisons (Bonferroni), arbre TikZ.
+
+**Analyses avancées (9 novembre, fin d'après-midi).** `analysis/analyse_avancee.py`, exploratoire :
+- Régression logistique (1 000 trajectoires, SE groupées par question) : RL OR 2,62 [1,44 ; 4,78] ; réponse dans les passages
+  OR 12,96 ; RL × réponse dans les passages OR 1,03 (p = 0,94) ; connue OR 5,61 ; TriviaQA OR 3,90. Interprétation « lisent
+  mieux » corrigée en « répondent mieux à information égale ».
+- Gain marginal des recherches : 1re ≈ 31 à 37 % ; 2e +1 à +3 points (A4 +10) ; 3e et 4e 0 à 1,5. IRCoT fait ≥ 3 recherches
+  sur 80 % des questions, A4 sur 66 %.
+- Sensibilité HA1 : souple +12,5 [8,1 ; 17,2], 6/6 ; F1 +15,5 [11,3 ; 19,9]. Odds ratios McNemar 3,8 à 6,0.
+- Par jeu : trouver 1,2 (NQ) et 2,7 (TQA) points ; lire 6,5 et 9,7 ; sans appui 5,1 et 2,0.
+- Complémentarité : aucun système ne répond juste à 52 % des questions ; Jaccard A4/A5 0,69, harnais 0,48 en moyenne.
+- Schéma TikZ de la boucle d'entraînement de Search-R1 ajouté à la méthode.
+
+**Formalisation (9 novembre, soir).** Sur proposition de Claude, décidée par l'étudiant : récompense de Search-R1 (r = EM) et
+récompense avec coût (r = EM − c · n_rech) dans le cadre théorique, avec lecture en clair ; annexe D sur le gradient de
+politique, l'avantage, PPO, GRPO, la pénalité KL et le masquage des passages ; une phrase dans l'état de l'art.
+
 ## Les outils utilisés
 
 | Étape | Outil | Ce que l'outil a fait | Ce que j'ai gardé, refait ou vérifié |

@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # Relance toute la chaîne du rendu : données -> analyse -> puissance -> PDF -> dossier rendu/.
 #
-#   PY=/chemin/vers/python scripts/rendu.sh           # données fictives (tant qu'il n'y a pas de vrais runs)
-#   PY=... RESULTATS=results scripts/rendu.sh          # vrais fichiers JSONL du run d'évaluation
+#   PY=/chemin/vers/python scripts/rendu.sh           # vrais résultats s'ils existent, sinon données fictives
+#   PY=... RESULTATS=results/eval_v4 scripts/rendu.sh  # vrais fichiers JSONL (choix par défaut s'ils existent)
 #
 # Le dossier rendu/ (non versionné) contient les trois fichiers demandés par la trame (étape 12) :
 # PROUX_Valentin_preprojet.pdf, PROUX_Valentin_source.zip (à importer dans Overleaf), PROUX_Valentin_carnet.pdf.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PY="${PY:-python3}"
-RESULTATS="${RESULTATS:-results/fictif}"
+# Par défaut : les vrais résultats du run d'évaluation s'ils existent, sinon les données fictives.
+if [ -z "${RESULTATS:-}" ]; then
+  if [ -d results/eval_v4 ]; then RESULTATS=results/eval_v4; else RESULTATS=results/fictif; fi
+fi
 
 if [ "$RESULTATS" = "results/fictif" ]; then
   echo "== Données FICTIVES (analysis/donnees_fictives.py)"
@@ -17,6 +20,11 @@ if [ "$RESULTATS" = "results/fictif" ]; then
 fi
 echo "== Analyse de $RESULTATS"
 "$PY" analysis/analyse_mini.py --indir "$RESULTATS"
+echo "== Analyses exploratoires"
+"$PY" analysis/analyse_approfondie.py --indir "$RESULTATS" | tail -2
+"$PY" analysis/analyse_avancee.py --indir "$RESULTATS" | tail -1
+echo "== Sélection du corpus de la revue (règles R1 à R3)"
+"$PY" scripts/selection_corpus.py --meta docs/litterature/openalex_equation3_retenus.json | tail -3
 echo "== Puissance (simulation)"
 "$PY" analysis/puissance.py
 

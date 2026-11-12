@@ -1,0 +1,208 @@
+{
+ "results": [
+  {
+   "id": "https://openalex.org/W4416256501",
+   "title": "ReSearch: Learning to Reason with Search for LLMs via Reinforcement Learning",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.52202/085713-2858"
+  },
+  {
+   "id": "https://openalex.org/W4416035985",
+   "title": "s3: You Don’t Need That Much Data to Train a Search Agent via RL",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.18653/v1/2025.emnlp-main.1095"
+  },
+  {
+   "id": "https://openalex.org/W7116391219",
+   "title": "AdaSearch: Balancing Parametric Knowledge and Search in Large Language Models via Reinforcement Learning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.18653/2026.emnlp-main.2696"
+  },
+  {
+   "id": "https://openalex.org/W4416036494",
+   "title": "Search Wisely: Mitigating Sub-optimal Agentic Searches By Reducing Uncertainty",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.18653/v1/2025.emnlp-main.998"
+  },
+  {
+   "id": "https://openalex.org/W7166826935",
+   "title": "SPARKLE: A Structured and Plug-and-play Agentic Retrieval Policy for Adaptive RAG Models",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.18653/v1/2026.acl-long.1793"
+  },
+  {
+   "id": "https://openalex.org/W7166808507",
+   "title": "Beneficial Reasoning Behaviors in Agentic Search and Effective Training Methods to Obtain Them",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.18653/v1/2026.findings-acl.1400"
+  },
+  {
+   "id": "https://openalex.org/W7166877659",
+   "title": "D2Plan: Dual-Agent Dynamic Global Planning for Complex Retrieval-Augmented Reasoning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.18653/v1/2026.acl-long.216"
+  },
+  {
+   "id": "https://openalex.org/W4417422257",
+   "title": "Search-R1: Training LLMs to Reason and Leverage Search Engines with Reinforcement Learning",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2503.09516"
+  },
+  {
+   "id": "https://openalex.org/W4414886075",
+   "title": "Acting Less is Reasoning More! Teaching Model to Act Efficiently",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2504.14870"
+  },
+  {
+   "id": "https://openalex.org/W4416048525",
+   "title": "EvolveSearch: An Iterative Self-Evolving Search Agent",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2505.22501"
+  },
+  {
+   "id": "https://openalex.org/W4414880168",
+   "title": "DynaSearcher: Dynamic Knowledge Graph Augmented Search Agent via Multi-Reward Reinforcement Learning",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2507.17365"
+  },
+  {
+   "id": "https://openalex.org/W4414448325",
+   "title": "AI-SearchPlanner: Modular Agentic Search via Pareto-Optimal Multi-Objective Reinforcement Learning",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2508.20368"
+  },
+  {
+   "id": "https://openalex.org/W7133790487",
+   "title": "SE-Search: Self-Evolving Search Agent via Memory and Dense Reward",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2603.03293"
+  },
+  {
+   "id": "https://openalex.org/W7154774180",
+   "title": "IG-Search: Step-Level Information Gain Rewards for Search-Augmented Reasoning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2604.15148"
+  },
+  {
+   "id": "https://openalex.org/W4416385124",
+   "title": "QAgent: A modular Search Agent with Interactive Query Understanding",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2510.08383"
+  },
+  {
+   "id": "https://openalex.org/W4417100464",
+   "title": "RECON: Reasoning with Condensation for Efficient Retrieval-Augmented Generation",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2510.10448"
+  },
+  {
+   "id": "https://openalex.org/W7127289422",
+   "title": "Optimizing Agentic Reasoning with Retrieval via Synthetic Semantic Information Gain Reward",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2602.00845"
+  },
+  {
+   "id": "https://openalex.org/W4414972172",
+   "title": "Beyond Outcome Reward: Decoupling Search and Answering Improves LLM Agents",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.48550/arxiv.2510.04695"
+  },
+  {
+   "id": "https://openalex.org/W7169522730",
+   "title": "LOTAPO: Leave-One-Turn Attribution for Self-Generated Process Rewards in Multi-Turn Search Reasoning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2607.13501"
+  },
+  {
+   "id": "https://openalex.org/W7162770303",
+   "title": "SAAS: Self-Aware Reinforcement Learning for Over-Search Mitigation in Agentic Search",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2605.29796"
+  },
+  {
+   "id": "https://openalex.org/W7202346014",
+   "title": "LoongReflect: Boosting Long-Horizon Reflection in Search Agents via Global Perspective Distillation",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2608.11967"
+  },
+  {
+   "id": "https://openalex.org/W7108325177",
+   "title": "LLM Agents for Search via Reinforcement Learning with Trajectory-Level Self-Evaluation",
+   "publication_year": 2025,
+   "doi": "https://doi.org/10.5753/eniac.2025.14460"
+  },
+  {
+   "id": "https://openalex.org/W7155414154",
+   "title": "ReflectiveRAG: Rethinking Adaptivity in Retrieval-Augmented Generation",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48448/n4ha-zb30"
+  },
+  {
+   "id": "https://openalex.org/W7155506905",
+   "title": "Enhancing Information Retrieval through Multi-Agent Reasoning Frameworks in Open Deep Search Architectures",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.2139/ssrn.6400178"
+  },
+  {
+   "id": "https://openalex.org/W7165433033",
+   "title": "Policy over Prompt: Reinforcement Learning for Agentic RAG",
+   "publication_year": 2026,
+   "doi": null
+  },
+  {
+   "id": "https://openalex.org/W7168272857",
+   "title": "Towards Adaptive and Retriever-friendly Retrieval-augmented Generation via Reinforcement Learning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.1145/3805713.3820432"
+  },
+  {
+   "id": "https://openalex.org/W7172409897",
+   "title": "Search-GRT: Guided Retrieval Training of Search Agents to Optimize for Complex Question Answering",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.21437/interspeech.2026-2006"
+  },
+  {
+   "id": "https://openalex.org/W7204133053",
+   "title": "AdaRAG: Budget-Aware Adaptive Retrieval-Augmented Generation via Hierarchical Reinforcement Learning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.1109/jcc72984.2026.00024"
+  },
+  {
+   "id": "https://openalex.org/W7204208687",
+   "title": "GTA-RAG: Graph-Trajectory-Augmented Reinforcement Learning for Multi-Turn Retrieval-Augmented Reasoning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.18653/2026.findings-emnlp.2383"
+  },
+  {
+   "id": "https://openalex.org/W7214890894",
+   "title": "BRIDGE: Bilevel Retrieval-Credit-Aware Agentic Reinforcement Learning",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2609.36505"
+  },
+  {
+   "id": "https://openalex.org/W7220986876",
+   "title": "Beyond Outcome Rewards: Constructing and Assigning Retrieval Credit for Search Agents",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2610.10179"
+  },
+  {
+   "id": "https://openalex.org/W7221758497",
+   "title": "Strive-R1: Proactive retrieval-augmented reasoning with strategic retrieval control and hierarchical verifiable rewards",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.1016/j.ipm.2026.105220"
+  },
+  {
+   "id": "https://openalex.org/W7224235699",
+   "title": "Observation-Aware Stabilization of Reinforcement Learning for Retrieval-Augmented Generation",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.18653/2026.findings-emnlp.1242"
+  },
+  {
+   "id": "https://openalex.org/W7225083931",
+   "title": "Search When Needed, Proceed When Reliable: Metacognitive Reliability Supervision for Efficient Agentic Search",
+   "publication_year": 2026,
+   "doi": "https://doi.org/10.48550/arxiv.2610.41738"
+  }
+ ]
+}

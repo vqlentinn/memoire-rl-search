@@ -11,6 +11,8 @@ numpy
 scipy
 pandas
 scikit-learn
+statsmodels     # analysis/analyse_avancee.py (régression logistique)
+matplotlib      # figures de l'article
 pyyaml
 tqdm
 pytest
