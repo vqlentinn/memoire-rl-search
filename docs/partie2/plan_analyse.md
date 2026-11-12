@@ -1,8 +1,8 @@
 # Partie 2 : plan d'analyse
 
-**Statut : version 0.1, avant le pilote (12 novembre 2026), après la recherche documentaire.** Les paramètres marqués « [pilote] » seront fixés
-d'après la session pilote, puis le plan sera gelé et commité **avant** tout run principal. Toute modification
-ultérieure sera datée et signalée dans l'article.
+**Statut : version 1.0, GELÉE le 12 novembre 2026, après le pilote v2 et avant tout run principal.** Les paramètres
+autrefois marqués « [pilote] » sont fixés (section « Pilote : résultats et choix », en fin de document). Toute
+modification ultérieure sera datée, justifiée ici et signalée dans l'article.
 
 ## Question
 
@@ -27,7 +27,8 @@ gonfleraient l'écart. Contrôle possible, si le budget le permet : `R1-nq_hotpo
 entraîné par renforcement **sans** moteur de recherche.
 
 Prompt : celui de Search-R1 (`prompts/searchr1.txt`), identique pour les deux modèles d'une paire. Gabarit de chat
-pour les paires Instruct ; pour les paires base, gabarit de chat ou prompt brut selon le pilote [pilote].
+pour les quatre paires (même entrée que celle que voient les agents) ; pour les paires base, le prompt brut est rapporté
+en sensibilité (le pilote donne 62 % de bon format avec gabarit, 77 % sans).
 
 ## Environnement
 
@@ -43,7 +44,7 @@ pour les paires Instruct ; pour les paires base, gabarit de chat ou prompt brut 
 
 ## Échantillon
 
-- Ponts et comparaisons : N questions de chaque type [pilote ; cible 500], tirées avec la graine 42
+- Ponts et comparaisons : N = 500 questions de chaque type, tirées avec la graine 42
   (`data/hotpot_distractor.charger`).
 - Pilote : 50 questions de ponts tirées avec la graine 7, **disjointes** des questions d'évaluation.
 - HotpotQA fait partie de l'entraînement de Search-R1 (partie train) : les questions de validation sont « vues »
@@ -57,15 +58,19 @@ pour les paires Instruct ; pour les paires base, gabarit de chat ou prompt brut 
      de génération 0, comme l'échantillon principal).
   Réutiliser les tirages de la présélection donnerait au modèle de départ un pass@k nul par construction, et donc un
   élargissement fabriqué. Le test `test_selection_sur_les_memes_tirages_fabrique_un_elargissement` le montre sur
-  simulation. Taille du vivier [pilote], cible : 150 à 200 questions difficiles.
+  simulation. Vivier : 1 000 questions de ponts tirées avec la graine 43, disjointes des 500 d'évaluation et des 50 du pilote.
+  Le pilote donne 16 % de questions sans réussite en 32 essais : on attend environ 150 à 200 questions difficiles.
 
 ## Mesures
 
-- n = 32 générations par question et par modèle, température 0,7 (comme Zhai et al.) [pilote : n peut descendre à 16].
+- n = 32 générations par question et par modèle, température 0,7 (comme Zhai et al.).
 - T (recherches au plus) : 4 et 0 d'abord ; 1 et 2 ensuite si le budget le permet. Zhu et al. (2611.06483)
   montrent que l'avantage du RL dépend du budget d'interaction et peut s'inverser à petit T. T = 0 : aucune recherche permise ;
   une trajectoire qui tente de chercher se termine sans réponse.
-- 512 jetons par tour, identiques pour les deux modèles d'une paire.
+- 1 024 jetons au plus par tour, contexte de 8 192 jetons, identiques pour les deux modèles d'une paire. La
+  génération s'arrête à `</search>` (recherche) ou à `</answer>` (réponse), comme le post-traitement officiel de
+  Search-R1. Une trajectoire dont le contexte ne laisse plus la place d'un tour est arrêtée et comptée fausse
+  (statut `context_exceeded`, taux rapporté).
 - Juste : correspondance exacte (normalisation de Search-R1). F1 et correspondance souple en sensibilité.
 - Rapportés pour chaque modèle : taux de sorties sans réponse exploitable (format), taux de troncature, nombre moyen
   de recherches.
@@ -132,3 +137,35 @@ Sur les 50 questions de mise au point, n = 32, T = 4, pour les deux paires Instr
 Ordre de grandeur à vérifier : 4 modèles × 2 valeurs de T × 1 000 questions × 32 tirages = 256 000 trajectoires,
 contre 1 200 en 1 h 12 pour la partie 1 en décodage glouton. Repli si c'est trop lent : n = 16, paires Instruct
 seules, puis T = 4 seul.
+
+## Pilote : résultats et choix (12 novembre 2026)
+
+Pilote v1 : échec (contexte de 4 096 jetons dépassé, lecture JSONL coupée sur U+2028), corrigé. Pilote v2 : 6 runs
+complets de 1 600 trajectoires (50 questions de ponts, graine 7, n = 32, T = 4). Chiffres indicatifs, aucun test.
+
+| Modèle | EM par tirage | Bon format | Tronquées | Débit (T4) |
+| --- | --- | --- | --- | --- |
+| Qwen2.5-3B-Instruct | 0,358 | 99,5 % | 0,1 % | 1,34 traj./s |
+| it-em-grpo | 0,371 | 95,1 % | 15,1 % | 0,48 traj./s |
+| it-em-ppo | 0,431 | 97,2 % | 42,0 % | 0,24 traj./s |
+| Qwen2.5-3B (chat / brut) | 0,139 / 0,200 | 62 % / 77 % | 10 % / 4 % | 1,1 / 1,0 traj./s |
+| em-ppo | 0,611 | 99,9 % | 0,0 % | 1,82 traj./s |
+
+- **Défaut corrigé :** it-em-ppo répète « <answer>X</answer> » après sa réponse jusqu'à la limite de jetons. Arrêt à
+  `</answer>` ajouté (voir Mesures). Rescoré au premier `</answer>`, le pilote donne pour les paires Instruct
+  D(1) ≈ +0,03 à +0,05 et D(32) ≈ −0,04, frontière 40 contre 42 : rien ne change dans les tendances.
+- **Marge d'élargissement :** 16 % des questions sans réussite du modèle Instruct en 32 essais (30 % pour Qwen2.5-3B).
+  pass@32 ne sature donc pas ; le sous-ensemble difficile reste utile.
+- **Taille :** écart-type par question de d_i(k) entre 0,19 et 0,30, quantile simultané 2,4. Avec N = 500, l'écart
+  minimal détectable (puissance 80 %, α = 5 %) est d'environ 0,041 à k = 32 (bande simultanée) et de 0,023 à 0,034 à
+  k = 1 (IC ponctuel). N = 1 000 ne le ramènerait qu'à 0,029 pour deux fois le coût : N = 500 et n = 32 sont retenus.
+- **Budget** (débit après correction estimé à partir des jetons générés, à vérifier en session 1) : environ 14 h de
+  GPU par type de question à T = 4 pour les trois modèles Instruct, moins à T = 0.
+
+### Ordre des sessions Kaggle
+
+1. **Session 1 (confirmatoire) :** ponts, T = 4, Qwen2.5-3B-Instruct, it-em-ppo, it-em-grpo (`notebooks/kaggle_partie2_principal.ipynb`).
+2. Session 2 : comparaisons, T = 4, mêmes modèles (H2').
+3. Session 3 : T = 0, ponts et comparaisons (H2') ; présélection du sous-ensemble difficile (Instruct, n_pré = 16).
+4. Session 4 : sous-ensemble difficile, n = 32, tirages nouveaux.
+5. Ensuite seulement : paires base, T ∈ {1, 2}, H3, bras harnais, H4.
