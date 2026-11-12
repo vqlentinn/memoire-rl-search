@@ -22,7 +22,7 @@ DEPART = {"it": "Qwen2.5-3B-Instruct_bridge", "base": "Qwen2.5-3B_bridge"}
 def charger(indir):
     out = {}
     for f in sorted(Path(indir).glob("*.jsonl")):
-        L = [json.loads(l) for l in f.read_text().splitlines() if l.strip()]
+        L = [json.loads(l) for l in f.read_text().split("\n") if l.strip()]
         if L:
             out[f.stem] = L
     return out
@@ -43,7 +43,7 @@ def decrire(runs, secondes):
         lignes.append({
             "run": nom, "trajectoires": len(L),
             "em": np.mean([l["em"] for l in L]),
-            "bon_format": 1 - (st["format"] + st["truncated"]) / len(L),
+            "bon_format": 1 - (st["format"] + st["truncated"] + st["context_exceeded"]) / len(L),
             "tronquees": np.mean([l["truncated"] for l in L]),
             "budget_epuise": st["budget_exhausted"] / len(L),
             "recherches": np.mean([l["n_search"] for l in L]),

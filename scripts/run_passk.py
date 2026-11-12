@@ -28,6 +28,8 @@ SEED_EVAL, N_EVAL = 42, 500  # tirage d'évaluation : 500 questions par type, gr
 def statut(t, max_turns):
     if extract_answer(t["trajectory"]) is not None:
         return "answer"
+    if t.get("context_exceeded"):
+        return "context_exceeded"
     if t.get("truncated"):
         return "truncated"
     if re.search(r"<search>", t["trajectory"]):
@@ -57,6 +59,8 @@ def main():
     ap.add_argument("--max-turns", type=int, default=4)
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--max-tokens", type=int, default=512)
+    ap.add_argument("--max-model-len", type=int, default=8192,
+                    help="contexte maximal ; 4096 ne suffit pas avec 4 recherches de 3 paragraphes HotpotQA")
     ap.add_argument("--topk", type=int, default=3)
     ap.add_argument("--questions-par-lot", type=int, default=8)
     ap.add_argument("--no-chat-template", action="store_true")
@@ -78,7 +82,7 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     faits = Counter()
     if out.exists():
-        faits = Counter(json.loads(l)["id"] for l in out.read_text().splitlines() if l.strip())
+        faits = Counter(json.loads(l)["id"] for l in out.read_text().split("\n") if l.strip())
     exclure = []
     if args.seed_questions != SEED_EVAL:  # pilote : aucune question d'évaluation
         exclure = [q["id"] for q in charger(args.data, args.type, n=N_EVAL, seed=SEED_EVAL)]
@@ -90,11 +94,11 @@ def main():
         return
     # Une question incomplète est refaite entièrement : on retire ses lignes partielles.
     if faits:
-        garder = [l for l in out.read_text().splitlines() if l.strip() and faits[json.loads(l)["id"]] >= args.n_samples]
+        garder = [l for l in out.read_text().split("\n") if l.strip() and faits[json.loads(l)["id"]] >= args.n_samples]
         out.write_text("".join(x + "\n" for x in garder))
 
     systeme = SearchR1System(args.model, ClosedBM25Retriever(questions), topk=args.topk, max_turns=args.max_turns,
-                             max_tokens=args.max_tokens, temperature=args.temperature,
+                             max_tokens=args.max_tokens, temperature=args.temperature, max_model_len=args.max_model_len,
                              use_chat_template=not args.no_chat_template, seed=args.seed)
     t0, n_traj = time.time(), 0
     for i in range(0, len(a_faire), args.questions_par_lot):
@@ -108,7 +112,7 @@ def main():
         print(f"  {i + len(lot)}/{len(a_faire)} questions, {n_traj} trajectoires, {dt:.0f} s "
               f"({n_traj / dt:.1f} trajectoires/s)", flush=True)
 
-    lignes = [json.loads(l) for l in out.read_text().splitlines() if l.strip()]
+    lignes = [json.loads(l) for l in out.read_text().split("\n") if l.strip()]
     st = Counter(l["status"] for l in lignes)
     print(f"EM moyenne {sum(l['em'] for l in lignes) / len(lignes):.3f} | statuts {dict(st)} | "
           f"tronquées {sum(l['truncated'] for l in lignes) / len(lignes):.1%} | "

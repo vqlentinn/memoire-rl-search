@@ -20,7 +20,8 @@ class FakeLLM:
         self.calls = 0
 
     def get_tokenizer(self):
-        return types.SimpleNamespace(apply_chat_template=lambda msgs, **kwargs: msgs[0]["content"])
+        return types.SimpleNamespace(apply_chat_template=lambda msgs, **kwargs: msgs[0]["content"],
+                                     encode=lambda t: t.split())
 
     def generate(self, prompts, params, use_tqdm=False):
         text, stop_reason = self.script[self.calls]

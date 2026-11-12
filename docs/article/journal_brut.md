@@ -228,6 +228,15 @@ partie 2 devient le cœur du mémoire, l'article rendu en devient la partie 1.
   plan v0. Découvertes : 447 réponses oui/non à exclure ; deux paragraphes utiles ramenés par la question seule dans
   45 % des cas seulement ; risque de plafond de pass@n.
 - Pilote Kaggle lancé le 12 novembre (version 1 de `memoire-partie2-pilote`).
+- **Pilote v1 (kernel v1, 12 novembre, 15 h 21 à 16 h 19) : en erreur.** Trois runs sur six plantent : contexte de
+  4 096 jetons dépassé (paragraphes HotpotQA longs ; un seul dépassement fait rejeter tout le lot par vLLM). Un
+  quatrième finit ses 1 600 trajectoires mais plante à la relecture : `splitlines()` coupe sur U+2028, présent dans
+  certains passages. Les deux bugs venaient du code écrit par Claude ; corrigés partout (y compris dans les scripts de la
+  partie 1), avec un test chacun. Résultats indicatifs des runs complets : paire base, agent 0,617 contre 0,154 à k = 1,
+  mais 0,740 contre 0,760 à k = 32 (fiabilisation sans élargissement, comme Yue et al.) ; 24 % des questions hors de
+  portée du modèle de départ (pas de plafond) ; agent Instruct GRPO tronqué à 28,5 % avec 512 jetons par tour ; modèle
+  de base au bon format 61 % du temps avec gabarit de chat ; débit environ 2 trajectoires par seconde et par T4.
+  Pilote v2 : 1 024 jetons par tour, contexte de 8 192, les six runs avec les mêmes réglages.
 - Recherche documentaire de la partie 2 (12 novembre) : équation OpenAlex P1 (302 résultats, environ 55 % de précision),
   P2 agents en deux versions (642 puis 138, précision faible : littérature mince), boule de neige sur Zhai et al. et
   Yue et al., deux questions Consensus, index arXiv. Corpus de 43 articles, tous vérifiés (42 exacts, 1 incertain).
