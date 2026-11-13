@@ -1,0 +1,521 @@
+% Fichier généré par scripts/assemble_memoire.py : ne pas modifier à la main.
+\section{Introduction}
+% Entonnoir en cinq mouvements (étape 4) : contexte large, problème réel, faille, objectif, contribution.
+
+% 1. Contexte large et variables-clés
+Un modèle de langage ne sait pas tout, et ne sait pas toujours ce qu'il ne sait pas. Pour répondre à une question factuelle rare, récente ou composée de plusieurs étapes, on lui donne donc accès à un moteur de recherche \citep{lewis2020retrieval}. Ce couplage déplace la difficulté : il faut décider \emph{quand} chercher et \emph{quoi} chercher. Trois grandeurs en dépendent, que cet article suit tout du long : la décision de recherche elle-même, la \emph{précision} de la réponse et le \emph{coût} engagé, compté en recherches par question.
+
+% 2. Problème réel et enjeu
+Ce problème n'est pas qu'académique. Chaque recherche ajoute de la latence, des jetons à lire et du calcul ; chercher trop peu fait répondre de mémoire, au risque de se tromper \citep{mallen2022when}. Les agents actuels penchent nettement du côté de l'excès : \citet{wu2025search} estiment que Search-R1 aurait pu éviter 27,7~\% de ses étapes de recherche, et \citet{pezzuti2026how} observent jusqu'à 186 appels pour une seule requête. Pour une équipe qui ne dispose que d'un GPU gratuit, comme pour un service qui répond à des millions de questions, la règle qui décide de chercher fixe à la fois la qualité et la facture.
+
+% 3. Faille dans la littérature
+Deux familles de solutions coexistent. Dans la première, le \emph{harnais} est fixé par le programmeur : on cherche toujours une fois avant de répondre \citep{lewis2020retrieval}, on fait alterner pensée, action et observation guidées par un prompt \citep{yao2022react}, ou l'on cherche après chaque phrase de raisonnement \citep{trivedi2022interleaving}. Dans la seconde, le modèle \emph{apprend} par renforcement, avec une récompense portant sur la réponse finale, quand et quoi chercher \citep{jin2025search,song2025r1,chen2025research}. Les auteurs de Search-R1 rapportent ainsi, avec Qwen2.5-3B, un gain de 20~\% sur diverses lignes de base RAG \citep{jin2025search}. Mais ces gains sont mesurés par les auteurs de chaque méthode, contre des lignes de base qu'ils choisissent, souvent sur les jeux de questions vus à l'entraînement ; \citet{zhao2026retrieval} font le même constat pour les méthodes d'entraînement, dont la croissance a dépassé celle des comparaisons contrôlées. Dans le corpus que nous avons réuni, nous n'avons pas repéré de comparaison d'un agent entraîné avec les harnais fixes usuels à corpus, retriever, budget et questions identiques. Ce constat vaut pour notre recherche documentaire, dont la méthode est donnée en annexe~\ref{ann:requetes} : il ne prouve pas qu'une telle étude n'existe pas. On ne sait donc pas si l'avantage rapporté vient de l'apprentissage de la décision de chercher, ou des autres différences entre systèmes.
+
+% 4. Objectif
+Cette étude compare, dans des conditions identiques, deux agents Search-R1 entraînés par renforcement (PPO et GRPO) et quatre systèmes à règle fixe, de la réponse sans recherche à IRCoT, tous fondés sur des modèles Qwen2.5 de 3 milliards de paramètres. Elle mesure la précision et le coût sur un jeu de questions vu à l'entraînement des agents (Natural Questions) et sur un jeu non vu (TriviaQA), et lit les résultats avec la théorie du fourragement de l'information \citep{pirolli1999information}, qui fait de la décision de chercher un arbitrage entre gain espéré et coût. Elle répond à la question suivante : \emph{à corpus et questions identiques, un agent de recherche entraîné par renforcement décide-t-il mieux quand et quoi chercher qu'un harnais fixe, et à quel coût ?} C'est la partie à petite échelle d'un projet de mémoire plus large, dont deux hypothèses sont testées ici et deux sont présentées comme prolongements.
+
+% 5. Contribution
+L'étude apporte trois éléments. D'abord, une comparaison contrôlée qui isole la règle de recherche : seuls la règle et, pour les agents, les poids du modèle changent d'un système à l'autre. Ensuite, une mesure qui sépare la précision du coût, et qui teste si les agents entraînés cherchent encore quand le modèle connaît déjà la réponse : c'est ce que prédit un cadre où la récompense ignore le coût d'une recherche. Enfin, un protocole reproductible sans budget : code public, GPU gratuits, règles de décision fixées avant les runs et analyse de puissance qui dit, avant de les lancer, quels écarts l'expérience peut voir.
+
+\section{Revue de la littérature}\label{sec:revue}
+
+\subsection{Démarche}
+Cette revue est narrative : le champ est jeune, fait surtout de préprints de 2025 et 2026, et le but est de construire le raisonnement qui mène à notre question plutôt que d'estimer un effet moyen. La recherche documentaire a utilisé OpenAlex et Consensus par l'intermédiaire d'un agent d'IA, les 3, 9 et 12 novembre 2026. L'équation retenue croise le renforcement, la recherche agentique, la tâche de questions-réponses et les modèles de langage, depuis 2023 ; elle a été corrigée deux fois après mesure de sa précision sur 20 résultats tirés au hasard, de 35~\% à environ 75~\%. Elle ne retrouve qu'un article témoin sur cinq, car trois témoins sont des harnais fixes, hors du bloc « renforcement » : ces articles, et ceux qu'une requête sémantique a ajoutés, viennent d'une première collecte thématique. Les 56 références citées ont été vérifiées dans OpenAlex. Le corpus retenu compte 70 articles, dont 43 sont cités ici ; cinq d'entre eux, sur la question « fiabiliser ou élargir », viennent d'une seconde recherche du 12 novembre. L'annexe~\ref{ann:requetes} donne les équations, les volumes et les décisions. Les textes n'ont pas tous été lus en entier : ce que nous rapportons des études les plus récentes vient de leur résumé, sauf mention contraire.
+
+\subsection{Harnais fixes}
+La génération augmentée par la recherche (RAG) combine la mémoire du modèle et un index de documents \citep{lewis2020retrieval}. Ses variantes itératives ajoutent des recherches en cours de raisonnement : ReAct fait alterner raisonnement et actions d'outil \citep{yao2022react}, IRCoT entrelace recherche et chaîne de pensée \citep{trivedi2022interleaving}. D'autres travaux apprennent à décider \emph{si} il faut chercher, par un classifieur de complexité de la question \citep{jeong2024adaptive}, par l'incertitude de la génération \citep{jiang2023active,moskvoretskii2025adaptive} ou par la réflexion du modèle sur lui-même \citep{asai2023self}. Cette littérature part d'un constat : chercher n'aide pas toujours, et l'intérêt de la recherche dépend de ce que le modèle sait déjà \citep{mallen2022when,yin2023do}.
+
+\subsection{Agents de recherche entraînés par renforcement}
+L'apprentissage par renforcement promet de remplacer la règle écrite à la main par une politique optimisée sur le résultat. Search-R1 en est la forme la plus simple : le modèle insère des requêtes dans son raisonnement, et seule la justesse de la réponse finale est récompensée \citep{jin2025search}. Ce principe s'est vite décliné : R1-Searcher et ReSearch varient la récompense et les données \citep{song2025r1,chen2025research}, DeepResearcher place l'agent sur le web réel \citep{zheng2025deepresearcher}, ZeroSearch remplace le moteur par un moteur simulé \citep{sun2025zerosearch}. Tous reposent sur PPO \citep{schulman2017proximal} ou GRPO \citep{shao2024deepseekmath}, popularisés pour le raisonnement par DeepSeek-R1 \citep{deepseekai2025deepseek}, et une synthèse récente organise ce champ \citep{lin2025comprehensive}. Leur principe commun est un gradient de politique : le modèle de langage est traité comme une politique qui choisit chaque jeton, et l'on augmente la probabilité des trajectoires dont la récompense dépasse ce qui était attendu. Ce que cette récompense contient, ou omet, détermine donc ce que l'agent apprend (section~\ref{sec:cadre}).
+
+Ce que l'agent apprend reste pourtant mal connu. Les auteurs de Search-R1 montrent eux-mêmes que les récompenses intermédiaires sur la recherche changent peu de chose, mais que le choix du moteur pèse sur l'entraînement et sur la robustesse \citep{jin2025empirical} : la politique apprise dépend de l'environnement dans lequel elle a été apprise. C'est la raison pour laquelle nous distinguons un jeu vu d'un jeu non vu.
+
+\subsection{Coût des recherches}
+La recherche a longtemps été évaluée à son seul bénéfice ; elle est désormais vue comme un coût à maîtriser. Le constat de départ est que les agents entraînés cherchent trop : la surrecherche est maintenant définie et mesurée, et Search-R1 aurait pu éviter 27,7~\% de ses étapes \citep{wu2025search}. Les réponses proposées vont toutes dans le même sens, réintroduire le coût dans l'apprentissage : réduire les actions inutiles \citep{wang2025acting} ou l'abus d'outils \citep{chen2026learning}, rendre la recherche plus économe \citep{sha2025sem}, paralléliser les sous-requêtes pour réduire les appels \citep{zhao2025parallelsearch}, optimiser conjointement utilité et coût \citep{mei2025ai}, fixer un budget de tours et de passages \citep{sun2026adarag}, superviser la décision de chercher ou de répondre \citep{sun2026search}, ou équilibrer connaissances du modèle et recherche \citep{lin2025adasearch}.
+
+Mais réintroduire le coût n'est pas trivial. SAAS constate qu'une pénalité naïve par recherche réduit les appels au prix de la précision, et propose une pénalité ciblée sur les recherches que le modèle aurait pu éviter \citep{tang2026saas}. L'arbitrage entre précision et coût est donc au cœur du champ ; il reste rarement mesuré face aux harnais fixes, qui ont pourtant un coût connu d'avance. C'est l'objet de nos hypothèses HA3a et HA3b, et de l'hypothèse H3 du mémoire.
+
+\subsection{Retriever et bruit}
+Le retriever compte : BM25 \citep{robertson2009probabilistic} est lexical, E5 \citep{wang2022text} est dense ; Search-R1 est entraîné avec E5. Ajouter des passages n'aide pas toujours : selon la question et le modèle, la recherche peut aussi dégrader la réponse \citep{maekawa2024retrieval}. Des modèles se laissent distraire par des passages non pertinents \citep{yoran2023making} ou ignorent les informations placées au milieu d'un long contexte \citep{liu2023lost}. Ces effets limitent ce que l'on peut attendre d'une recherche réussie. \citet{zhao2026retrieval} signalent en outre un défaut de couverture du corpus Wikipédia 2018, dont la correction apporte plus que l'écart entre algorithmes d'entraînement : ce résultat, tiré du résumé, rend d'autant plus nécessaire notre mesure de couverture (section~\ref{sec:methode}).
+
+\subsection{Ce que le renforcement apprend : fiabiliser ou élargir ?}
+Un gain moyen ne dit pas \emph{ce que} l'entraînement a appris. Sans outil, \citet{yue2025does} mesurent pass@k, la probabilité qu'au moins une de k tentatives soit juste : le modèle entraîné gagne au premier essai, mais son modèle de départ le rattrape puis le dépasse quand k grandit ; le renforcement rendrait plus fiable sans rien rendre possible de nouveau. D'autres travaux observent au contraire un élargissement, sous conditions, par exemple avec un entraînement prolongé \citep{liu2025prorl}, et \citet{yang2026crossovers} montrent qu'une inférence appariée fait disparaître la plupart des croisements publiés. Pour les agents, deux études seulement posent la question : un élargissement sur les tâches qui obligent à enchaîner les recherches \citep{zhai2026does}, et un avantage qui dépend du nombre de tours permis \citep{zhu2026what}. Toutes deux portent sur des agents entraînés par leurs auteurs. Ce débat ne touche pas directement notre question, qui compare des agents à des harnais au premier essai, mais il éclaire la discussion et fonde nos perspectives (section~\ref{sec:discussion}).
+
+\subsection{Lacune}
+Les articles ci-dessus évaluent souvent leur méthode contre des lignes de base choisies par leurs auteurs. Trois travaux s'approchent de notre question. \citet{zhao2026retrieval} comparent de façon contrôlée des méthodes d'entraînement entre elles, et non des agents entraînés à des harnais fixes. \citet{raikote2026policy} oppose un contrôleur appris à des règles fixes, mais avec un modèle gelé. s3 entraîne un chercheur séparé contre le RAG naïf \citep{jiang2025s3}. La question de savoir si le gain vient de l'\emph{apprentissage de la décision de chercher} ou d'autres différences (modèle, prompt, retriever, jeux vus à l'entraînement) nous paraît donc encore peu isolée, sous réserve de la lecture complète de ces travaux. C'est ce que le protocole de la section~\ref{sec:methode} vise à réduire.
+
+\section{Cadre théorique}\label{sec:cadre}
+
+Nous lisons la décision de chercher avec la théorie du fourragement de l'information (\emph{information foraging}) de \citet{pirolli1999information}. Elle transpose à la recherche d'information le raisonnement de l'écologie : un organisme exploite une parcelle tant que ce qu'elle rapporte justifie l'effort, puis passe à autre chose. Pour décider, il s'appuie sur des indices imparfaits de la valeur de ce qu'il va trouver, la \emph{senteur de l'information}. L'idée que chercher a un coût, et qu'il faut s'arrêter quand le gain d'une recherche de plus ne le couvre plus, remonte à l'économie de l'information de \citet{stigler1961economics} ; la recherche d'information l'a reprise sous forme de modèles économiques de la recherche \citep{azzopardi2011economics}.
+
+Ce cadre explique le mécanisme que nous étudions et il est déjà mobilisé dans le champ : InForage s'en réclame explicitement pour formaliser le raisonnement augmenté par la recherche \citep{qian2025scent}. Des travaux récents emploient le même vocabulaire sans toujours citer la théorie : le gain marginal de chaque recherche décroît avec les tours \citep{zhang2026search}, et il est proposé de traiter la recherche comme une acquisition d'informations sous budget \citep{poudel2026reasoning}.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, minimum width=4.6cm, minimum height=1.05cm, align=center, fill=blue!6},
+  dep/.style={box, minimum width=3.7cm, fill=green!10},
+  >={Stealth[length=2.5mm]}]
+  \node[box] (g) at (0,1.05) {Gain espéré d'une recherche\\ {\footnotesize (indices, ce que l'agent sait déjà)}};
+  \node[box] (c) at (0,-1.05) {Coût d'une recherche\\ {\footnotesize (appels, jetons, temps)}};
+  \node[dep] (d) at (6.6,0) {Décision de chercher\\ ou de s'arrêter};
+  \draw[->, thick] (g.east) -- (d.west);
+  \draw[->, thick] (c.east) -- (d.west);
+\end{tikzpicture}
+\caption{Le cadre, d'après \citet{pirolli1999information} et \citet{stigler1961economics}, simplifié. Lecture : l'agent cherche tant que le gain espéré d'une recherche de plus dépasse ce qu'elle lui coûte.}
+\label{fig:cadre}
+\end{figure}
+
+Transposé à nos systèmes, ce cadre oppose deux questions : qui estime le gain, et quel coût est pris en compte (tableau~\ref{tab:cadre}). Dans les harnais fixes, la règle est écrite d'avance ou confiée à un prompt. Dans A4 et A5, elle est apprise avec une récompense qui porte sur la réponse finale \citep{jin2025search} : l'agent a pu apprendre à estimer le gain, mais rien ne lui fait payer une recherche.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}lp{5.6cm}p{5.6cm}@{}}
+\toprule
+Système & Estimation du gain & Coût d'une recherche pris en compte\\
+\midrule
+A0 & Aucune : jamais de recherche & Sans objet\\
+A1 & Aucune : une recherche, toujours & Aucun : règle fixe\\
+A2 & Par le modèle, guidé par le prompt & Implicite : consigne de répondre dès que l'information suffit\\
+A3 & Aucune : une recherche par phrase & Aucun : règle fixe, dans la limite du budget\\
+A4, A5 & Apprise par renforcement & Aucun dans la récompense\\
+\bottomrule
+\end{tabular}
+\caption{Les systèmes lus avec le cadre. Tous partagent le même budget de quatre recherches.}
+\label{tab:cadre}
+\end{table}
+
+\paragraph{Formalisation.} Le cadre peut s'écrire avec la récompense même des agents. Search-R1 note une trajectoire $\tau$ (le texte complet, de la question à la réponse) par la seule justesse de sa réponse finale \citep{jin2025search} :
+\begin{equation}\label{eq:r-searchr1}
+r(\tau) = \mathrm{EM}(\tau) \in \{0, 1\}.
+\end{equation}
+L'entraînement maximise l'espérance de cette récompense, $J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta}[r(\tau)]$, où $\pi_\theta$ est le modèle de langage de paramètres $\theta$. \emph{Lecture :} deux trajectoires justes, l'une avec une recherche et l'autre avec quatre, reçoivent la même récompense ; rien, dans le signal d'apprentissage, ne distingue la recherche utile de la recherche superflue. La théorie du fourragement introduirait, elle, un coût $c$ par recherche :
+\begin{equation}\label{eq:r-cout}
+r_c(\tau) = \mathrm{EM}(\tau) - c \cdot n_{\text{rech}}(\tau), \qquad c > 0.
+\end{equation}
+\emph{Lecture :} entre deux trajectoires également justes, celle qui cherche moins est alors préférée, et l'agent a intérêt à s'arrêter dès que le gain espéré d'une recherche, en probabilité de bonne réponse, passe sous $c$ : c'est la règle d'arrêt du fourrageur. Search-R1 correspond au cas $c = 0$. L'hypothèse H3 du mémoire teste $c > 0$. L'annexe~\ref{ann:formel} détaille comment ces récompenses deviennent un gradient, pour PPO et GRPO.
+
+Il en découle trois attentes. Un agent qui estime le gain devrait mieux répartir ses recherches qu'une règle fixe. Cette estimation, apprise sur certains jeux de questions, devrait perdre en fiabilité ailleurs. Enfin, sans coût perçu, l'agent devrait continuer à chercher même quand le gain attendu est faible.
+
+\emph{Limites du choix.} La théorie décrit des humains : l'appliquer à un modèle de langage est une analogie, qui suit celle d'InForage. Elle suppose aussi un agent qui compare gain et coût, alors que nous n'observons que ses actions. Nous la mobilisons pour expliquer ces actions, sans affirmer que le modèle raisonne ainsi. Nous n'avons pas eu accès au texte de \citet{pirolli1999information} : notre présentation s'appuie sur ce qu'en rapportent \citet{qian2025scent}. L'adéquation de ce cadre reste à valider avec la direction du mémoire.
+
+\section{Modèle conceptuel et hypothèses}\label{sec:hyp}
+
+\subsection{Modèle}
+Le modèle (figure~\ref{fig:modele}) traduit le cadre en cinq variables observables (tableau~\ref{tab:passage}). La variable explicative est le \emph{mode de décision de recherche} : harnais fixe ou agent entraîné. Il a deux variables expliquées : la \emph{précision}, et le \emph{nombre de recherches par question}, qui mesure le coût. Deux modérateurs changent la force de ces effets : la \emph{familiarité du jeu de questions}, vu ou non vu à l'entraînement, et la \emph{connaissance préalable} de la réponse. Le schéma montre aussi, en pointillé, les deux variables du projet de mémoire que la mini-expérience ne manipule pas : la \emph{pénalité par recherche} dans la récompense (H3), justifiée par SAAS \citep{tang2026saas}, et le \emph{retriever} (H4), justifié par l'effet du moteur sur la robustesse de l'agent \citep{jin2025empirical}. Elles sont gardées pour montrer où se place l'article dans le projet d'ensemble ; elles ne donnent lieu à aucun test ici.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}p{5.6cm}p{7.4cm}@{}}
+\toprule
+Dans la théorie & Dans le modèle\\
+\midrule
+Qui estime le gain, et comment & Mode de décision de recherche : variable explicative\\
+Fiabilité des indices selon l'environnement & Familiarité du jeu de questions : modérateur\\
+Gain réel d'une recherche & Connaissance préalable de la réponse : modérateur\\
+Valeur obtenue & Précision : variable expliquée\\
+Coût engagé & Nombre de recherches par question : variable expliquée\\
+\bottomrule
+\end{tabular}
+\caption{Du cadre théorique au modèle.}
+\label{tab:passage}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.92, every node/.style={transform shape},
+  box/.style={draw, rounded corners, minimum width=3.6cm, minimum height=1.1cm, align=center, fill=blue!6},
+  dep/.style={box, fill=green!10},
+  mod/.style={box, fill=orange!12},
+  pers/.style={box, dashed, draw=gray, fill=gray!6, text=black!75},
+  >={Stealth[length=2.5mm]}]
+  % Variables testées dans l'article
+  \node[box] (mode) at (0,0) {Mode de décision\\ de recherche\\ {\footnotesize (harnais fixe / RL)}};
+  \node[dep] (em) at (10,0) {Précision\\ {\footnotesize (EM, F1)}};
+  \node[dep] (nb) at (10,-3.2) {Coût : recherches\\ par question};
+  \node[mod] (fam) at (3.4,2.7) {Familiarité du jeu\\ {\footnotesize (vu / non vu)}};
+  \node[mod] (con) at (3.0,-4.9) {Connaissance préalable\\ {\footnotesize (A0 répond juste)}};
+  % Variables du mémoire, non testées ici
+  \node[pers] (ret) at (7.4,2.7) {Retriever\\ {\footnotesize (E5 / BM25, bruit)}};
+  \node[pers] (pen) at (10,-6.0) {Pénalité par recherche\\ {\footnotesize dans la récompense}};
+  % Flèches
+  \coordinate (m1a) at ($(mode.east)!0.38!(em.west)$);
+  \coordinate (m1b) at ($(mode.east)!0.72!(em.west)$);
+  \coordinate (m3) at ($(mode.south east)!0.45!(nb.west)$);
+  \draw[->, thick] (mode) -- node[below, pos=0.16, font=\small] {HA1} (em);
+  \draw[->, thick, orange] (fam) -- node[left, font=\small] {HA2} (m1a);
+  \draw[->, thick, dashed, gray] (ret) -- node[right, font=\small] {H4} (m1b);
+  \draw[->, thick] (mode.south east) -- node[above right, pos=0.72, font=\small] {HA3a} (nb.west);
+  \draw[->, thick, orange] (con) -- node[left, pos=0.45, xshift=-2pt, font=\small] {HA3b} (m3);
+  \draw[->, thick, dashed, gray] (pen) -- node[right, font=\small] {H3 ($-$)} (nb);
+  \draw[->, thick, dashed, gray] (pen.east) -- ++(1.3,0) |- node[right, pos=0.25, font=\small, align=left] {H3\\ (perte\\ limitée)} (em.east);
+  % Légende
+  \begin{scope}[shift={(-1.8,-6.2)}, font=\footnotesize]
+    \draw[->, thick] (0,0.5) -- (0.8,0.5) node[right, black] {effet testé dans l'article};
+    \draw[->, thick, orange] (0,0) -- (0.8,0) node[right, black] {modération testée};
+    \draw[->, thick, dashed, gray] (0,-0.5) -- (0.8,-0.5) node[right, black] {hypothèse du mémoire, non testée ici};
+  \end{scope}
+\end{tikzpicture}
+\caption{Modèle conceptuel complet. Lecture : le mode de décision influence la précision (HA1) et le nombre de recherches (HA3a). Les flèches orange pointent sur une flèche : elles en changent la force. L'effet sur la précision dépend de la familiarité du jeu (HA2), l'effet sur le coût dépend de ce que le modèle sait déjà (HA3b). En pointillé, les deux hypothèses du mémoire que la mini-expérience ne peut pas tester : une pénalité par recherche réduit le coût pour une perte de précision limitée (H3), et le retriever modère l'avantage du RL (H4).}
+\label{fig:modele}
+\end{figure}
+
+\subsection{Hypothèses}
+Une flèche, une hypothèse. HA2 correspond à l'hypothèse H1 du mémoire, HA3a et HA3b à son hypothèse H2.
+
+\paragraph{HA1 (effet sur la précision).} À corpus, retriever et questions identiques, les agents entraînés par renforcement (A4, A5) obtiennent une précision supérieure à celle des harnais fixes (A1 à A3).
+\emph{Justification.} Selon le cadre, un agent qui estime le gain place mieux ses recherches qu'une règle écrite d'avance. Les auteurs de Search-R1 rapportent un gain de 20~\% avec Qwen2.5-3B face à des lignes de base RAG \citep{jin2025search}, et R1-Searcher annonce lui aussi une nette avance sur des méthodes RAG \citep{song2025r1}. Ces comparaisons sont celles des auteurs : HA1 est à tester, non à supposer.
+
+\paragraph{HA2 (modération par la familiarité).} L'avantage de HA1 est plus fort sur le jeu vu à l'entraînement (Natural Questions) que sur le jeu non vu (TriviaQA).
+\emph{Justification.} Dans le cadre, des indices appris dans un environnement renseignent moins bien dans un autre. A4 et A5 ont été entraînés sur NQ et HotpotQA : un gain sur NQ peut refléter une adaptation au jeu plutôt qu'une meilleure décision de chercher. Dans un autre dispositif, un contrôleur appris sur HotpotQA adapte sa conduite à MuSiQue, mais la qualité de réponse y chute \citep{raikote2026policy}.
+
+\paragraph{HA3a (effet sur le coût).} Les agents entraînés (A4, A5) font en moyenne plus de recherches par question que le harnais ReAct (A2), qui laisse aussi le modèle décider.
+\emph{Justification.} Sans coût dans la récompense, le cadre prédit une surrecherche, alors que le prompt de A2 demande de répondre dès que possible. \citet{wu2025search} estiment que Search-R1 aurait pu éviter 27,7~\% de ses étapes de recherche, et \citet{tang2026saas} font de cette surrecherche un défaut central des agents. A2 est le point de comparaison retenu parce que A1 et A3 suivent une règle fixe.
+
+\paragraph{HA3b (modération par la connaissance préalable).} L'écart de HA3a persiste sur les questions auxquelles le modèle sait déjà répondre sans chercher (A0 juste).
+\emph{Justification.} Sur ces questions, le gain réel d'une recherche est faible : seul un agent qui ne paie pas ses recherches a intérêt à continuer. \citet{tang2026saas} décrivent des agents qui cherchent alors que leurs connaissances suffisent, et le lien entre recherche et connaissances du modèle est documenté par ailleurs \citep{mallen2022when,yin2023do}.
+
+\paragraph{Testabilité et règles de décision.} Chaque concept correspond à une colonne des fichiers de résultats, et chaque hypothèse à une règle fixée avant le run complet (tableau~\ref{tab:test}). Un résultat négatif sera rapporté comme tel.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}lp{3.5cm}p{8.6cm}@{}}
+\toprule
+Hyp. & Colonnes & Test et règle de décision\\
+\midrule
+HA1 & \texttt{system}, \texttt{em} & McNemar apparié sur les 200 questions, pour chaque paire (A4 ou A5 contre A1, A2 ou A3), avec correction de Holm sur les 6 paires. Soutenue si les 6 écarts sont positifs et significatifs à 5~\%, partiellement si certains le sont seulement.\\
+HA2 & \texttt{system}, \texttt{em}, \texttt{dataset} & Écart moyen entre RL et harnais sur NQ, moins le même écart sur TriviaQA. Soutenue si la borne basse de l'intervalle bootstrap à 95~\% est positive.\\
+HA3a & \texttt{system}, \texttt{n\_search} & Différence appariée du nombre de recherches entre RL et A2. Soutenue si la borne basse de l'intervalle bootstrap à 95~\% est positive.\\
+HA3b & \texttt{n\_search}, \texttt{em} de A0 & Même test, limité aux questions où A0 répond juste. Si elles sont moins de 20, le résultat est présenté comme exploratoire.\\
+\bottomrule
+\end{tabular}
+\caption{Hypothèses, colonnes utilisées et règles de décision. Une question sans réponse compte comme fausse.}
+\label{tab:test}
+\end{table}
+
+\section{Méthode}\label{sec:methode}
+
+\subsection{Systèmes}
+Six systèmes sont comparés (tableau~\ref{tab:sys}). A0 à A3 utilisent le même modèle, Qwen2.5-3B-Instruct \citep{qwen2024qwen2}, avec des prompts écrits pour le projet ; A4 et A5 sont les points de contrôle publics de Search-R1 pour Qwen2.5-3B (versions 0.3, entraînés par PPO et par GRPO) \citep{jin2025search}. Les fichiers de configuration de ces points de contrôle indiquent qu'ils partent de Qwen2.5-3B, le modèle de base, et non de sa version Instruct. Les modèles de A0 à A3 et de A4/A5 diffèrent donc : un harnais par prompt demande un modèle qui suit des consignes, d'où ce choix, qui reste une limite discutée en section~\ref{sec:discussion}. Les systèmes disposent du même budget : au plus quatre recherches par question, trois passages par recherche, décodage glouton.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}llp{8cm}@{}}
+\toprule
+Code & Système & Règle de recherche\\
+\midrule
+A0 & Réponse directe & Aucune recherche\\
+A1 & RAG & Une recherche avec la question\\
+A2 & ReAct par prompt & Le modèle alterne Pensée, Action (\texttt{Search} ou \texttt{Finish}), Observation\\
+A3 & IRCoT & Recherche avec la question, puis une recherche par phrase de raisonnement\\
+A4 & Search-R1, PPO & Politique apprise par PPO\\
+A5 & Search-R1, GRPO & Politique apprise par GRPO\\
+\bottomrule
+\end{tabular}
+\caption{Les six systèmes.}
+\label{tab:sys}
+\end{table}
+
+\paragraph{Comment A4 et A5 ont été entraînés.} Les deux agents sont des points de contrôle publics : nous ne les avons pas entraînés, mais leur entraînement explique ce que nous mesurons (figure~\ref{fig:boucle}). D'après \citet{jin2025search}, le modèle reçoit une question d'entraînement (NQ ou HotpotQA), produit une trajectoire où il peut insérer des requêtes, et le moteur de recherche y insère les passages trouvés. Une fois la réponse écrite, une récompense unique la note : 1 si elle correspond exactement à la réponse attendue, 0 sinon. L'algorithme d'optimisation, PPO \citep{schulman2017proximal} pour A4 ou GRPO \citep{shao2024deepseekmath} pour A5, renforce alors les choix des trajectoires récompensées. Les passages insérés par le moteur sont exclus de ce calcul, puisque le modèle ne les a pas écrits. Rien dans cette boucle ne fait payer une recherche : c'est le point de départ de nos hypothèses HA3a et HA3b.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.88, every node/.style={transform shape},
+  b/.style={draw, rounded corners, align=center, minimum height=1.05cm, font=\small, fill=white},
+  pol/.style={b, fill=orange!14, minimum width=3.3cm},
+  env/.style={b, fill=gray!10, minimum width=3.3cm},
+  rew/.style={b, fill=green!10, minimum width=5.6cm},
+  upd/.style={b, fill=blue!7, minimum width=5.6cm},
+  >={Stealth[length=2.2mm]}]
+  \node[env] (q) at (0,0) {Question d'entraînement\\ {\footnotesize NQ, HotpotQA}};
+  \node[pol] (pi) at (4.6,0) {Politique $\pi_\theta$\\ {\footnotesize le modèle de langage}};
+  \node[env] (se) at (4.6,-3.2) {Moteur de recherche\\ {\footnotesize E5, Wikipédia 2018}};
+  \node[b, minimum width=5.6cm, font=\scriptsize\ttfamily, align=left] (tr) at (11.2,0) {<think> ... <search> requête </search>\\ <information> passages </information>\\ ... <answer> réponse </answer>};
+  \node[font=\footnotesize, anchor=south] at (tr.north) {trajectoire générée};
+  \node[rew] (r) at (11.2,-2.1) {Récompense $r$ : 1 si la réponse est exacte, 0 sinon\\ {\footnotesize\textbf{aucun coût par recherche}}};
+  \node[upd] (u) at (11.2,-4.3) {Mise à jour des poids $\theta$\\ {\footnotesize PPO (A4) : avantage estimé par un critique}\\ {\footnotesize GRPO (A5) : avantage relatif à un groupe de trajectoires}\\ {\footnotesize + pénalité d'écart au modèle de départ}};
+  \draw[->, thick] (q) -- (pi);
+  \draw[->, thick] (pi) -- node[above, font=\footnotesize] {génère} (tr);
+  \draw[->, thick] ([xshift=-0.7cm]pi.south) -- node[left, font=\footnotesize] {requête} ([xshift=-0.7cm]se.north);
+  \draw[->, thick] ([xshift=0.7cm]se.north) -- node[right, font=\footnotesize, align=left] {passages\\ insérés,\\ exclus du\\ calcul} ([xshift=0.7cm]pi.south);
+  \draw[->, thick] (tr) -- node[right, font=\footnotesize] {réponse finale} (r);
+  \draw[->, thick] (r) -- (u);
+  \draw[->, thick, dashed] (u.east) -- ++(0.5,0) |- ([yshift=1.25cm]pi.north) node[pos=0.75, above, font=\footnotesize] {répété sur des milliers de questions} -- (pi.north);
+\end{tikzpicture}
+\caption{Boucle d'entraînement de Search-R1, d'après \citet{jin2025search}, simplifiée. Lecture : seule la justesse de la réponse finale est récompensée ; une recherche inutile ne coûte rien à l'agent, tant que la réponse finale est juste.}
+\label{fig:boucle}
+\end{figure}
+
+La figure~\ref{fig:protocole} résume le protocole : seuls la règle de recherche et, pour A4 et A5, les poids du modèle changent d'un système à l'autre ; questions, corpus, retriever, budget et mesures sont communs.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={transform shape},
+  com/.style={draw, rounded corners, align=center, fill=gray!8, minimum height=1cm, minimum width=2.6cm, font=\small},
+  sys/.style={draw, rounded corners, align=center, minimum height=0.62cm, minimum width=3.9cm, font=\small},
+  sortie/.style={draw, rounded corners, align=center, fill=green!10, minimum height=1cm, minimum width=2.8cm, font=\small},
+  >={Stealth[length=2.2mm]}]
+  \node[com] (q) at (0,1.2) {Questions\\ {\footnotesize NQ, TriviaQA}\\ {\footnotesize 100 + 100, graine 42}};
+  \node[com] (c) at (0,-1.4) {Corpus Wikipédia\\ {\footnotesize 1 M de passages}\\ {\footnotesize retriever E5, top 3}};
+  \node[sys, fill=gray!15] (s0) at (5,2.25) {A0 \quad réponse directe};
+  \node[sys, fill=blue!8] (s1) at (5,1.45) {A1 \quad RAG};
+  \node[sys, fill=blue!8] (s2) at (5,0.65) {A2 \quad ReAct par prompt};
+  \node[sys, fill=blue!8] (s3) at (5,-0.15) {A3 \quad IRCoT};
+  \node[sys, fill=orange!15] (s4) at (5,-0.95) {A4 \quad Search-R1 PPO};
+  \node[sys, fill=orange!15] (s5) at (5,-1.75) {A5 \quad Search-R1 GRPO};
+  \node[font=\footnotesize, align=center, text=black!70] at (5,3.05) {même budget : 4 recherches au plus,\\ décodage glouton, GPU T4 (Kaggle)};
+  \node[sortie] (j) at (9.6,0.25) {Trajectoires\\ JSONL\\ {\footnotesize 1 200 lignes}};
+  \node[sortie] (m) at (12.9,0.25) {EM, F1,\\ recherches,\\ jetons};
+  \node[sortie, fill=orange!12] (t) at (12.9,-1.9) {Tests HA1--HA3b\\ {\footnotesize bootstrap, McNemar}\\ {\footnotesize Holm}};
+  \foreach \s in {s0,s1,s2,s3,s4,s5} {\draw[->] (q.east) -- (\s.west); \draw[->] (\s.east) -- (j.west);}
+  \foreach \s in {s1,s2,s3,s4,s5} {\draw[->, densely dotted, gray] (c.east) -- (\s.west);}
+  \draw[->, thick] (j) -- (m);
+  \draw[->, thick] (m) -- (t);
+\end{tikzpicture}
+\caption{Protocole. Lecture : les mêmes 200 questions passent dans les six systèmes ; ceux qui cherchent (pointillés) interrogent le même corpus avec le même retriever. Chaque passage d'une question dans un système donne une ligne JSONL, d'où sont tirées toutes les mesures et tous les tests.}
+\label{fig:protocole}
+\end{figure}
+
+\subsection{Données et corpus}
+Les questions viennent de Natural Questions \citep{kwiatkowski2019natural}, vu à l'entraînement de A4 et A5, et de TriviaQA \citep{joshi2017triviaqa}, non vu, dans le format de FlashRAG \citep{jin2024flashrag}. Nous tirons 100 questions par jeu avec la graine 42. Le corpus est un sous-ensemble d'un million de passages de l'instantané Wikipédia utilisé par Search-R1 ; le retriever est E5 \citep{wang2022text}, celui de l'entraînement de Search-R1.
+
+Le sous-corpus n'est qu'une petite partie du corpus complet, ce qui limite ce que n'importe quel système peut retrouver. Nous avons mesuré, pour chaque jeu, la part des questions dont une réponse attendue apparaît parmi les trois premiers passages renvoyés avec la question pour requête. Avec E5 sur un million de passages, cette part est de 25~\% pour NQ et de 44~\% pour TriviaQA (500 questions par jeu) ; avec BM25 \citep{robertson2009probabilistic} sur 100\,000 passages, elle tombait à 9~\% et 12~\%, ce qui rendait la comparaison peu interprétable. C'est pourquoi nous avons retenu NQ et TriviaQA, et non HotpotQA et Bamboogle, dont la couverture est de 17~\% et 10~\% avec E5 sur un million de passages. Cette mesure est une estimation haute, car un passage peut contenir la réponse sans rapport avec la question.
+
+\subsection{Mesures et statistiques}
+La précision est la correspondance exacte (EM) et le score F1, avec la normalisation de Search-R1. Le coût est le nombre de recherches par question et le nombre de jetons générés. Nous donnons des intervalles de confiance à 95~\% par bootstrap \citep{efron1979bootstrap} (1\,000 rééchantillonnages de questions) et comparons deux systèmes sur les mêmes questions par le test de McNemar \citep{mcnemar1947note}, avec une correction de Holm \citep{holm1979simple}. Les règles de décision sont celles du tableau~\ref{tab:test}. Avec 100 questions par jeu, les intervalles font environ $\pm 10$ points.
+
+\paragraph{Plan d'analyse fixé avant le run.} Les quatre règles de décision (tableau~\ref{tab:test}) et le programme qui les applique ont été versionnés dans le dépôt public (commits \texttt{bd044e7} et \texttt{00bd108}, 9 novembre 2026 à 8~h~54) avant le lancement du run d'évaluation (commit \texttt{07c1fbb}, 9~h~17). Le programme a été testé sur des données fictives de même format, qui ne contiennent aucune question d'évaluation. L'historique git permet à chacun de vérifier que les tests n'ont pas été choisis après avoir vu les résultats.
+
+\subsection{Puissance de l'expérience}
+Avant tout run, nous avons estimé par simulation ce que l'expérience peut détecter (tableau~\ref{tab:puissance}). Le modèle de simulation suppose une EM de référence de 25~\%, l'ordre de grandeur de la couverture de NQ, et des réponses corrélées entre systèmes par une difficulté commune à chaque question ; il est décrit dans \texttt{analysis/puissance.py}. Pour HA1, qui porte sur 200 questions avec six comparaisons, un vrai écart de 10 points n'a qu'environ \valPuiss{200}{10}{holm} de chances d'être déclaré significatif après correction de Holm, et un écart de 5 points \valPuiss{200}{5}{holm}. Avec 500 questions par jeu, comme prévu dans le mémoire, la puissance atteint \valPuiss{500}{10}{holm} pour un écart de 10 points. L'article ne peut donc conclure qu'à l'absence d'écarts \emph{importants} ; un écart de quelques points passerait inaperçu. HA2, qui compare deux écarts mesurés chacun sur 100 questions, est la moins bien dotée.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/puissance.tex}
+\caption{Puissance du test de McNemar apparié selon le nombre de questions et l'écart réel d'EM entre deux systèmes : part de 1\,000 simulations où l'écart est déclaré significatif, au seuil de 5~\% et au seuil le plus strict de la correction de Holm pour six comparaisons (5~\%/6). EM de référence : 25~\%. Ce tableau ne dépend d'aucune donnée observée.}
+\label{tab:puissance}
+\end{table}
+
+\FloatBarrier
+\section{Résultats}\label{sec:resultats}
+
+\fictifnote{Tableaux et figures produits par \texttt{analysis/analyse\_mini.py} à partir des fichiers fictifs.}
+
+Le run d'évaluation a produit les 1\,200 trajectoires attendues (100 questions, deux jeux, six systèmes), sans erreur ; les six systèmes ont traité exactement les mêmes questions. Il a duré 1~h~12 sur deux GPU T4 de Kaggle.
+
+\subsection{Vue d'ensemble}
+Le tableau~\ref{tab:res} et la figure~\ref{fig:em} donnent la précision des six systèmes. Sans recherche, le modèle répond juste à \valEM{A0}{nq}~\% des questions de NQ et \valEM{A0}{triviaqa}~\% de celles de TriviaQA. Les harnais fixes n'améliorent ce score que sur TriviaQA, où le RAG simple atteint \valEM{A1}{triviaqa}~\% ; sur NQ, les trois harnais font \emph{moins bien} que le modèle seul (\valEM{A1}{nq}, \valEM{A2}{nq} et \valEM{A3}{nq}~\%). Les deux agents entraînés sont en tête sur les deux jeux : \valEM{A4}{nq} et \valEM{A5}{nq}~\% sur NQ, \valEM{A4}{triviaqa} et \valEM{A5}{triviaqa}~\% sur TriviaQA.
+
+Dans notre échantillon, la recherche aide donc les agents entraînés partout, et les harnais seulement sur le jeu dont le corpus couvre le mieux les réponses (44~\% contre 25~\% pour NQ, section~\ref{sec:methode}). Ce constat doit être lu avec deux précautions. Les intervalles de confiance des agents et du meilleur harnais se touchent sur chaque jeu pris seul : c'est le test apparié sur les 200 questions (section suivante) qui permet de conclure. Et la figure ne permet pas, à elle seule, d'attribuer l'écart à la règle de recherche, puisque les agents diffèrent aussi des harnais par les poids du modèle.
+
+Deux comportements des harnais pèsent sur leur score. ReAct (A2) se termine sans réponse sur \valSansRep{A2} questions sur 200, en épuisant son budget ou en produisant une action mal formée (par exemple une action « Decode » qui n'existe pas) ; IRCoT (A3) répond explicitement que les documents ne contiennent pas la réponse sur \valAbst{A3} questions sur 200, malgré la consigne de toujours répondre. Les agents entraînés ne s'abstiennent jamais.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/resultats.tex}
+\caption{Correspondance exacte (EM) avec son intervalle de confiance bootstrap à 95~\%, F1 et nombre moyen de recherches par question, 100 questions par jeu. Les agents entraînés sont sous le trait.\iffictif\ \textcolor{red}{Valeurs fictives.}\fi}
+\label{tab:res}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_em.pdf}
+\caption{Précision des six systèmes selon le jeu de questions. Données : run d'évaluation du 9 novembre 2026 sur Kaggle (version 4 du kernel). Une observation = une question traitée par un système ; effectif : 100 questions par jeu et par système, aucune écartée (les sorties sans réponse comptent comme fausses). Le point est l'EM moyen, le trait son intervalle bootstrap à 95~\% (1\,000 rééchantillonnages).}
+\label{fig:em}
+\end{figure}
+
+\subsection{Tests des hypothèses}
+Le tableau~\ref{tab:tests} applique les règles de décision fixées avant le run (tableau~\ref{tab:test}).
+
+\begin{table}[ht]
+\centering\small
+\input{genere/tests.tex}
+\caption{Résultat des tests. Écarts d'EM en points de pourcentage, écarts de recherches en nombre de recherches par question ; entre crochets, intervalle bootstrap à 95~\%.\iffictif\ \textcolor{red}{Valeurs fictives.}\fi}
+\label{tab:tests}
+\end{table}
+
+\paragraph{HA1 (\valHA{HA1}{verdict}\fictif).} Les six écarts entre agents entraînés et harnais sont positifs, de 10 à 17 points d'EM sur les 200 questions, et tous restent significatifs après correction de Holm ($p < 0{,}001$). Ces écarts sont dans la zone où la simulation de la section~\ref{sec:methode} donnait une puissance d'au moins une chance sur deux : l'expérience pouvait les voir.
+
+\paragraph{HA2 (\valHA{HA2}{verdict}\fictif).} L'avance des agents entraînés est de \valHA{HA2}{ecart_nq}~points sur NQ, vu à l'entraînement, et de \valHA{HA2}{ecart_tqa}~points sur TriviaQA, non vu. La différence, \valHA{HA2}{d}~point, va à l'inverse de l'hypothèse, et son intervalle [\valHA{HA2}{lo}\,; \valHA{HA2}{hi}] contient zéro. L'avantage des agents ne se limite donc pas au jeu vu ; un écart modeste entre les deux jeux resterait toutefois indétectable avec 100 questions par jeu.
+
+\paragraph{HA3a (\valHA{HA3a}{verdict}\fictif).} Les agents entraînés font en moyenne \valHA{HA3a}{d} recherche de plus par question que ReAct, avec un intervalle de [\valHA{HA3a}{lo}\,; \valHA{HA3a}{hi}] sur \valHA{HA3a}{n} questions. Aucun des deux ne répond jamais sans chercher, alors que ReAct le fait sur \valSansRech{A2}~\% des questions. La figure~\ref{fig:cout} nuance ce coût : A5 atteint une précision voisine de celle de A4, et meilleure sur TriviaQA, avec environ une recherche de moins par question que A4 et presque deux de moins que IRCoT.
+
+\paragraph{HA3b (\valHA{HA3b}{verdict}\fictif).} Sur les \valHA{HA3b}{n} questions auxquelles A0 répond juste, l'écart avec ReAct reste de \valHA{HA3b}{d} recherche par question [\valHA{HA3b}{lo}\,; \valHA{HA3b}{hi}]. Sur ces questions, ni les agents ni ReAct ne s'abstiennent de chercher.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_cout.pdf}
+\caption{Précision et coût. Chaque point est un système : en abscisse, le nombre moyen de recherches par question ; en ordonnée, l'EM. Mêmes données et mêmes effectifs que la figure~\ref{fig:em}. Un système placé plus haut et plus à gauche obtient plus avec moins de recherches.}
+\label{fig:cout}
+\end{figure}
+
+
+\subsection{Où se joue l'avantage : analyses exploratoires}\label{sec:exploratoire}
+Les analyses de cette section n'étaient pas prévues dans le plan d'analyse : elles ont été choisies après avoir vu les résultats, et ne portent aucun verdict. Elles décomposent l'avantage des agents selon les trois moments d'une recherche : trouver l'information, la lire, et répondre quand elle manque. Une réponse est dite « dans les passages » quand une des réponses attendues, normalisée comme pour l'EM, apparaît telle quelle dans un passage lu ; c'est une estimation, car un passage peut contenir la chaîne sans la justifier.
+
+\paragraph{Ce que la recherche fait gagner et perdre.} Comparée au modèle seul, question par question, la recherche ne fait pas qu'ajouter des bonnes réponses : elle en retire aussi (figure~\ref{fig:transitions}). Les trois harnais gagnent de \valAp{A2-gagnees} à \valAp{A3-gagnees} questions mais en perdent presque autant, de \valAp{A1-perdues} à \valAp{A3-perdues} ; leur bilan est presque nul. Les agents entraînés gagnent davantage (\valAp{A4-gagnees} et \valAp{A5-gagnees}) et perdent peu (\valAp{A4-perdues} et \valAp{A5-perdues}). Les trajectoires des harnais montrent des réponses reprises d'un passage voisin mais hors sujet : à la question de l'entrée du half-pipe à ski aux Jeux olympiques (2014), le RAG répond « 1998 », date tirée d'un passage sur le snowboard ; à la question du lieu où sont absorbés la plupart des nutriments (« small intestine »), il répond « jejunum and ileum », repris d'un passage sur le duodénum. Le modèle seul répondait juste dans les deux cas.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_transitions.pdf}
+\caption{Ce que la recherche fait gagner et perdre par rapport au modèle seul. À droite, les questions que A0 rate et que le système réussit ; à gauche, celles que A0 réussit et que le système rate. 200 questions (NQ et TriviaQA réunis), une barre par système.}
+\label{fig:transitions}
+\end{figure}
+
+\paragraph{Trouver ou lire.} La figure~\ref{fig:decomposition} sépare les deux moments. Les systèmes trouvent la réponse à peu près aussi souvent : elle figure dans les passages lus pour \valAp{harnais-trouvee}~\% des trajectoires des harnais et \valAp{rl-trouvee}~\% de celles des agents. Ils diffèrent surtout dans ce qu'ils en font : quand la réponse est dans les passages, les harnais la donnent dans \valAp{harnais-em_t}~\% des cas, les agents dans \valAp{rl-em_t}~\% ; quand elle n'y est pas, les agents répondent encore juste dans \valAp{rl-em_nt}~\% des cas, contre \valAp{harnais-em_nt}~\% pour les harnais (figure~\ref{fig:arbre}).
+
+Une décomposition contrefactuelle chiffre ces trois contributions. L'écart moyen d'EM entre agents et harnais, \valAp{ox-total}~points [\valAp{ox-total-lo}\,; \valAp{ox-total-hi}], s'écrit exactement comme la somme de trois termes : trouver plus souvent la réponse, \valAp{ox-trouver}~points [\valAp{ox-trouver-lo}\,; \valAp{ox-trouver-hi}], soit \valAp{ox-trouver-part}~\% de l'écart ; mieux la lire quand elle est là, \valAp{ox-lire}~points [\valAp{ox-lire-lo}\,; \valAp{ox-lire-hi}], soit \valAp{ox-lire-part}~\% ; mieux répondre quand elle manque, \valAp{ox-sans}~points [\valAp{ox-sans-lo}\,; \valAp{ox-sans-hi}], soit \valAp{ox-sans-part}~\%. Les intervalles sont obtenus par bootstrap sur les questions. L'essentiel de l'avantage se joue donc après la recherche, non pendant.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_decomposition.pdf}
+\caption{Trouver ou lire. À gauche, part des questions où la réponse attendue figure dans les passages lus ; au centre et à droite, EM selon que la réponse y figure ou non, avec son intervalle bootstrap à 95~\%. 200 questions par système ; effectifs de chaque cas dans \texttt{analysis/analyse\_approfondie.py}.}
+\label{fig:decomposition}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.92, every node/.style={transform shape},
+  q/.style={draw, rounded corners, align=center, fill=gray!10, minimum height=0.9cm, font=\small},
+  n/.style={draw, rounded corners, align=center, minimum width=3.6cm, minimum height=1cm, font=\small, fill=white},
+  f/.style={draw, rounded corners, align=center, minimum width=3.4cm, minimum height=1cm, font=\small, fill=green!8},
+  >={Stealth[length=2.2mm]}]
+  \node[q] (r) at (0,0) {Une question,\\ un système qui cherche};
+  \node[n] (t) at (4.6,1.4) {Réponse dans\\ les passages lus\\ {\footnotesize\textcolor{blue!70!black}{H \valAp{harnais-trouvee}\,\%} \quad \textcolor{orange!80!black}{RL \valAp{rl-trouvee}\,\%}}};
+  \node[n] (nt) at (4.6,-1.4) {Réponse absente\\ des passages\\ {\footnotesize (le reste des trajectoires)}};
+  \node[f] (tj) at (9.6,1.4) {Réponse juste\\ {\footnotesize\textcolor{blue!70!black}{H \valAp{harnais-em_t}\,\%} \quad \textcolor{orange!80!black}{RL \valAp{rl-em_t}\,\%}}};
+  \node[f] (ntj) at (9.6,-1.4) {Réponse juste\\ {\footnotesize\textcolor{blue!70!black}{H \valAp{harnais-em_nt}\,\%} \quad \textcolor{orange!80!black}{RL \valAp{rl-em_nt}\,\%}}};
+  \draw[->, thick] (r) -- node[above, sloped, font=\footnotesize, align=center] {trouver\\ +\valAp{ox-trouver} pt (\valAp{ox-trouver-part}\,\%)} (t);
+  \draw[->, thick] (r) -- (nt);
+  \draw[->, thick] (t) -- node[above, font=\footnotesize] {lire} (tj);
+  \draw[->, thick] (nt) -- node[below, font=\footnotesize] {sans appui} (ntj);
+  \node[font=\footnotesize, align=left, anchor=west] at (11.5,1.4) {+\valAp{ox-lire} pt\\ (\valAp{ox-lire-part}\,\%)};
+  \node[font=\footnotesize, align=left, anchor=west] at (11.5,-1.4) {+\valAp{ox-sans} pt\\ (\valAp{ox-sans-part}\,\%)};
+\end{tikzpicture}
+\caption{Arbre de décomposition de l'avantage des agents. Pour chaque moment de la recherche : la proportion observée pour les harnais (H, en bleu, A1 à A3 réunis, 600 trajectoires) et pour les agents entraînés (RL, en orange, A4 et A5, 400 trajectoires), puis, à droite, la part de l'écart d'EM qui s'y joue d'après la décomposition contrefactuelle.}
+\label{fig:arbre}
+\end{figure}
+
+\paragraph{Quoi chercher.} Le tableau~\ref{tab:requetes} décrit les requêtes. La première requête trouve la réponse aussi souvent pour tous les systèmes qui cherchent, autour d'un tiers des questions (de \valAp{A2-trouvee1} à \valAp{A1-trouvee1}~\%), et les agents ne formulent pas de meilleures premières requêtes : A5 recopie la question dans \valAp{A5-copie1}~\% des cas, A4 dans \valAp{A4-copie1}~\%. Leurs recherches suivantes ajoutent peu : elles font trouver la réponse sur \valAp{A4-reform}~\% des questions de plus pour A4 et \valAp{A5-reform}~\% pour A5, et une question sur quatre environ contient une requête répétée mot pour mot (\valAp{A4-repetees}~\% pour A4, \valAp{A5-repetees}~\% pour A5). Une part du surcoût mesuré par HA3a est donc un gaspillage au sens strict. En jetons générés, en revanche, agents et harnais itératifs coûtent à peu près autant (environ \valAp{A2-jetons} jetons pour ReAct, \valAp{A5-jetons} pour A5).
+
+\begin{table}[ht]
+\centering\small
+\input{genere/approf_requetes.tex}
+\caption{Les requêtes émises, sur 200 questions. Recouvrement : indice de Jaccard entre les mots de la requête et ceux de la question (1 = mêmes mots). Requête répétée : part des questions où une même requête est émise deux fois. Jetons : nombre moyen de jetons générés par question.}
+\label{tab:requetes}
+\end{table}
+
+\paragraph{Typologie des erreurs.} La figure~\ref{fig:erreurs} classe automatiquement chaque réponse fausse en quatre types. L'absence de la réponse dans les passages domine pour tous les systèmes : c'est la limite du corpus réduit. Deux types distinguent pourtant les familles. Les harnais laissent passer la bonne réponse sous leurs yeux (de \valAp{A1-err2} à \valAp{A3-err2} questions), deux à trois fois plus souvent que A5 (\valAp{A5-err2}). IRCoT ne répond pas du tout sur \valAp{A3-err0} questions, surtout par abstention. Les agents, eux, ont plus de réponses proches mais mal formulées (\valAp{A4-err1} et \valAp{A5-err1}, F1 au moins 0,5), comme « Dame Judi Dench » pour « Judi Dench » : la correspondance exacte les pénalise un peu.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_erreurs.pdf}
+\caption{Typologie automatique des réponses fausses, sur 200 questions par système. Sans réponse : sortie sans réponse exploitable ou abstention explicite. Réponse proche : F1 d'au moins 0,5 avec une réponse attendue. Bonne réponse dans les passages : réponse fausse alors qu'une réponse attendue figurait dans un passage lu. Réponse absente : ni l'un ni l'autre.}
+\label{fig:erreurs}
+\end{figure}
+
+\paragraph{Toutes les comparaisons.} La figure~\ref{fig:matrice} donne l'écart d'EM pour les quinze paires de systèmes. Elle fait apparaître deux blocs : entre eux, les quatre systèmes non entraînés (réponse directe et trois harnais) ne se distinguent pas ; les deux agents dominent chacun de ces quatre systèmes ; entre eux, A4 et A5 ne se distinguent pas.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\linewidth]{genere/fig_matrice.pdf}
+\caption{Écart d'EM entre chaque paire de systèmes (ligne moins colonne, en points), sur les 200 questions. Orange : la ligne fait mieux ; bleu : la colonne fait mieux. Astérisque : test de McNemar significatif au seuil de 5~\% avec correction de Bonferroni pour les 15 paires. Analyse descriptive, hors du plan d'analyse.}
+\label{fig:matrice}
+\end{figure}
+
+
+\subsection{Robustesse et analyses avancées}\label{sec:avance}
+Ces analyses, elles aussi exploratoires, répondent à cinq objections que l'on peut faire aux résultats précédents.
+
+\paragraph{L'écart vient-il seulement de questions plus faciles ?} Un modèle de régression logistique explique la réussite de chaque trajectoire (\valAv{glm-nobs} trajectoires des cinq systèmes qui cherchent, \valAv{glm-nq} questions) par la famille du système, la présence de la réponse dans les passages, leur interaction, la connaissance préalable de la question et le jeu ; les erreurs-types sont groupées par question, puisque chaque question apparaît cinq fois (tableau~\ref{tab:glm}). À situation égale, être un agent entraîné multiplie les chances de bonne réponse par \valAv{glm-rl} [\valAv{glm-rl-lo}\,; \valAv{glm-rl-hi}]. L'avantage des agents ne s'explique donc ni par la difficulté des questions, ni par des passages plus utiles. L'interaction entre famille et présence de la réponse est en revanche nulle (\valAv{glm-rlxtrouvee}, $p = \valAv{glm-rlxtrouvee-p}$) : en chances relatives, l'avantage des agents est le même que la réponse soit dans les passages ou non. La part importante de la « lecture » dans la décomposition additive (section~\ref{sec:exploratoire}) tient au fait que, quand la réponse est là, il y a plus de points à gagner ; ce que les agents font mieux, c'est répondre à partir de l'information dont ils disposent, qu'elle vienne des passages ou de leurs connaissances.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/avance_glm.tex}
+\caption{Régression logistique de la réussite (EM) sur 1\,000 trajectoires (A1 à A5, 200 questions), erreurs-types groupées par question. Un odds ratio supérieur à 1 signifie de meilleures chances de réussite. Référence : harnais, réponse absente des passages, question non connue, jeu NQ.}
+\label{tab:glm}
+\end{table}
+
+\paragraph{Les recherches supplémentaires rapportent-elles ?} La figure~\ref{fig:fourragement} trace, pour chaque système, la part des questions dont la réponse a été trouvée après $k$ recherches, et ce qu'apporte chaque recherche. Le rendement décroît brutalement : la première recherche trouve la réponse pour environ un tiers des questions ; la deuxième n'ajoute que de \valAv{A5-marg2} à \valAv{A3-marg2}~points, sauf pour A4 (\valAv{A4-marg2}~points) ; la troisième et la quatrième presque rien. Pourtant, IRCoT fait au moins trois recherches sur \valAv{A3-atteint3}~\% des questions et A4 sur \valAv{A4-atteint3}~\%. C'est la courbe de rendement décroissant que décrit la théorie du fourragement, et un agent qui la suivrait s'arrêterait après la deuxième recherche ; sans coût dans sa récompense, A4 continue.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{genere/fig_fourragement.pdf}
+\caption{Rendement des recherches successives. À gauche, part cumulée des questions où la réponse attendue figure dans les passages lus après $k$ recherches ; à droite, gain apporté par la $k$-ième recherche, en points. 200 questions par système ; une question qui s'arrête avant la $k$-ième recherche n'apporte aucun gain à ce rang. A1 ne fait qu'une recherche.}
+\label{fig:fourragement}
+\end{figure}
+
+\paragraph{Le résultat dépend-il de la métrique ?} La correspondance exacte compte faux « Dame Judi Dench » pour « Judi Dench ». Le tableau~\ref{tab:sensibilite} recalcule l'écart entre agents et harnais avec une correspondance souple (une réponse attendue apparaît, en mots entiers, dans la réponse donnée) et avec F1. L'écart reste du même ordre (\valAv{sens-souple}~points en correspondance souple, \valAv{sens-f1} en F1), et les six comparaisons restent significatives après correction de Holm. Les tailles d'effet sont grandes : pour chaque paire, les questions que seul l'agent réussit sont \valAv{or-min} à \valAv{or-max} fois plus nombreuses que celles que seul le harnais réussit.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/avance_sensibilite.tex}
+\caption{Sensibilité de HA1 à la métrique, et tailles d'effet. Écart moyen entre agents (A4, A5) et harnais (A1 à A3) sur 200 questions, intervalle bootstrap apparié. Odds ratio de McNemar avec intervalle exact.}
+\label{tab:sensibilite}
+\end{table}
+
+\paragraph{La décomposition tient-elle sur chaque jeu ?} Recalculée sur chaque jeu séparément (tableau~\ref{tab:jeux}), la part « trouver » reste faible sur les deux. Sur NQ, où le corpus couvre moins bien les réponses, l'écart se joue presque autant sans appui (\valAv{jeu-nq-sans}~points) qu'à la lecture (\valAv{jeu-nq-lire}) ; sur TriviaQA, surtout à la lecture (\valAv{jeu-triviaqa-lire}~points). Les intervalles, sur 100 questions, sont larges.
+
+\begin{table}[ht]
+\centering\small
+\input{genere/avance_jeux.tex}
+\caption{Décomposition de l'écart d'EM entre agents et harnais, jeu par jeu, en points ; intervalle bootstrap à 95~\% sur les 100 questions du jeu.}
+\label{tab:jeux}
+\end{table}
+
+\paragraph{Les systèmes réussissent-ils les mêmes questions ?} Les deux agents se ressemblent davantage entre eux (indice de Jaccard de \valAv{comp-jac_rl} entre leurs ensembles de questions réussies) que les harnais entre eux (\valAv{comp-jac_h} en moyenne). Une question réussie par au moins un harnais l'est dans \valAv{comp-oracle_h}~\% des cas, par au moins un agent dans \valAv{comp-oracle_rl}~\%, par au moins un des six systèmes dans \valAv{comp-oracle_tous}~\% : aucun système ne trouve la réponse à \valAv{comp-aucun}~\% des questions. Ce plafond est d'abord celui du corpus réduit.
+
+\FloatBarrier
+\section{Discussion}\label{sec:discussion}
+% Cinq mouvements (étape 10) : rappel, comparaison, explication, contributions, limites et ouverture.
+
+\fictifnote{Cette discussion commente des résultats fictifs.}
+
+\subsection{Rappel des résultats}
+À corpus, retriever, budget et questions identiques, les agents entraînés par renforcement répondent nettement mieux que les harnais fixes, sur le jeu vu comme sur le jeu non vu. Ils ne doivent cet avantage ni à une recherche plus sobre ni à de meilleures requêtes : ils cherchent à chaque question, souvent en recopiant la question, plus souvent que ReAct, y compris quand le modèle connaît déjà la réponse. Ce qui les distingue, c'est qu'une recherche les égare beaucoup moins.
+
+\subsection{Comparaison avec la littérature}
+Nos résultats confirment le sens du gain rapporté par les auteurs de Search-R1 \citep{jin2025search}, cette fois face à des harnais qui partagent le corpus, le retriever et le budget de l'agent : le gain subsiste quand ces trois conditions sont communes, même si les poids du modèle, eux, diffèrent. Ils nuancent en revanche l'idée d'un avantage limité aux jeux d'entraînement. Un contrôleur appris sur HotpotQA perd en qualité de réponse sur MuSiQue \citep{raikote2026policy} ; ici, l'avance est aussi forte sur TriviaQA que sur NQ. Les deux jeux sont toutefois proches (questions factuelles à une étape) : notre « non vu » est un changement de distribution modeste. Sur le coût, nos agents confirment le constat de surrecherche \citep{wu2025search,tang2026saas} : ils ne se passent jamais de chercher. Enfin, les pertes des harnais rejoignent les travaux qui montrent qu'un modèle se laisse distraire par des passages non pertinents \citep{yoran2023making} et que la recherche peut nuire sur ce que le modèle sait déjà \citep{mallen2022when,maekawa2024retrieval}.
+
+\subsection{Explication}
+Le cadre du fourragement de l'information (section~\ref{sec:cadre}) distingue deux choses : décider s'il faut fourrager et quand s'arrêter, et tirer parti de ce que l'on trouve. Nos résultats séparent les deux. Sur la décision, le cadre rend compte de ce que l'on observe sans le distinguer des harnais : la récompense de Search-R1 ne fait payer aucune recherche, et les agents cherchent toujours, même quand le gain attendu est faible (HA3a, HA3b) ; mais ReAct, sur les questions que le modèle connaît, ne renonce pas davantage à chercher. La surrecherche n'est donc pas propre aux agents entraînés ; ils cherchent seulement plus. La courbe de gain des recherches (figure~\ref{fig:fourragement}) en donne la mesure la plus directe : au-delà de la deuxième recherche, le gain est presque nul pour tous les systèmes, et un fourrageur qui comparerait ce gain à un coût s'arrêterait là ; IRCoT, par règle, et A4, faute de coût, ne s'arrêtent pas. Leur avantage se situe ailleurs, du côté de l'exploitation : ce sont des fourrageurs qui ne choisissent pas mieux leurs parcelles, mais qui tirent mieux parti de ce qu'ils y trouvent. Les analyses exploratoires de la section~\ref{sec:exploratoire} le chiffrent : leurs premières requêtes trouvent la réponse aussi souvent que celles des harnais, et la plus grande part de l'écart (\valAp{ox-lire-part}~\%) tient à ce qu'ils font d'une réponse présente dans les passages ; un quart tient à ce qu'ils répondent mieux quand elle manque. Le modèle logistique (section~\ref{sec:avance}) précise cette lecture : en chances relatives, l'avantage des agents est le même avec ou sans la réponse dans les passages. Ils ne lisent donc pas mieux au sens étroit ; ils répondent mieux à partir de l'information dont ils disposent, et se laissent moins détourner de ce qu'ils savent par un passage trompeur. Une lecture compatible avec nos données est que le renforcement, qui ne récompense que la bonne réponse finale, pénalise indirectement l'usage d'un passage trompeur ; le modèle Instruct, lui, reprend des passages voisins mais hors sujet alors même que son prompt l'autorise à s'en remettre à ses connaissances. Sur NQ, où le corpus ne contient la réponse que pour une question sur quatre, cette tendance coûte plus que la recherche ne rapporte. Ces chiffres décrivent où se joue l'écart ; ils n'en établissent pas la cause, et la mesure de « réponse présente » est une estimation par chaîne de caractères.
+
+\emph{Explications concurrentes.} Deux autres lectures sont possibles, et notre protocole ne permet pas de les écarter. La première tient au corpus : A4 et A5 ont été entraînés avec E5 sur Wikipédia 2018, la source de notre sous-corpus ; ils connaissent le format et le bruit de ces passages, ce que n'apprennent pas les harnais. La seconde tient au modèle : les agents partent du modèle de base, les harnais du modèle Instruct, dont l'ajustement aux consignes pourrait renforcer la déférence envers le contexte. Comparer A4 et A5 aux agents Search-R1 issus de la version Instruct, et faire varier le retriever (H4), permettra de départager ces lectures dans le mémoire.
+
+\subsection{Contributions}
+\textbf{Théorique.} L'étude montre, sur un agent de recherche, la courbe de rendement décroissant que prédit la théorie du fourragement, et l'absence de la règle d'arrêt qui devrait l'accompagner quand la récompense ignore le coût. Elle sépare aussi trois composantes que la littérature confond souvent sous « savoir chercher » : la décision de chercher, le choix de la requête, et l'usage de ce qui est trouvé ; elle propose une décomposition simple de la précision selon ces moments, réutilisable pour d'autres agents. Dans nos conditions, les agents entraînés se distinguent par la seconde et non par la première, ce qui est compatible avec un cadre de fourragement où la récompense ignore le coût. La question « quand chercher ? » reste donc ouverte même pour les agents entraînés.
+
+\textbf{Pratique.} Trois recommandations, chacune pour un acteur précis. L'équipe qui ajoute un moteur de recherche à un petit modèle Instruct devrait d'abord comparer, sur un échantillon de ses questions, le modèle seul et le modèle avec recherche : sur NQ, la recherche a fait baisser la précision de nos trois harnais. Celle qui dispose d'un agent Search-R1 public et d'un corpus encyclopédique proche de Wikipédia peut en attendre, dans des conditions comparables aux nôtres, un gain de précision pour environ une recherche de plus par question qu'un ReAct ; sur un autre corpus, ce gain reste à vérifier. Enfin, l'équipe qui entraîne un agent devrait ajouter un coût par recherche à sa récompense : sans lui, l'agent ne renonce jamais à chercher, même sur ce qu'il sait ; c'est l'hypothèse H3 du mémoire.
+
+\subsection{Limites et pistes}
+Ces limites valent quels que soient les résultats. Le tableau~\ref{tab:validite} les range selon le type de validité qu'elles menacent.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}p{2.1cm}p{5.2cm}p{6.6cm}@{}}
+\toprule
+Validité & Menace & Ce qui a été fait, ce qui reste\\
+\midrule
+Interne & A0 à A3 utilisent Qwen2.5-3B-Instruct, A4 et A5 un modèle entraîné à partir de Qwen2.5-3B (base) : l'écart mélange règle de recherche et modèle. & Même famille, même taille, même budget. Les agents issus de la version Instruct permettront de séparer les deux dans le mémoire.\\
+Interne & Les prompts de A2 et A3 ont été corrigés en mise au point. & Correction faite sur d'autres questions (graine 7), puis gel. A3 s'abstient explicitement sur \valAbst{A3} des 200 questions d'évaluation : il est probablement sous-estimé.\\
+Construit & L'EM compte comme fausses des réponses justes formulées autrement. & F1 rapporté à côté de l'EM ; même normalisation que Search-R1 pour tous.\\
+Construit & La connaissance préalable est mesurée par une seule réponse de A0, produite par le modèle Instruct. & Le mémoire prévoit huit échantillons par question (oracle de connaissance).\\
+Statistique & 100 questions par jeu, une graine : un vrai écart de 10 points n'a qu'environ \valPuiss{200}{10}{holm} de chances d'être détecté pour HA1. & Règles fixées d'avance, correction de Holm, intervalles rapportés. Une absence d'effet significatif ne prouve pas l'absence d'effet. Le mémoire passe à 500 questions par jeu.\\
+Statistique & Décodage glouton : la répétabilité exacte de la génération entre deux machines n'est pas testée. & La recherche est rendue déterministe (ex aequo départagés) ; la génération reste à tester.\\
+Externe & Corpus d'un million de passages : réponse dans les trois premiers passages pour 25~\% (NQ) et 44~\% (TriviaQA) des questions ; A4 et A5 ont été entraînés sur le corpus complet. & Couverture mesurée et rapportée. Le plafond de précision est bas pour tous les systèmes qui cherchent.\\
+Externe & Deux jeux à une étape, en anglais, Wikipédia 2018, modèles de 3 milliards de paramètres. & Les jeux multi-étapes et d'autres retrievers sont prévus dans le mémoire (H4).\\
+\bottomrule
+\end{tabular}
+\caption{Menaces à la validité. Interne : l'écart vient-il bien de la règle de recherche ? Construit : mesure-t-on ce que l'on croit mesurer ? Statistique : l'échantillon permet-il de conclure ? Externe : le résultat vaut-il ailleurs ?}
+\label{tab:validite}
+\end{table}
+
+\noindent\textbf{Causalité.} Nous comparons des systèmes complets : aucun écart ne peut être attribué à un seul facteur. L'analyse des questions perdues après recherche, non prévue dans le plan, reste exploratoire.
+
+\textbf{Pistes.} La limite principale, des modèles de départ différents, peut être levée : les auteurs de Search-R1 publient aussi des points de contrôle entraînés à partir de Qwen2.5-3B-Instruct (\texttt{SearchR1-nq\_hotpotqa\_train-qwen2.5-3b-it-em-\{ppo,grpo\}-v0.3}), que l'on peut comparer à leur propre modèle de départ. Cette comparaison appariée permet de poser la question du débat de la section~\ref{sec:revue} : le renforcement élargit-il ce que l'agent finit par résoudre, ou le rend-il seulement plus fiable ? Elle se mesure par pass@k sur des tirages multiples, avec l'inférence appariée de \citet{yang2026crossovers}, dans un environnement où la réponse est toujours atteignable ; c'est l'objet de la suite du mémoire. Deux autres hypothèses ne sont pas testées ici : une pénalité par recherche dans la récompense réduit-elle le nombre d'appels sans perte forte de précision (entraînement GRPO à petite échelle), et un changement de retriever dégrade-t-il plus les agents entraînés que les harnais fixes ? Une analyse qualitative des échecs sur des trajectoires annotées compléterait la mesure : le mémoire prévoit d'en annoter 100 à la main et d'en faire classer 300 par un juge automatique, avec un accord mesuré par le kappa de Cohen.
+
+\FloatBarrier
+\section{Conclusion}\label{sec:conclusion}
+\fictifnote{Conclusion écrite sur les résultats fictifs.}
+Nous avons comparé, à corpus, retriever, budget et questions identiques, deux agents de recherche entraînés par renforcement et quatre systèmes à règle fixe. Les agents entraînés répondent nettement mieux, sur le jeu vu comme sur le jeu non vu. Mais ils ne cherchent pas mieux au sens où on l'entend d'habitude : ils cherchent toujours, davantage que ReAct, y compris quand le modèle sait déjà répondre. Leur avantage tient à l'usage des passages : la plus grande part de l'écart se joue une fois la réponse sous leurs yeux, et une recherche les égare moins. Le cadre du fourragement de l'information rend compte des deux faits : sans coût dans la récompense, rien n'incite l'agent à s'arrêter ; une récompense sur la seule réponse finale peut, en revanche, l'avoir conduit à écarter l'information trompeuse, ce que nos données suggèrent sans l'établir. Ces conclusions valent pour un petit corpus, un petit modèle et deux jeux de questions proches. Le mémoire les mettra à l'épreuve sur sept jeux, en testant une pénalité par recherche (H3) et un changement de retriever (H4).
+

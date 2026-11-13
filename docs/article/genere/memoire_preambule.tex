@@ -1,0 +1,48 @@
+% Fichier généré par scripts/assemble_memoire.py : ne pas modifier à la main.
+\usepackage{iftex}
+\ifXeTeX\usepackage{fontspec}\else\usepackage[utf8]{inputenc}\usepackage[T1]{fontenc}\fi % XeTeX (tectonic) ou pdfLaTeX (Overleaf)
+\usepackage[english,french]{babel}% français par défaut ; anglais pour l'abstract
+\ifXeTeX\usepackage{microtype}\else\usepackage{lmodern,microtype}\fi
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs,array,graphicx,xcolor,longtable}
+\usepackage{tikz}
+\usetikzlibrary{calc,arrows.meta,positioning}
+\usepackage[round,authoryear]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{setspace}\onehalfspacing
+\setlength{\emergencystretch}{1.5em}% évite les lignes qui débordent (mots longs, citations)
+\usepackage{eso-pic,amsmath,amssymb,placeins}
+\usepackage{fvextra}% consignes des systèmes en annexe, avec retour à la ligne
+\newcommand{\aremplir}[1]{\textbf{\textcolor{red}{[À remplir : #1]}}}
+
+% --- Données fictives -------------------------------------------------------------------------
+% genere/valeurs.tex est écrit par analysis/analyse_mini.py. Il bascule \fictiftrue si une seule ligne
+% des fichiers JSONL porte "fictif": true. Avec les vrais runs, les marques disparaissent d'elles-mêmes.
+\newif\iffictif
+\newcommand{\fictifmarque}{}
+\input{genere/valeurs.tex}
+\newcommand{\valEM}[2]{\csname valEM-#1-#2\endcsname}         % EM en points, ex. \valEM{A4}{nq}
+\newcommand{\valRech}[2]{\csname valRech-#1-#2\endcsname}     % recherches par question
+\newcommand{\valHA}[2]{\csname valHA-#1-#2\endcsname}         % résultat d'un test, ex. \valHA{HA3a}{d}
+\newcommand{\valHAen}[2]{\csname valHAen-#1-#2\endcsname}     % même valeur, point décimal (abstract anglais)
+\newcommand{\valSansRech}[1]{\csname valSansRech-#1\endcsname} % part des questions sans recherche (%)
+\newcommand{\valPerdues}[1]{\csname valPerdues-#1\endcsname}   % questions « connues » (A0 juste) ratées
+\newcommand{\valSansRep}[1]{\csname valSansRep-#1\endcsname}   % sorties sans réponse (budget épuisé, format) sur 200
+\newcommand{\valAbst}[1]{\csname valAbst-#1\endcsname}         % abstentions explicites sur 200
+% genere/approf_valeurs.tex est écrit par analysis/analyse_approfondie.py (analyses exploratoires).
+\input{genere/approf_valeurs.tex}
+\newcommand{\valAp}[1]{\csname valAp-#1\endcsname}             % ex. \valAp{rl-em_t}, \valAp{ox-lire}
+% genere/avance_valeurs.tex est écrit par analysis/analyse_avancee.py (analyses avancées, exploratoires).
+\input{genere/avance_valeurs.tex}
+\newcommand{\valAv}[1]{\csname valAv-#1\endcsname}             % ex. \valAv{glm-rl}, \valAv{A4-marg2}
+\newcommand{\valBest}[2]{\csname valBest-#1-#2\endcsname}     % EM du meilleur système d'une famille (rl, harnais)
+\newcommand{\valBestNom}[2]{\csname valBestNom-#1-#2\endcsname}
+% genere/puissance_valeurs.tex est écrit par analysis/puissance.py (simulation, indépendante des données).
+\input{genere/puissance_valeurs.tex}
+\newcommand{\valPuiss}[3]{\csname valPuiss-#1-#2-#3\endcsname} % ex. \valPuiss{200}{10}{holm}
+\newcommand{\fictif}{\iffictif\textcolor{red}{\textsuperscript{\,fictif}}\fi}
+\newcommand{\fictifnote}[1]{\iffictif\par\noindent\fcolorbox{red}{red!4}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\small\textcolor{red!70!black}{\textbf{Données fictives.} #1}}}\par\medskip\fi}
+\iffictif
+\AddToShipoutPictureBG{\AtPageCenter{\makebox(0,0){\rotatebox{55}{\textcolor{red!12}{\fontsize{60}{60}\selectfont\bfseries DONNÉES FICTIVES}}}}}
+\fi
+

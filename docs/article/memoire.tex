@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{report}
+% Mémoire complet. Les corps des parties 1 et 2 sont extraits de main.tex et de ../partie2/chapitre/partie2.tex par
+% scripts/assemble_memoire.py (genere/memoire_*.tex) : corriger les sources, puis relancer le script.
+\input{genere/memoire_preambule.tex}
+\newcommand{\genere}{../partie2/genere}% figures et tableaux de la partie 2
+\usepackage{titlesec}
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{12pt}{\LARGE}
+\titlespacing*{\chapter}{0pt}{-20pt}{24pt}
+
+\title{\textbf{Fiabiliser ou élargir ?}\\[6pt]
+\Large Ce que l'entraînement par renforcement apprend à un agent de recherche}
+\author{Valentin Proux\\[4pt]\normalsize Mémoire de Master 2 en intelligence artificielle}
+\date{Version de travail du 13 novembre 2026}
+
+\begin{document}
+\maketitle
+
+\input{memoire/resume.tex}
+
+\tableofcontents
+
+\input{memoire/introduction.tex}
+
+\chapter{Agents entraînés et harnais fixes : une comparaison au premier essai}\label{ch:partie1}
+\noindent\emph{Ce chapitre reprend l'étude rendue le 9 novembre 2026 sous forme d'article (partie~1). Sa principale limite, des modèles de départ différents pour les agents et les harnais, motive le chapitre~\ref{ch:partie2}, qui en corrige aussi une conclusion (section~\ref{sec:discussion-generale}).}
+\input{genere/memoire_partie1.tex}
+
+\chapter{Le renforcement élargit-il ce que l'agent sait faire ?}\label{ch:partie2}
+\input{genere/memoire_partie2.tex}
+
+\input{memoire/discussion.tex}
+
+\input{memoire/conclusion.tex}
+
+\chapter*{Déclaration d'usage de l'IA générative}
+\addcontentsline{toc}{chapter}{Déclaration d'usage de l'IA générative}
+Un assistant d'IA (Claude, Anthropic) a été utilisé à chaque étape : recherche documentaire (OpenAlex, Consensus, index arXiv de Hugging Face), écriture de tout le code (systèmes, environnement fermé, statistiques, analyses, figures), premier jet de toutes les sections, mise en page LaTeX. L'auteur a fixé la question, choisi entre les options proposées et validé le gel du plan d'analyse ; la relecture du texte final lui revient. Les décisions, leurs auteurs et leurs justifications sont tracés dans le carnet de bord (décisions D1 à D33) ; chaque résultat chiffré vient d'un fichier de trajectoires et d'un script public.
+
+\chapter*{Disponibilité du code et des données}
+\addcontentsline{toc}{chapter}{Disponibilité du code et des données}
+Code, consignes, plans d'analyse gelés et ce texte : \url{https://github.com/vqlentinn/memoire-rl-search}. Questions (FlashRAG, HotpotQA), corpus et modèles : publics sur Hugging Face. Les trajectoires et lectures (plus de 130~000, au format JSON par ligne) ne sont pas versionnées ; elles se régénèrent avec les notebooks Kaggle du dépôt.
+
+\bibliographystyle{plainnat}
+\bibliography{refs,../partie2/chapitre/refs_partie2}
+
+\appendix
+\chapter{Annexes de la partie 1}
+\input{genere/memoire_annexes1.tex}
+
+\end{document}

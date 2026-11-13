@@ -1,0 +1,118 @@
+% Fichier généré par scripts/assemble_memoire.py : ne pas modifier à la main.
+
+\section{Méthode de la recherche documentaire}\label{ann:requetes}
+
+La recherche a suivi la feuille de route de l'étape 5.2 de la trame : question en trois blocs, articles témoins, équation par blocs, mesure de la précision sur un tirage aléatoire de 20 résultats, boule de neige, vérification des références. Les requêtes ont été lancées par un agent d'IA (Claude) connecté à OpenAlex, les 3, 9 et 12 novembre 2026. Les cinq articles témoins sont Search-R1, R1-Searcher, ReAct, IRCoT et Self-RAG.
+
+\begin{small}
+\begin{longtable}{@{}rp{6.4cm}rp{5.6cm}@{}}
+\toprule
+N\textsuperscript{o} & Requête & Nombre & Résultat et décision\\
+\midrule\endhead
+1 & Renforcement ET recherche agentique ET modèles de langage, depuis 2022 & 1\,036 & Précision 7/20 (bruit : réseaux 6G, médecine). Ajout d'un bloc « tâche ».\\
+2 & Bloc 1 ET questions-réponses (multi-sauts, à forte intensité de connaissances) & 336 & Précision inchangée (7/20) : bruit multimodal, télédétection. Termes trop larges retirés, exclusions ajoutées.\\
+3 & Équation retenue (OQL ci-dessous), depuis 2023 & 103 & Précision environ 15/20.\\
+4 & Vérification des 91 références du corpus de départ & 91 & 91 exactes, aucune rétractée.\\
+5 & Consensus, question en version fermée & 10 & Tous favorables au RL ; biais de publication probable. 4 candidats ajoutés.\\
+6 & Boule de neige : articles citant Search-R1 & 14 & OpenAlex ne rattache que 14 citations à la notice arXiv : peu exploitable.\\
+9 & Équation 3 réécrite depuis le journal & 116 & L'équation exacte de la ligne 3 n'avait pas été conservée ; l'OQL est désormais noté.\\
+10 & Rappel sur les cinq témoins & 116 & 1 sur 5 : les harnais fixes sont hors du bloc RL ; R1-Searcher n'emploie pas les mots de la tâche.\\
+11 & Tri des 116 titres & 116 & 4 inclus, 58 doutes, 38 exclus proposés ; non relu à ce jour.\\
+12 & Requête sémantique : comparaison d'agents RL et de harnais à conditions identiques & 50 & Zhao et al. (2026) et Pezzuti et al. (2026), absents de l'équation, ajoutés.\\
+14 & Texte intégral : « information foraging » ET agents de recherche & 58 & Dans 4 PDF sur 5, le terme vient d'une seule référence (InForage) : cadre retenu.\\
+15 & Texte intégral : modèles économiques ou rationalité limitée ET agents & 57 & Aucune mention de Stigler ni de Simon dans 10 PDF : Simon retiré.\\
+17 & Vérification finale des références de l'article & 46 & 43 exactes par titre, 3 exactes par DOI arXiv ; 6 passées à leur version publiée. Zéro référence introuvable.\\
+18 & Lecture des résumés des 58 doutes de l'équation 3 & 58 & 11 inclus, 44 exclus (E1, E3), 3 tranchés ensuite.\\
+19 & Vérification des 5 références ajoutées après la sélection finale & 5 & 5 exactes par DOI.\\
+20 & Seconde recherche (12 novembre) : renforcement ET (pass@k OU frontière de capacité) ET modèles de langage, puis boule de neige et Consensus & 302 & Corpus séparé de 43 articles pour la suite du mémoire ; 5 cités ici (Yue et al., ProRL, Yang, Zhai et al., Zhu et al.), tous exacts dans OpenAlex.\\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\noindent Équation 3, en OQL :
+\begin{Verbatim}[breaklines, fontsize=\footnotesize]
+works where title-abstract-keywords has (("reinforcement learning" or GRPO or RLVR) and ("search agent" or "agentic search" or "search-augmented" or "search engine" or "adaptive retrieval" or "retrieval-augmented reasoning") and ("question answering" or "multi-hop" or HotpotQA or "Natural Questions") and (LLM or "language model") and not (multimodal or "visual question" or "remote sensing" or network)) and published since 2023
+\end{Verbatim}
+
+\noindent\textbf{Compte rendu de sélection.} Revue narrative : la trame n'exige qu'une décision Inclus / Exclu, mais nous donnons les effectifs à chaque étape. La décision finale a été prise par l'assistant d'IA, à la demande de l'auteur, avec des règles écrites dans \texttt{scripts/selection\_corpus.py} et rejouables.
+
+\begin{small}
+\input{genere/selection.tex}
+\end{small}
+
+\smallskip
+\noindent Règles d'inclusion : R1, articles « essentiels » du corpus de départ sur les agents entraînés, les harnais fixes, la décision de chercher, le retriever et le bruit, plus les articles « essentiels » et « utiles » sur le coût ; R2, tout article cité dans la revue ; R3, nouveaux candidats portant sur la décision de chercher, le coût, la comparaison à un harnais fixe, le retriever ou l'usage de l'information trouvée. La liste est dans \texttt{docs/litterature/corpus\_final.csv}.
+
+\section{Consignes données aux modèles}\label{ann:prompts}
+
+Les consignes sont en anglais, langue des questions. Celle de Search-R1 est reprise du dépôt officiel (licence Apache 2.0) ; les autres ont été écrites pour ce projet ; celles de A2 et A3 ont été corrigées une fois pendant la mise au point, avant toute question d'évaluation. Les accolades marquent ce que le programme remplace.
+
+\noindent\textbf{A1, RAG.}
+\begin{Verbatim}[breaklines, fontsize=\footnotesize, frame=single]
+Answer the question. The documents below were retrieved for it: use them if they are useful, otherwise rely on your own knowledge. Give only the final answer inside <answer> and </answer>, without explanation. For example, <answer> Beijing </answer>.
+
+{docs}
+Question: {question}
+\end{Verbatim}
+
+\noindent\textbf{A2, ReAct} (consigne seule ; suivent deux exemples résolus, puis la question).
+\begin{Verbatim}[breaklines, fontsize=\footnotesize, frame=single]
+Solve the question by interleaving Thought, Action and Observation steps. Thought reasons about the current situation. Action is one of two types:
+(1) Search[query]: search for the query; the top passages come back as the Observation.
+(2) Finish[answer]: return the final answer and finish.
+Write one Thought and one Action at a time, then stop and wait for the Observation. Give the final answer as soon as you have enough information. Never repeat a search query. If the passages do not help after a few searches, rely on your own knowledge and give your best answer with Finish[answer]. Start your reply with "Thought:".
+\end{Verbatim}
+
+\noindent\textbf{A4 et A5, Search-R1.}
+\begin{Verbatim}[breaklines, fontsize=\footnotesize, frame=single]
+Answer the given question. You must conduct reasoning inside <think> and </think> first every time you get new information. After reasoning, if you find you lack some knowledge, you can call a search engine by <search> query </search> and it will return the top searched results between <information> and </information>. You can search as many times as your want. If you find no further external knowledge needed, you can directly provide the answer inside <answer> and </answer>, without detailed illustrations. For example, <answer> Beijing </answer>. Question: {question}
+\end{Verbatim}
+
+\noindent Les consignes de A0 (réponse directe) et de A3 (IRCoT) sont dans le dossier \texttt{prompts/} du dépôt.
+
+\section{Fiche données}\label{ann:fiche}
+
+\begin{small}
+\begin{longtable}{@{}p{3cm}p{11.6cm}@{}}
+\toprule
+Rubrique & Contenu\\
+\midrule\endhead
+Source : questions & Existante. FlashRAG (Hugging Face, \texttt{RUC-NLPIR/FlashRAG\_datasets}), configurations \texttt{nq} et \texttt{triviaqa}, partie \texttt{test} : 3\,610 et 11\,313 questions.\\
+Source : corpus & Existante. \texttt{maknee/wiki-18-subsets}, sous-corpus d'un million de passages et son index E5. Jeu tiers sans fiche descriptive : l'alignement entre index et corpus a été vérifié (similarité minimale 0,9997 sur 50 passages).\\
+Source : modèles & \texttt{Qwen/Qwen2.5-3B-Instruct} (A0 à A3) ; points de contrôle Search-R1 v0.3, PPO (A4) et GRPO (A5), entraînés sur NQ et HotpotQA.\\
+Source : trajectoires & Produites par ce projet sur Kaggle (GPU T4). \iffictif\textcolor{red}{Dans cette version : fichiers fictifs, produits par \texttt{analysis/donnees\_fictives.py}.}\fi\\
+Une ligne & Une question traitée par un système : 100 questions $\times$ 2 jeux $\times$ 6 systèmes, soit 1\,200 lignes.\\
+Échantillon & 100 questions par jeu tirées avec la graine 42. Mise au point sur un autre tirage (graine 7), sans aucune question d'évaluation.\\
+Qui manque & Questions multi-étapes (HotpotQA, MuSiQue), écartées faute de couverture ; faits postérieurs à 2018 ; langues autres que l'anglais.\\
+Modifications & Aucune question retirée. Seul ajout : « ? » en fin de question s'il manque, comme Search-R1.\\
+Droits & Licences de FlashRAG, du sous-corpus, de Qwen2.5 et des points de contrôle Search-R1 : à vérifier avant diffusion des données.\\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\section{Formalisation de l'apprentissage par renforcement}\label{ann:formel}
+
+\paragraph{Le problème de décision.} L'entraînement d'un agent de recherche est un processus de décision markovien $\mathcal{M} = (\mathcal{S}, \mathcal{A}, P, r)$. Un état $s_t = (x, y_{<t})$ est la question $x$ suivie des jetons déjà écrits ; une action $a_t = y_t$ est le jeton suivant, choisi dans le vocabulaire ; la politique $\pi_\theta(y_t \mid x, y_{<t})$ est le modèle de langage lui-même. La transition est déterministe (le jeton est ajouté au texte), sauf après la balise \texttt{</search>} : l'environnement, le moteur de recherche, ajoute alors des passages $d$ entre \texttt{<information>} et \texttt{</information>}. La récompense est nulle à chaque étape, sauf à la fin, où elle vaut $r(\tau)$ (équations~\ref{eq:r-searchr1} et~\ref{eq:r-cout}).
+
+\paragraph{Le gradient de politique.} On cherche $\theta$ qui maximise $J(\theta) = \mathbb{E}_{\tau \sim p_\theta}[r(\tau)]$. L'identité $\nabla_\theta p_\theta = p_\theta \nabla_\theta \log p_\theta$ donne
+\begin{equation}
+\nabla_\theta J(\theta) = \mathbb{E}_{\tau}\Big[\, r(\tau) \sum_t m_t \, \nabla_\theta \log \pi_\theta(y_t \mid x, y_{<t}) \Big].
+\end{equation}
+Les probabilités de transition, donc le moteur de recherche, ne dépendent pas de $\theta$ et disparaissent du gradient : il n'est pas nécessaire de dériver l'environnement. Le masque $m_t$ vaut 0 sur les jetons des passages insérés, qui ne sont pas des actions de la politique, et 1 ailleurs \citep{jin2025search}.
+
+\paragraph{L'avantage.} L'estimateur précédent est très variable. Soustraire une ligne de base $b(s_t)$, qui ne dépend pas de l'action, ne change pas son espérance, puisque $\mathbb{E}_{a \sim \pi_\theta}[\nabla_\theta \log \pi_\theta(a \mid s)\, b(s)] = b(s)\, \nabla_\theta \sum_a \pi_\theta(a \mid s) = 0$. On remplace donc $r(\tau)$ par un avantage $\hat{A}_t$, qui mesure de combien une action fait mieux que ce qui était attendu. PPO et GRPO diffèrent par la façon de l'estimer.
+
+\paragraph{PPO (A4).} Un second réseau, le critique $V_\phi(s)$, prédit la récompense attendue depuis chaque état. L'avantage est estimé par $\hat{A}_t = \sum_{l \ge 0} (\gamma\lambda)^l \delta_{t+l}$, avec $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. Pour ne pas trop modifier la politique à partir de trajectoires générées par l'ancienne version $\pi_{\theta_\text{old}}$, PPO maximise un objectif écrêté \citep{schulman2017proximal} :
+\begin{equation}
+L^{\text{CLIP}}(\theta) = \mathbb{E}_t\Big[\min\big(\rho_t \hat{A}_t,\ \mathrm{clip}(\rho_t, 1-\varepsilon, 1+\varepsilon)\,\hat{A}_t\big)\Big], \qquad \rho_t = \frac{\pi_\theta(y_t \mid s_t)}{\pi_{\theta_\text{old}}(y_t \mid s_t)}.
+\end{equation}
+
+\paragraph{GRPO (A5).} GRPO se passe de critique \citep{shao2024deepseekmath}. Pour une même question, il génère un groupe de $G$ trajectoires de récompenses $r_1, \dots, r_G$, et donne à tous les jetons de la trajectoire $i$ l'avantage normalisé dans le groupe :
+\begin{equation}
+\hat{A}_i = \frac{r_i - \mathrm{moy}(r_1, \dots, r_G)}{\mathrm{ét}(r_1, \dots, r_G)}.
+\end{equation}
+Par exemple, avec $G = 5$ et des récompenses $(1, 0, 0, 1, 0)$, les deux trajectoires justes reçoivent $\hat{A} \approx +1{,}22$ et les trois autres $\hat{A} \approx -0{,}82$. Si toutes les trajectoires d'un groupe ont la même récompense, tous les avantages sont nuls et la question n'apprend rien. L'objectif reprend l'écrêtage de PPO, moyenné sur le groupe.
+
+\paragraph{La pénalité de divergence.} Dans les deux cas, on retranche $\beta\, D_{\mathrm{KL}}(\pi_\theta \,\|\, \pi_\text{ref})$, où $\pi_\text{ref}$ est le modèle avant l'entraînement, pour que la politique continue à écrire un langage correct au lieu d'exploiter les failles de la récompense.
+
+\paragraph{Conséquence pour cette étude.} Avec la récompense~\eqref{eq:r-searchr1}, l'avantage d'une trajectoire ne dépend que de la justesse de sa réponse. Une recherche superflue n'est jamais pénalisée tant que la réponse reste juste : le gradient pousse vers tout ce qui rend la réponse juste (utiliser un passage utile, ignorer un passage trompeur), jamais vers chercher moins. Avec la récompense~\eqref{eq:r-cout}, deux trajectoires également justes ont des avantages différents, et la politique apprend une règle d'arrêt. Nos résultats, des agents plus justes qui ne cherchent pas moins (sections~\ref{sec:resultats} et~\ref{sec:avance}), sont ceux qu'attend la première récompense.
