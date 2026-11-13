@@ -21,16 +21,16 @@ from pathlib import Path
 import numpy as np
 from scipy.stats import norm
 
-NOM = re.compile(r"^lecteur-(?P<lecteur>.+?)_chercheur-(?P<chercheur>.+?)_(?P<type>bridge|comparison)_m(?P<m>\d+)$")
+NOM = re.compile(r"^lecteur-(?P<lecteur>.+?)_chercheur-(?P<chercheur>.+?)_(?P<type>bridge|comparison)_m(?P<m>\d+)(?P<variante>_force)?$")
 DEPART = "Qwen2.5-3B-Instruct"
 
 
-def charger(indir):
-    """{(type, lecteur, chercheur): {id: [em…]}}"""
+def charger(indir, variante=""):
+    """{(type, lecteur, chercheur): {id: [em…]}} ; variante "" (protocole prévu) ou "_force" (réponse forcée)."""
     cases = {}
     for f in sorted(Path(indir).glob("*.jsonl")):
         m = NOM.match(f.stem)
-        if not m:
+        if not m or (m["variante"] or "") != variante:
             continue
         par_q = defaultdict(list)
         for l in f.read_text().split("\n"):
@@ -73,8 +73,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--indir", default="results/partie2_lecture")
     ap.add_argument("--out", default=None, help="JSON de sortie (option)")
+    ap.add_argument("--force", action="store_true", help="variante « réponse forcée » (exploratoire, 13 nov.)")
     args = ap.parse_args(argv)
-    cases = charger(args.indir)
+    cases = charger(args.indir, "_force" if args.force else "")
     agents = sorted({k[1] for k in cases} - {DEPART})
     res = {}
     for t in ("bridge", "comparison"):

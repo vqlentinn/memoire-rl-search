@@ -174,3 +174,36 @@ def test_statut_budget_epuise_seulement_si_recherche_refusee():
     assert statut({"trajectory": faite * 4 + "<search> b </search>"}, 4) == "budget_exhausted"
     assert statut({"trajectory": "<search> b </search>"}, 0) == "no_search_allowed"
     assert statut({"trajectory": faite + "<answer>x</answer>"}, 4) == "answer"
+
+
+def test_reponse_forcee_complete_les_lectures_sans_reponse(tmp_path, monkeypatch):
+    """H3, variante du 13 nov. : une lecture qui tentait de chercher reçoit « <answer> » et le lecteur complète."""
+    import json
+    import data.hotpot_distractor as hd
+    from scripts.run_lecture_forcee import couper
+    assert couper("<think>il faut chercher</think>\n\n<search> x </search>") == "<think>il faut chercher</think>"
+    q = {"id": "q1", "question": "Q?", "golds": ["American"], "paragraphs": PARAS, "type": "bridge"}
+    monkeypatch.setattr(hd, "charger", lambda *a, **k: [q])
+    lect = tmp_path / "lecteur-A_chercheur-B_bridge_m8.jsonl"
+    lect.write_text("".join(json.dumps(x) + "\n" for x in [
+        {"id": "q1", "sample": 0, "status": "answer", "em": 1, "trajectory": "<answer>American</answer>"},
+        {"id": "q1", "sample": 1, "status": "no_search_allowed", "em": 0,
+         "trajectory": "<think>encore</think>\n\n<search> y </search>"}]))
+    cher = tmp_path / "B.jsonl"
+    cher.write_text("".join(json.dumps({"id": "q1", "sample": s, "queries": ["Scott Derrickson"]}) + "\n"
+                            for s in (0, 1)))
+    vus = []
+    _LLM.script = [(" American</answer>", None)]
+    gen = _LLM.generate
+    monkeypatch.setattr(_LLM, "generate", lambda self, p, *a, **k: (vus.extend(p), gen(self, p, *a, **k))[1])
+    monkeypatch.setattr(sys, "argv", ["x", "--lecteur", "faux", "--lecture", str(lect), "--chercheur", str(cher),
+                                      "--outdir", str(tmp_path)])
+    fake_vllm = types.SimpleNamespace(LLM=_LLM, SamplingParams=lambda **k: None)
+    with mock.patch.dict(sys.modules, {"vllm": fake_vllm}):
+        sys.modules.pop("systems.searchr1", None)
+        from scripts import run_lecture_forcee
+        run_lecture_forcee.main()
+    res = [json.loads(l) for l in (tmp_path / "lecteur-A_chercheur-B_bridge_m8_force.jsonl").read_text().split("\n")
+           if l.strip()]
+    assert [r["force"] for r in res] == [False, True] and all(r["em"] == 1 for r in res)
+    assert len(vus) == 1 and vus[0].endswith("<think>encore</think>\n<answer>") and "Scott Derrickson" in vus[0]

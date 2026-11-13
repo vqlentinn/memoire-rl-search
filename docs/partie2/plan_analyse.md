@@ -202,3 +202,14 @@ les règles de décision.
   avantage de lecture (moyenne sur les chercheurs de agent − départ comme lecteur), avantage de recherche, interaction ;
   IC à 95 % par bootstrap à multiplicateurs. H3 soutenue si l'IC de l'avantage de lecture est au-dessus de 0
   (secondaire, sans correction). Code : `scripts/run_lecture.py`, `analysis/lecture_croisee.py` ; session 5.
+
+## Amendement du 13 novembre 2026 (APRÈS la session 5) : H3, variante « réponse forcée »
+
+Constat : sans le raisonnement du chercheur, les agents lecteurs tentent presque toujours une nouvelle recherche
+(PPO ne répond que dans 3 à 5 % des lectures, GRPO dans 45 à 63 %, le modèle de départ dans 82 à 96 %). Le protocole
+prévu compte ces tentatives comme des échecs : il mesure alors la propension à chercher encore, pas la lecture.
+Le résultat prévu est rapporté tel quel (H3 non soutenue ; avantage de recherche positif). Variante ajoutée, déclarée
+exploratoire : chaque lecture sans réponse est complétée en imposant « <answer> » après ce que le lecteur a écrit
+(`scripts/run_lecture_forcee.py`, session 6), puis la même analyse (`analysis/lecture_croisee.py --force`).
+Seul résultat de la session 5 non touché par ce défaut : avec le modèle de départ comme lecteur (qui répond), les
+plans de recherche des agents valent plus que les siens.
