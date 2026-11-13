@@ -1,0 +1,176 @@
+{
+ "Qwen2.5-3B-Instruct_bridge": {
+  "trajectoires": 16000,
+  "em": 0.2504375,
+  "a_cherche": 0.75575,
+  "trouve_2": 0.321375,
+  "trouve_1": 0.7064375,
+  "trouve_2_si_cherche": 0.4252398279854449,
+  "em_si_trouve_2": 0.44651886425515364,
+  "em_si_non_trouve_2": 0.15757966476330815,
+  "repond_si_trouve_2": 0.9813302217036173,
+  "em_si_trouve_2_et_repond": 0.45501387237415775,
+  "requetes_repetees": 0.00743604587054802,
+  "q1_est_question": 0.010585511081706914,
+  "recherches": 0.8906875
+ },
+ "it-em-grpo_bridge": {
+  "trajectoires": 16000,
+  "em": 0.28875,
+  "a_cherche": 0.9444375,
+  "trouve_2": 0.54125,
+  "trouve_1": 0.9145,
+  "trouve_2_si_cherche": 0.5730924492091853,
+  "em_si_trouve_2": 0.3894919168591224,
+  "em_si_non_trouve_2": 0.16989100817438693,
+  "repond_si_trouve_2": 0.8031177829099307,
+  "em_si_trouve_2_et_repond": 0.4849748382458663,
+  "requetes_repetees": 0.0034963492378620427,
+  "q1_est_question": 0.07537555423201642,
+  "recherches": 1.319125
+ },
+ "it-em-ppo_bridge": {
+  "trajectoires": 16000,
+  "em": 0.315,
+  "a_cherche": 0.7928125,
+  "trouve_2": 0.542125,
+  "trouve_1": 0.7704375,
+  "trouve_2_si_cherche": 0.6837997635001971,
+  "em_si_trouve_2": 0.4784413188840212,
+  "em_si_non_trouve_2": 0.12148512148512149,
+  "repond_si_trouve_2": 0.8594650680193682,
+  "em_si_trouve_2_et_repond": 0.556673373574782,
+  "requetes_repetees": 0.11964262252003678,
+  "q1_est_question": 0.3613716988569176,
+  "recherches": 2.169875
+ },
+ "decomposition_it-em-grpo_bridge": {
+  "point": {
+   "ecart": 0.03831250000000003,
+   "trouver": 0.06353050648826952,
+   "lire": -0.025218006488269527
+  },
+  "ic95": {
+   "ecart": [
+    0.02099999999999999,
+    0.054042187500000005
+   ],
+   "trouver": [
+    0.053009354024236226,
+    0.07486006776349678
+   ],
+   "lire": [
+    -0.04227261544594431,
+    -0.00898287538981279
+   ]
+  }
+ },
+ "decomposition_it-em-ppo_bridge": {
+  "point": {
+   "ecart": 0.06456250000000002,
+   "trouver": 0.06378332828782488,
+   "lire": 0.0007791717121751057
+  },
+  "ic95": {
+   "ecart": [
+    0.043359375,
+    0.08472656249999998
+   ],
+   "trouver": [
+    0.05323799437691564,
+    0.07710461601204113
+   ],
+   "lire": [
+    -0.02189416993681426,
+    0.020486189877222213
+   ]
+  }
+ },
+ "Qwen2.5-3B-Instruct_comparison": {
+  "trajectoires": 16000,
+  "em": 0.3746875,
+  "a_cherche": 0.7736875,
+  "trouve_2": 0.408875,
+  "trouve_1": 0.7274375,
+  "trouve_2_si_cherche": 0.5284756442362065,
+  "em_si_trouve_2": 0.4312136961173953,
+  "em_si_non_trouve_2": 0.335588919433284,
+  "repond_si_trouve_2": 0.9874656068480587,
+  "em_si_trouve_2_et_repond": 0.43668730650154797,
+  "requetes_repetees": 0.005398928292538439,
+  "q1_est_question": 0.023103643266822845,
+  "recherches": 1.0210625
+ },
+ "it-em-grpo_comparison": {
+  "trajectoires": 16000,
+  "em": 0.39,
+  "a_cherche": 0.9739375,
+  "trouve_2": 0.6416875,
+  "trouve_1": 0.9445,
+  "trouve_2_si_cherche": 0.6588590130270167,
+  "em_si_trouve_2": 0.41579818837050747,
+  "em_si_non_trouve_2": 0.34379905808477235,
+  "repond_si_trouve_2": 0.7722801207752995,
+  "em_si_trouve_2_et_repond": 0.5384033295497541,
+  "requetes_repetees": 0.006139168752272775,
+  "q1_est_question": 0.06147725085028557,
+  "recherches": 1.539875
+ },
+ "it-em-ppo_comparison": {
+  "trajectoires": 16000,
+  "em": 0.3549375,
+  "a_cherche": 0.8505625,
+  "trouve_2": 0.552375,
+  "trouve_1": 0.8288125,
+  "trouve_2_si_cherche": 0.6494231758395179,
+  "em_si_trouve_2": 0.42849060873500794,
+  "em_si_non_trouve_2": 0.2641720189891092,
+  "repond_si_trouve_2": 0.7352342158859471,
+  "em_si_trouve_2_et_repond": 0.5827947060634041,
+  "requetes_repetees": 0.15456683077375266,
+  "q1_est_question": 0.39400396796237785,
+  "recherches": 2.543375
+ },
+ "decomposition_it-em-grpo_comparison": {
+  "point": {
+   "ecart": 0.015312500000000007,
+   "trouver": 0.022262643321769658,
+   "lire": -0.006950143321769664
+  },
+  "ic95": {
+   "ecart": [
+    -0.0017500000000000029,
+    0.032571874999999986
+   ],
+   "trouver": [
+    0.014212955586686941,
+    0.03116868062331537
+   ],
+   "lire": [
+    -0.025747409639914638,
+    0.011622914407519254
+   ]
+  }
+ },
+ "decomposition_it-em-ppo_comparison": {
+  "point": {
+   "ecart": -0.01974999999999999,
+   "trouver": 0.013722155454169967,
+   "lire": -0.03347215545416997
+  },
+  "ic95": {
+   "ecart": [
+    -0.037509375000000005,
+    -0.0002640625000000247
+   ],
+   "trouver": [
+    0.008562498415778514,
+    0.01963581048366085
+   ],
+   "lire": [
+    -0.05151235924267956,
+    -0.013758121828391262
+   ]
+  }
+ }
+}
