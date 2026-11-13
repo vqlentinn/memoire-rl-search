@@ -148,7 +148,17 @@ Ces analyses n'étaient pas prévues par le plan : elles ont été écrites apr�
 \begin{table}[h]\centering\small\resizebox{\linewidth}{!}{\input{\genere/tableau_difficulte.tex}}
 \caption{Exploratoire. Détail de la figure~\ref{fig:difficulte}.}\end{table}}{}
 
-\paragraph{Lecture d'ensemble, provisoire.} Les résultats confirmatoires reproduisent, pour un agent de recherche, le constat de \citet{yue2025does} sans outil : le renforcement rend l'agent plus fiable au premier essai sur les questions à plusieurs étapes, sans élargir l'ensemble des questions qu'il finit par résoudre. Les analyses exploratoires nuancent : l'agent gagne là où son modèle de départ hésite, perd là où il est sûr (par des sorties ratées plus que par de mauvaises réponses), et pourrait gagner un peu sur les questions les plus difficiles. Restent à faire : sans recherche ($T = 0$), le sous-ensemble difficile, la lecture croisée (H3).
+\section{H3 : lecture croisée (session 5)}
+
+\paragraph{Protocole prévu.} Chaque modèle reçoit les requêtes d'un chercheur et les passages qu'elles ramènent (8 trajectoires par question de la session 1, raisonnement retiré), puis répond sans chercher davantage ; une tentative de recherche compte comme un échec. Les sept cases ont été exécutées sur les 500 questions de pont (environ 23~000 lectures).
+
+\paragraph{Résultat prévu : H3 non soutenue, mais pour une raison imprévue.} L'« avantage de lecture » des agents est négatif ($-0{,}069$ pour GRPO, $-0{,}291$ pour PPO). La cause n'est pas la lecture : sans son propre raisonnement, l'agent PPO veut presque toujours chercher encore. Il ne répond que dans 3 à 5~\% des lectures, y compris devant ses propres recherches, alors qu'il répondait dans 80~\% de ses trajectoires complètes. L'agent GRPO répond dans 45 à 63~\% des cas, le modèle de départ dans 82 à 96~\%. Quand l'agent répond, il répond juste plus souvent (EM de 0,43 à 0,53 contre 0,32 à 0,38), mais ces réponses sont sélectionnées. Le protocole mesurait donc surtout la propension à chercher encore. Ce constat a sa valeur : la décision d'arrêter de chercher semble portée par le raisonnement écrit de l'agent, pas par les passages qu'il a sous les yeux.
+
+\paragraph{Ce qui reste interprétable : l'avantage de recherche.} Avec le modèle de départ comme lecteur, qui répond presque toujours, les plans de recherche des agents valent plus que les siens : EM 0,356 (plans de PPO) et 0,344 (plans de GRPO) contre 0,267 et 0,269 (ses propres plans), soit 8 à 9 points. L'agent cherche mieux. Ce résultat nuance la partie~1, qui attribuait l'essentiel de l'écart à la lecture par une décomposition sans expérience.
+
+\paragraph{Variante « réponse forcée » (amendement après la session 5, exploratoire).} Chaque lecture sans réponse est complétée en imposant la balise de réponse après ce que le lecteur a écrit (session 6). \aremplir{résultats de la session 6}
+
+\paragraph{Lecture d'ensemble, provisoire.} Les résultats confirmatoires reproduisent, pour un agent de recherche, le constat de \citet{yue2025does} sans outil : le renforcement rend l'agent plus fiable au premier essai sur les questions à plusieurs étapes, sans élargir l'ensemble des questions qu'il finit par résoudre. Les analyses exploratoires nuancent : l'agent gagne là où son modèle de départ hésite, perd là où il est sûr (par des sorties ratées plus que par de mauvaises réponses), et pourrait gagner un peu sur les questions les plus difficiles. Restent à faire : sans recherche ($T = 0$), le sous-ensemble difficile, et la variante forcée de la lecture croisée.
 
 \section{Menaces à la validité}
 
