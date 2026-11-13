@@ -318,3 +318,20 @@ n = 32, T = 4, température 0,7. Seule « erreur » des journaux : avertissement
   comme le post-traitement officiel de Search-R1. Rescoré hors ligne au premier `</answer>` : conclusions indicatives inchangées.
 - Indicatif (50 questions, aucune conclusion) : paires Instruct, D(1) ≈ +0,03 à +0,05, D(32) ≈ −0,04 ; frontière 40 contre 42.
   Paire de base : D(1) +0,47, D(32) +0,02. Questions hors de portée du modèle Instruct : 16 %.
+
+## 13 novembre 2026 : sessions 1 et 2 de l'étude principale (partie 2)
+
+Session 1 (ponts) et session 2 (comparaisons) terminées dans la nuit (COMPLETE, journaux lus, aucune erreur hors
+l'avertissement FlashAttention 2) : 4 × 24 000 trajectoires, 500 questions complètes par run. Durées : Instruct
+environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6).
+- Confirmatoire (plan gelé, sans modification) : ponts, H1 soutenue (PPO +0,065, GRPO +0,038 à k = 1), H2
+  « fiabilisation seule » pour les deux paires (D(32) +0,010 et +0,008, Holm p = 1 ; frontière 351 et 350 contre 346).
+  Comparaisons : pas de gain au premier essai, frontière inchangée.
+- Erreur de code trouvée : le statut « budget épuisé » se déclenchait sur n'importe quel `<search>` de la trajectoire.
+  Corrigé (seule une recherche demandée après le dernier bloc de passages compte) ; l'EM n'en dépend pas.
+- Exploratoire (`analysis/exploratoire_partie2.py`, tirages séparés 0-15 / 16-31) : gain en U inversé selon la
+  difficulté ; pertes sur les questions faciles dues aux sorties sans réponse (GRPO : format ; PPO : budget T = 4).
+  Questions jamais résolues par le départ sur 0-15 : 85 % le restent sur 16-31 pour le départ, 70 % pour PPO.
+- Vérifié pour H3 : les passages recalculés depuis les requêtes sont identiques à ceux de la trajectoire dans 99,4 %
+  des cas ; les écarts viennent de faux blocs `<information>` écrits par le modèle lui-même.
+- Session 5 (lecture croisée) lancée le 13 au matin ; session 3 en attente (quota).

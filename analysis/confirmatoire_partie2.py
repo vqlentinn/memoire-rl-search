@@ -27,6 +27,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from scripts.run_passk import statut  # noqa: E402
 from analysis.passk import bootstrap_multiplicateur, courbes, difference_appariee, frontiere, grille_k  # noqa: E402
 
 NOM = re.compile(r"^(?P<modele>.+?)_(?P<type>bridge|comparison)_q(?P<N>\d+)_n(?P<n>\d+)_T(?P<T>\d+)"
@@ -49,7 +50,11 @@ def charger(indir):
         # graine des questions, ou nom de la liste d'ids (sous-ensemble difficile) ; graine de génération à part
         cond = (g["type"], int(g["N"]), int(g["n"]), int(g["T"]), g["temp"], g["tag"],
                 ("ids-" + g["ids"]) if g["ids"] else (g["sq"] or "42"), int(g["g"] or 0))
-        runs[(g["modele"], cond)] += [json.loads(l) for l in f.read_text().split("\n") if l.strip()]
+        lignes = [json.loads(l) for l in f.read_text().split("\n") if l.strip()]
+        for l in lignes:  # statut recalculé avec la règle courante (corrigée le 13 nov. ; l'EM ne change pas)
+            if "trajectory" in l:
+                l["status"] = statut(l, cond[3])
+        runs[(g["modele"], cond)] += lignes
     return dict(runs)
 
 

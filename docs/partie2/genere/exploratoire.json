@@ -1,0 +1,390 @@
+{
+ "it-em-grpo, bridge, T=4": [
+  {
+   "classe": "0/16",
+   "questions": 181,
+   "reussite_depart": 0.015883977900552487,
+   "reussite_agent": 0.043853591160220994,
+   "ecart": [
+    0.02796961325966851,
+    0.012658675027526363,
+    0.043280551491810655
+   ],
+   "jamais_depart": 0.850828729281768,
+   "jamais_agent": 0.7624309392265194,
+   "agent_sans_reponse": 0.1933701657458563,
+   "agent_format": 0.14433701657458564,
+   "agent_budget": 0.004488950276243094,
+   "agent_tronquees": 0.04454419889502762,
+   "em_si_reponse_agent": 0.054366438356164386,
+   "em_si_reponse_depart": 0.016283185840707964
+  },
+  {
+   "classe": "1-3/16",
+   "questions": 96,
+   "reussite_depart": 0.115234375,
+   "reussite_agent": 0.21614583333333334,
+   "ecart": [
+    0.10091145833333333,
+    0.060540099113320034,
+    0.14128281755334662
+   ],
+   "jamais_depart": 0.3125,
+   "jamais_agent": 0.3020833333333333,
+   "agent_sans_reponse": 0.208984375,
+   "agent_format": 0.15755208333333334,
+   "agent_budget": 0.0006510416666666666,
+   "agent_tronquees": 0.05078125,
+   "em_si_reponse_agent": 0.27325102880658436,
+   "em_si_reponse_depart": 0.11831550802139038
+  },
+  {
+   "classe": "4-8/16",
+   "questions": 135,
+   "reussite_depart": 0.3680555555555556,
+   "reussite_agent": 0.4675925925925926,
+   "ecart": [
+    0.09953703703703703,
+    0.06126606717121039,
+    0.13780800690286368
+   ],
+   "jamais_depart": 0.007407407407407408,
+   "jamais_agent": 0.02962962962962963,
+   "agent_sans_reponse": 0.19398148148148153,
+   "agent_format": 0.1537037037037037,
+   "agent_budget": 0.002777777777777778,
+   "agent_tronquees": 0.0375,
+   "em_si_reponse_agent": 0.5801263641585296,
+   "em_si_reponse_depart": 0.3757088846880907
+  },
+  {
+   "classe": "9-15/16",
+   "questions": 83,
+   "reussite_depart": 0.6724397590361446,
+   "reussite_agent": 0.5918674698795181,
+   "ecart": [
+    -0.08057228915662651,
+    -0.1310655556535218,
+    -0.030079022659731225
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.0,
+   "agent_sans_reponse": 0.19352409638554213,
+   "agent_format": 0.15512048192771086,
+   "agent_budget": 0.002259036144578313,
+   "agent_tronquees": 0.03614457831325301,
+   "em_si_reponse_agent": 0.7338935574229691,
+   "em_si_reponse_depart": 0.6827217125382263
+  },
+  {
+   "classe": "16/16",
+   "questions": 5,
+   "reussite_depart": 0.9875,
+   "reussite_agent": 0.6875,
+   "ecart": [
+    -0.3,
+    -0.34142051118893035,
+    -0.2585794888110696
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.0,
+   "agent_sans_reponse": 0.23750000000000004,
+   "agent_format": 0.2125,
+   "agent_budget": 0.0125,
+   "agent_tronquees": 0.0125,
+   "em_si_reponse_agent": 0.9016393442622951,
+   "em_si_reponse_depart": 0.9875
+  }
+ ],
+ "it-em-grpo, comparison, T=4": [
+  {
+   "classe": "0/16",
+   "questions": 148,
+   "reussite_depart": 0.01266891891891892,
+   "reussite_agent": 0.013091216216216216,
+   "ecart": [
+    0.0004222972972972973,
+    -0.007660873841065404,
+    0.00850546843566
+   ],
+   "jamais_depart": 0.9054054054054054,
+   "jamais_agent": 0.8986486486486487,
+   "agent_sans_reponse": 0.2411317567567568,
+   "agent_format": 0.19679054054054054,
+   "agent_budget": 0.005489864864864865,
+   "agent_tronquees": 0.03885135135135135,
+   "em_si_reponse_agent": 0.01725097384529772,
+   "em_si_reponse_depart": 0.01287001287001287
+  },
+  {
+   "classe": "1-3/16",
+   "questions": 45,
+   "reussite_depart": 0.18194444444444444,
+   "reussite_agent": 0.3,
+   "ecart": [
+    0.11805555555555555,
+    0.05907250700971176,
+    0.17703860410139935
+   ],
+   "jamais_depart": 0.1111111111111111,
+   "jamais_agent": 0.13333333333333333,
+   "agent_sans_reponse": 0.22083333333333333,
+   "agent_format": 0.16666666666666666,
+   "agent_budget": 0.0125,
+   "agent_tronquees": 0.041666666666666664,
+   "em_si_reponse_agent": 0.3850267379679144,
+   "em_si_reponse_depart": 0.18450704225352113
+  },
+  {
+   "classe": "4-8/16",
+   "questions": 128,
+   "reussite_depart": 0.41748046875,
+   "reussite_agent": 0.5185546875,
+   "ecart": [
+    0.10107421875,
+    0.06028374345612922,
+    0.14186469404387078
+   ],
+   "jamais_depart": 0.015625,
+   "jamais_agent": 0.015625,
+   "agent_sans_reponse": 0.2333984375,
+   "agent_format": 0.1884765625,
+   "agent_budget": 0.00927734375,
+   "agent_tronquees": 0.03564453125,
+   "em_si_reponse_agent": 0.6764331210191082,
+   "em_si_reponse_depart": 0.42326732673267325
+  },
+  {
+   "classe": "9-15/16",
+   "questions": 165,
+   "reussite_depart": 0.6590909090909091,
+   "reussite_agent": 0.6306818181818182,
+   "ecart": [
+    -0.028409090909090908,
+    -0.06339060847020256,
+    0.006572426652020739
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.006060606060606061,
+   "agent_sans_reponse": 0.22272727272727277,
+   "agent_format": 0.18712121212121213,
+   "agent_budget": 0.003787878787878788,
+   "agent_tronquees": 0.031818181818181815,
+   "em_si_reponse_agent": 0.8114035087719298,
+   "em_si_reponse_depart": 0.6682027649769585
+  },
+  {
+   "classe": "16/16",
+   "questions": 14,
+   "reussite_depart": 0.9598214285714286,
+   "reussite_agent": 0.6651785714285714,
+   "ecart": [
+    -0.29464285714285715,
+    -0.3762215738253544,
+    -0.21306414046035987
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.0,
+   "agent_sans_reponse": 0.2366071428571429,
+   "agent_format": 0.20982142857142858,
+   "agent_budget": 0.004464285714285714,
+   "agent_tronquees": 0.022321428571428572,
+   "em_si_reponse_agent": 0.8713450292397661,
+   "em_si_reponse_depart": 0.9598214285714286
+  }
+ ],
+ "it-em-ppo, bridge, T=4": [
+  {
+   "classe": "0/16",
+   "questions": 181,
+   "reussite_depart": 0.015883977900552487,
+   "reussite_agent": 0.0694060773480663,
+   "ecart": [
+    0.053522099447513814,
+    0.031404636473895395,
+    0.07563956242113223
+   ],
+   "jamais_depart": 0.850828729281768,
+   "jamais_agent": 0.7016574585635359,
+   "agent_sans_reponse": 0.199585635359116,
+   "agent_format": 0.034530386740331494,
+   "agent_budget": 0.15331491712707182,
+   "agent_tronquees": 0.011740331491712707,
+   "em_si_reponse_agent": 0.08671268334771355,
+   "em_si_reponse_depart": 0.016283185840707964
+  },
+  {
+   "classe": "1-3/16",
+   "questions": 96,
+   "reussite_depart": 0.115234375,
+   "reussite_agent": 0.3098958333333333,
+   "ecart": [
+    0.19466145833333334,
+    0.1452609951633302,
+    0.2440619215033365
+   ],
+   "jamais_depart": 0.3125,
+   "jamais_agent": 0.2708333333333333,
+   "agent_sans_reponse": 0.1875,
+   "agent_format": 0.037109375,
+   "agent_budget": 0.13932291666666666,
+   "agent_tronquees": 0.011067708333333334,
+   "em_si_reponse_agent": 0.3814102564102564,
+   "em_si_reponse_depart": 0.11831550802139038
+  },
+  {
+   "classe": "4-8/16",
+   "questions": 135,
+   "reussite_depart": 0.3680555555555556,
+   "reussite_agent": 0.4601851851851852,
+   "ecart": [
+    0.09212962962962963,
+    0.03827311653787869,
+    0.14598614272138058
+   ],
+   "jamais_depart": 0.007407407407407408,
+   "jamais_agent": 0.0962962962962963,
+   "agent_sans_reponse": 0.20138888888888884,
+   "agent_format": 0.04675925925925926,
+   "agent_budget": 0.1388888888888889,
+   "agent_tronquees": 0.01574074074074074,
+   "em_si_reponse_agent": 0.576231884057971,
+   "em_si_reponse_depart": 0.3757088846880907
+  },
+  {
+   "classe": "9-15/16",
+   "questions": 83,
+   "reussite_depart": 0.6724397590361446,
+   "reussite_agent": 0.5963855421686747,
+   "ecart": [
+    -0.07605421686746988,
+    -0.13998648848723014,
+    -0.012121945247709626
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.024096385542168676,
+   "agent_sans_reponse": 0.16792168674698793,
+   "agent_format": 0.06852409638554217,
+   "agent_budget": 0.09337349397590361,
+   "agent_tronquees": 0.006024096385542169,
+   "em_si_reponse_agent": 0.7167420814479638,
+   "em_si_reponse_depart": 0.6827217125382263
+  },
+  {
+   "classe": "16/16",
+   "questions": 5,
+   "reussite_depart": 0.9875,
+   "reussite_agent": 0.7,
+   "ecart": [
+    -0.2875,
+    -0.44839696025534725,
+    -0.12660303974465273
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.0,
+   "agent_sans_reponse": 0.15000000000000002,
+   "agent_format": 0.05,
+   "agent_budget": 0.1,
+   "agent_tronquees": 0.0,
+   "em_si_reponse_agent": 0.8235294117647058,
+   "em_si_reponse_depart": 0.9875
+  }
+ ],
+ "it-em-ppo, comparison, T=4": [
+  {
+   "classe": "0/16",
+   "questions": 148,
+   "reussite_depart": 0.01266891891891892,
+   "reussite_agent": 0.028716216216216218,
+   "ecart": [
+    0.016047297297297296,
+    0.005038591857844079,
+    0.027056002736750514
+   ],
+   "jamais_depart": 0.9054054054054054,
+   "jamais_agent": 0.8378378378378378,
+   "agent_sans_reponse": 0.2825168918918919,
+   "agent_format": 0.04265202702702703,
+   "agent_budget": 0.22550675675675674,
+   "agent_tronquees": 0.014358108108108109,
+   "em_si_reponse_agent": 0.04002354326074161,
+   "em_si_reponse_depart": 0.01287001287001287
+  },
+  {
+   "classe": "1-3/16",
+   "questions": 45,
+   "reussite_depart": 0.18194444444444444,
+   "reussite_agent": 0.2861111111111111,
+   "ecart": [
+    0.10416666666666667,
+    0.050977974597383374,
+    0.15735535873594997
+   ],
+   "jamais_depart": 0.1111111111111111,
+   "jamais_agent": 0.08888888888888889,
+   "agent_sans_reponse": 0.31805555555555554,
+   "agent_format": 0.04027777777777778,
+   "agent_budget": 0.2611111111111111,
+   "agent_tronquees": 0.016666666666666666,
+   "em_si_reponse_agent": 0.4195519348268839,
+   "em_si_reponse_depart": 0.18450704225352113
+  },
+  {
+   "classe": "4-8/16",
+   "questions": 128,
+   "reussite_depart": 0.41748046875,
+   "reussite_agent": 0.4306640625,
+   "ecart": [
+    0.01318359375,
+    -0.03920654975157455,
+    0.06557373725157456
+   ],
+   "jamais_depart": 0.015625,
+   "jamais_agent": 0.0703125,
+   "agent_sans_reponse": 0.32958984375,
+   "agent_format": 0.044921875,
+   "agent_budget": 0.26513671875,
+   "agent_tronquees": 0.01953125,
+   "em_si_reponse_agent": 0.6423889293517844,
+   "em_si_reponse_depart": 0.42326732673267325
+  },
+  {
+   "classe": "9-15/16",
+   "questions": 165,
+   "reussite_depart": 0.6590909090909091,
+   "reussite_agent": 0.5776515151515151,
+   "ecart": [
+    -0.08143939393939394,
+    -0.12269129215327586,
+    -0.040187495725512015
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.012121212121212121,
+   "agent_sans_reponse": 0.28560606060606064,
+   "agent_format": 0.038257575757575754,
+   "agent_budget": 0.23333333333333334,
+   "agent_tronquees": 0.014015151515151515,
+   "em_si_reponse_agent": 0.8085896076352068,
+   "em_si_reponse_depart": 0.6682027649769585
+  },
+  {
+   "classe": "16/16",
+   "questions": 14,
+   "reussite_depart": 0.9598214285714286,
+   "reussite_agent": 0.7589285714285714,
+   "ecart": [
+    -0.20089285714285715,
+    -0.2719373965409574,
+    -0.1298483177447569
+   ],
+   "jamais_depart": 0.0,
+   "jamais_agent": 0.0,
+   "agent_sans_reponse": 0.2008928571428571,
+   "agent_format": 0.07589285714285714,
+   "agent_budget": 0.12053571428571429,
+   "agent_tronquees": 0.004464285714285714,
+   "em_si_reponse_agent": 0.9497206703910615,
+   "em_si_reponse_depart": 0.9598214285714286
+  }
+ ]
+}

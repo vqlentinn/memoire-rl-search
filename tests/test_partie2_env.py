@@ -165,3 +165,12 @@ def test_lecture_croisee_effets(tmp_path):
     assert r["H3"] and r["questions"] == 300
     assert abs(r["lecture"][0] - 0.2) < 0.05 and r["recherche"][1] < 0 < r["recherche"][2]
     assert abs(r["total"][0] - (r["lecture"][0] + r["recherche"][0])) < 1e-9
+
+
+def test_statut_budget_epuise_seulement_si_recherche_refusee():
+    from scripts.run_passk import statut
+    faite = "<search> a </search>\n\n<information>Doc 1(Title: A) x</information>\n\n"
+    assert statut({"trajectory": faite + "<think>fini</think> blabla"}, 4) == "format"
+    assert statut({"trajectory": faite * 4 + "<search> b </search>"}, 4) == "budget_exhausted"
+    assert statut({"trajectory": "<search> b </search>"}, 0) == "no_search_allowed"
+    assert statut({"trajectory": faite + "<answer>x</answer>"}, 4) == "answer"

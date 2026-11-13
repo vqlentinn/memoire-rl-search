@@ -18,13 +18,13 @@
 \title{Partie 2 -- Le renforcement élargit-il ce qu'un agent de recherche sait faire ?\\[4pt]
 \large Méthode (plan gelé v1.0) et résultats de la session pilote}
 \author{Valentin Proux}
-\date{Brouillon du 12 novembre 2026 -- résultats principaux en cours de calcul}
+\date{Brouillon du 13 novembre 2026 -- sessions 1 et 2 analysées}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-\noindent Ce chapitre décrit la seconde partie du mémoire. À modèle de départ identique, on compare chaque agent de recherche Search-R1 entraîné par renforcement à \emph{son propre} modèle de départ, sur plusieurs tirages par question, pour savoir si l'entraînement élargit l'ensemble des questions résolues (pass@k à grand k) ou augmente seulement la réussite au premier essai. Le plan d'analyse a été gelé et commité avant le premier run principal. Les résultats de la session pilote (50 questions, sans valeur de test) sont rapportés ici ; les résultats principaux seront insérés automatiquement depuis les fichiers générés.
+\noindent Ce chapitre décrit la seconde partie du mémoire. À modèle de départ identique, on compare chaque agent de recherche Search-R1 entraîné par renforcement à \emph{son propre} modèle de départ, sur plusieurs tirages par question, pour savoir si l'entraînement élargit l'ensemble des questions résolues (pass@k à grand k) ou augmente seulement la réussite au premier essai. Le plan d'analyse a été gelé et commité avant le premier run principal. Sur 500 questions de pont, les deux agents Search-R1 issus de Qwen2.5-3B-Instruct sont plus fiables au premier essai que leur modèle de départ (+6,5 et +3,8 points), mais l'écart se referme à 32 essais et la frontière ne bouge pas : verdict « fiabilisation seule » pour les deux paires principales. Sur les questions de comparaison, aucun gain. Des analyses exploratoires montrent que l'agent gagne là où son modèle de départ hésite et perd là où il est sûr, surtout par des sorties sans réponse.
 \end{abstract}
 
 \section{Question et lien avec la partie 1}
@@ -109,20 +109,46 @@ Qwen2.5-3B (gabarit de chat / brut) & 0,139 / 0,200 & 62 / 77~\% & 10 / 4~\% & 1
 
 Les courbes du pilote, indicatives, ont l'allure d'une fiabilisation : pour les paires Instruct, l'agent gagne 3 à 7 points au premier essai, puis passe environ 4 points sous son modèle de départ à 32 essais (40 questions résolues au moins une fois contre 42). Rien n'est significatif à 50 questions. Le modèle Instruct ne résout jamais 16~\% des questions en 32 essais : pass@32 ne sature pas, un élargissement reste mesurable. L'écart-type par question de $d_i(k)$ varie de 0,19 à 0,30 ; avec $N = 500$, l'écart minimal détectable (puissance 80~\%) est d'environ 4 points à $k = 32$ et de 2 à 3 points au premier essai. Doubler $N$ ne le ramènerait qu'à 3 points pour deux fois le coût : $N = 500$, $n = 32$ ont été retenus.
 
-\section{Résultats principaux}
+\section{Résultats principaux (sessions 1 et 2, 13 novembre 2026)}
+
+Les deux sessions ont produit 96~000 trajectoires (500 questions par type, 32 tirages, trois modèles), sans erreur ni question incomplète. Les verdicts appliquent les règles du plan gelé, sans modification (tableau~\ref{tab:verdicts}).
+
+\paragraph{H1 est soutenue sur les ponts : l'agent est plus fiable au premier essai.} Sur les questions de pont, l'agent PPO gagne 6,5 points à $k = 1$ (de 0,250 à 0,315) et l'agent GRPO 3,8 points ; la borne basse de l'intervalle à 95~\% est positive dans les deux cas.
+
+\paragraph{H2 : « fiabilisation seule » pour les deux paires principales.} L'écart $D(k)$ se referme quand $k$ augmente : de $+0{,}065$ à $+0{,}010$ pour PPO, de $+0{,}038$ à $+0{,}008$ pour GRPO à $k = 32$ (figure~\ref{fig:principal}). La bande simultanée contient 0 dès $k = 16$ ; aucun élargissement n'est retenu (p de Holm égal à 1 pour les deux paires), aucun rétrécissement n'est certifié. À la frontière, les deux modèles résolvent presque les mêmes questions au moins une fois en 32 essais : 351 contre 346 pour PPO, 350 contre 346 pour GRPO. L'agent en gagne 42 et en perd 37 (PPO), 35 et 31 (GRPO) ; ces échanges se compensent (McNemar, p = 0,65 et 0,71) et portent, pour plus de la moitié, sur des questions réussies une ou deux fois sur 32 par l'un des deux modèles : c'est le bruit d'échantillonnage que le plan avait anticipé.
+
+\paragraph{H2' (comparaisons, secondaire) : pas même de fiabilisation.} Sur les questions de comparaison, aucun agent ne gagne au premier essai (GRPO $+0{,}015$, intervalle touchant 0 ; PPO $-0{,}020$), et la frontière ne bouge pas (367 et 374 contre 366). Le gain du renforcement est donc propre aux questions de pont, celles qui obligent à enchaîner les recherches.
 
 \IfFileExists{\genere/tableau_verdicts.tex}{%
 \begin{table}[h]\centering\small\resizebox{\linewidth}{!}{\input{\genere/tableau_verdicts.tex}}
-\caption{Verdicts par paire et condition (règles du plan gelé). $p$ (Holm) : tests principaux seulement.}\end{table}
+\caption{Verdicts par paire et condition (règles du plan gelé). $p$ (Holm) : tests principaux seulement.}\label{tab:verdicts}\end{table}
 \begin{table}[h]\centering\small\resizebox{\linewidth}{!}{\input{\genere/tableau_runs.tex}}
-\caption{Description des runs.}\end{table}
-\IfFileExists{\genere/passk_it-em-ppo_bridge_T4_chat_q42.pdf}{%
+\caption{Description des runs : EM par tirage, part des trajectoires sans réponse, tronquées, recherches et jetons générés par trajectoire.}\label{tab:runs}\end{table}
 \begin{figure}[h]\centering
 \includegraphics[width=\linewidth]{\genere/passk_it-em-ppo_bridge_T4_chat_q42.pdf}\\
 \includegraphics[width=\linewidth]{\genere/passk_it-em-grpo_bridge_T4_chat_q42.pdf}
-\caption{Tests principaux : pass@k des deux modèles (gauche) et écart apparié $D(k)$ avec IC ponctuel et bande simultanée à 95~\% (droite).}
-\end{figure}}{}%
-}{\aremplir{session 1 en cours sur Kaggle (ponts, $T = 4$, paires Instruct) ; tableaux et figures insérés automatiquement par \texttt{analysis/confirmatoire\_partie2.py}}}
+\caption{Tests principaux (ponts, $T = 4$, 500 questions) : pass@k des deux modèles (gauche) et écart apparié $D(k)$ avec IC ponctuel et bande simultanée à 95~\% (droite).}\label{fig:principal}
+\end{figure}}{}
+
+\section{Analyses exploratoires}
+
+Ces analyses n'étaient pas prévues par le plan : elles ont été écrites après avoir vu les résultats, et décrivent sans tester.
+
+\paragraph{Un « impôt » de sorties sans réponse.} Environ 20~\% des trajectoires des agents se terminent sans réponse, contre 2~\% pour le modèle de départ (tableau~\ref{tab:runs}). Les causes diffèrent : l'agent GRPO produit des sorties mal formées (15 à 19~\%), l'agent PPO voudrait une cinquième recherche et bute sur le budget $T = 4$ (14 à 24~\%). En corrigeant le classement des statuts, une erreur de notre code est apparue : toute trajectoire contenant une balise de recherche était comptée « budget épuisé », même quand la recherche avait été faite. Le classement a été corrigé le 13 novembre ; l'EM n'en dépend pas.
+
+\paragraph{L'agent redistribue la réussite plus qu'il ne l'augmente.} Pour savoir où l'agent gagne, on classe les questions par la réussite du modèle de départ sur ses tirages 0 à 15, et l'on mesure les deux modèles sur les tirages 16 à 31 seulement ; classer et mesurer sur les mêmes tirages créerait une régression vers la moyenne. Le gain dessine un U inversé (figure~\ref{fig:difficulte}) : l'agent gagne 10 à 20 points sur les questions que son modèle de départ réussit parfois (1 à 8 fois sur 16), et perd 8 à 30 points sur celles qu'il réussit presque toujours. Sur ces questions faciles, quand l'agent répond, il répond juste aussi souvent que le modèle de départ, voire plus ; ses pertes viennent des sorties sans réponse.
+
+\paragraph{Un indice d'élargissement sur les questions difficiles.} La classe « 0/16 » réunit les questions que le modèle de départ n'a jamais résolues sur ses 16 premiers tirages ; sur les 16 suivants, indépendants, il en laisse 85~\% sans solution (ponts), l'agent PPO 70~\% et l'agent GRPO 76~\%. C'est une version interne du sous-ensemble difficile du plan, avec moins de tirages et sans vivier séparé : un indice, pas un test. La session~4 le testera sur un vivier distinct.
+
+\IfFileExists{\genere/difficulte_tirages_separes.pdf}{%
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{\genere/difficulte_tirages_separes.pdf}
+\caption{Exploratoire. Écart de réussite (agent $-$ départ, tirages 16 à 31) selon la réussite du modèle de départ sur ses tirages 0 à 15 ; IC à 95~\% par bootstrap par question.}\label{fig:difficulte}
+\end{figure}
+\begin{table}[h]\centering\small\resizebox{\linewidth}{!}{\input{\genere/tableau_difficulte.tex}}
+\caption{Exploratoire. Détail de la figure~\ref{fig:difficulte}.}\end{table}}{}
+
+\paragraph{Lecture d'ensemble, provisoire.} Les résultats confirmatoires reproduisent, pour un agent de recherche, le constat de \citet{yue2025does} sans outil : le renforcement rend l'agent plus fiable au premier essai sur les questions à plusieurs étapes, sans élargir l'ensemble des questions qu'il finit par résoudre. Les analyses exploratoires nuancent : l'agent gagne là où son modèle de départ hésite, perd là où il est sûr (par des sorties ratées plus que par de mauvaises réponses), et pourrait gagner un peu sur les questions les plus difficiles. Restent à faire : sans recherche ($T = 0$), le sous-ensemble difficile, la lecture croisée (H3).
 
 \section{Menaces à la validité}
 
@@ -131,7 +157,7 @@ Les courbes du pilote, indicatives, ont l'allure d'une fiabilisation : pour les 
 \item \textbf{Troncature et format :} une limite de jetons peut créer ou inverser un croisement. Même limite pour les deux modèles d'une paire, taux rapportés.
 \item \textbf{Plafond de pass@n :} un élargissement n'est visible que sur les questions hors de portée du modèle de départ ; d'où le sous-ensemble difficile.
 \item \textbf{Un seul jeu, une seule taille :} 3B, HotpotQA, BM25 fermé. Les conclusions ne se transportent pas sans réserve au web ouvert ni aux grands modèles.
-\item \textbf{Débit estimé :} le budget de l'étude a été calculé avant de mesurer le débit des agents avec l'arrêt à \texttt{</answer>}.
+\item \textbf{Budget de recherche :} l'agent PPO bute sur $T = 4$ dans 14 à 24~\% de ses trajectoires ; avec plus de recherches permises, sa frontière pourrait bouger. Une sensibilité à $T$ plus grand serait utile.
 \end{itemize}
 
 \bibliographystyle{plainnat}

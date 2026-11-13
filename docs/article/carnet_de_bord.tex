@@ -329,6 +329,12 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {\f{scripts/genere\_notebooks\_partie2.py}, \f{kaggle/partie2\_s*/}.}
 {Le quota restant de la semaine n'est pas lisible depuis la ligne de commande ; la marge est estimée.}
 
+\dec{D32. Partie 2 : appliquer le plan sans retouche, et séparer nettement l'exploratoire}{\ia{} réalisé, délégation de \moi{}}
+{Ajuster les règles après avoir vu des courbes « presque » significatives ; ou présenter l'analyse par difficulté comme un résultat.}
+{Les verdicts des sessions 1 et 2 (\og fiabilisation seule\fg{} pour les deux paires principales) sont ceux du script écrit et testé avant les données. Une erreur de notre code a été trouvée en lisant les sorties : le statut « budget épuisé » se déclenchait sur n'importe quelle balise de recherche ; elle est corrigée et signalée, et ne touche pas l'EM, donc aucun verdict. Les analyses écrites ensuite (gain par difficulté, causes des sorties sans réponse) sont placées dans une section « exploratoire » et un script à part. Pour l'analyse par difficulté, classer et mesurer sur les mêmes tirages aurait fabriqué une régression vers la moyenne : classement sur les tirages 0 à 15, mesure sur 16 à 31.}
+{\f{analysis/exploratoire\_partie2.py} ; chapitre de la partie 2, sections 5 et 6 ; journal du 13 novembre.}
+{L'indice d'élargissement sur les questions difficiles (85~\% contre 70~\% jamais résolues) reste un indice : seule la session 4, sur un vivier séparé, peut le tester.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}

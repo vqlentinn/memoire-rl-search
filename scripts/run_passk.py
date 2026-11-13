@@ -32,7 +32,11 @@ def statut(t, max_turns):
         return "context_exceeded"
     if t.get("truncated"):
         return "truncated"
-    if re.search(r"<search>", t["trajectory"]):
+    # Seule une recherche demandée APRÈS le dernier bloc de passages est une recherche refusée. Un <search> plus haut
+    # dans la trajectoire a été exécuté (corrigé le 13 nov. : l'ancien test classait en « budget épuisé » des sorties
+    # mal formées, par exemple chez it-em-grpo avec 1 recherche sur 4 permises).
+    fin = t["trajectory"].rsplit("</information>", 1)[-1]
+    if re.search(r"<search>", fin):
         return "no_search_allowed" if max_turns == 0 else "budget_exhausted"
     return "format"  # ni réponse ni recherche : le modèle n'a pas suivi le format
 
