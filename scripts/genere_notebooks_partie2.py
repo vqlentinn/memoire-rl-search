@@ -59,6 +59,13 @@ SESSIONS = {
                      (QWEN_IT, "qwen2.5-3b-it-em-grpo-v0.3_bridge")]],
         "sources": ["valentinproux/memoire-partie2-principal"],
     },
+    7: {
+        "titre": "session 7 : sensibilité au budget de recherche (ponts, T = 8, paire PPO)",
+        "texte": ("Option (discussion générale, limites) : l'agent PPO bute sur T = 4 dans 14 à 24 % de ses trajectoires. "
+                  "Même protocole que la session 1, T = 8, pour l'agent PPO et le modèle de départ (moitiés sur deux GPU)."),
+        "files": [[(PPO, ["--max-turns", "8", "--shard", "0/2"]), (QWEN_IT, ["--max-turns", "8", "--shard", "0/2"])],
+                  [(PPO, ["--max-turns", "8", "--shard", "1/2"]), (QWEN_IT, ["--max-turns", "8", "--shard", "1/2"])]],
+    },
     6: {
         "titre": "session 6 : lecture croisée, variante « réponse forcée » (exploratoire)",
         "texte": ("Amendement du 13 novembre, après la session 5 : les lectures sans réponse (le lecteur voulait chercher "
