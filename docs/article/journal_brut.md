@@ -335,3 +335,17 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
 - Vérifié pour H3 : les passages recalculés depuis les requêtes sont identiques à ceux de la trajectoire dans 99,4 %
   des cas ; les écarts viennent de faux blocs `<information>` écrits par le modèle lui-même.
 - Session 5 (lecture croisée) lancée le 13 au matin ; session 3 en attente (quota).
+
+## 13 novembre 2026 (après-midi) : sessions 5 et 6 (H3), qualité de recherche
+
+- Session 5 (lecture croisée prévue, 7 cases, environ 23 000 lectures, COMPLETE, journaux propres) : H3 non soutenue
+  par la règle prévue, mais le protocole mesure la propension à chercher encore : sans son raisonnement, PPO lecteur ne
+  répond que dans 3 à 5 % des cas (GRPO 45 à 63 %, départ 82 à 96 %). Avec le départ comme lecteur, les plans des
+  agents valent 8 à 9 points de plus.
+- Amendement déclaré (plan, section dédiée) : variante « réponse forcée », session 6 (COMPLETE, environ 10 000
+  lectures complétées, 1 h). Lecture +0,048 et +0,049 (IC au-dessus de 0), recherche +0,077 et +0,061.
+- Sans GPU (`analysis/recherche_partie2.py`) : les agents trouvent les deux paragraphes utiles dans 54 % des
+  trajectoires de pont, le départ dans 32 %. Décomposition exacte : tout le gain d'EM naturel vient de « trouver »
+  (+0,064) ; « lire » nul (PPO) ou négatif (GRPO), car l'agent ne répond pas dans 14 à 20 % des cas où il a trouvé.
+- État de l'art de la partie 2 rédigé dans le chapitre. OpenAlex en panne (erreur serveur) : 7 articles cités par
+  identifiant arXiv ou DOI, à convertir en entrées bibliographiques.

@@ -168,9 +168,28 @@ Ces analyses n'étaient pas prévues par le plan : elles ont été écrites apr�
 
 \paragraph{Ce qui reste interprétable : l'avantage de recherche.} Avec le modèle de départ comme lecteur, qui répond presque toujours, les plans de recherche des agents valent plus que les siens : EM 0,356 (plans de PPO) et 0,344 (plans de GRPO) contre 0,267 et 0,269 (ses propres plans), soit 8 à 9 points. L'agent cherche mieux. Ce résultat nuance la partie~1, qui attribuait l'essentiel de l'écart à la lecture par une décomposition sans expérience.
 
-\paragraph{Variante « réponse forcée » (amendement après la session 5, exploratoire).} Chaque lecture sans réponse est complétée en imposant la balise de réponse après ce que le lecteur a écrit (session 6). \aremplir{résultats de la session 6}
+\paragraph{Variante « réponse forcée » (amendement après la session 5, exploratoire).} Chaque lecture sans réponse est complétée en imposant la balise de réponse après ce que le lecteur a écrit (session 6, environ 10~000 lectures complétées). Toutes les lectures finissent alors par une réponse, dans les quatre cases.
 
-\paragraph{Lecture d'ensemble, provisoire.} Les résultats confirmatoires reproduisent, pour un agent de recherche, le constat de \citet{yue2025does} sans outil : le renforcement rend l'agent plus fiable au premier essai sur les questions à plusieurs étapes, sans élargir l'ensemble des questions qu'il finit par résoudre. Les analyses exploratoires nuancent : l'agent gagne là où son modèle de départ hésite, perd là où il est sûr (par des sorties ratées plus que par de mauvaises réponses), et pourrait gagner un peu sur les questions les plus difficiles. Restent à faire : sans recherche ($T = 0$), le sous-ensemble difficile, et la variante forcée de la lecture croisée.
+\begin{table}[h]\centering\small
+\begin{tabular}{lcc}\toprule
+EM (réponse forcée) & chercheur : départ & chercheur : agent\\\midrule
+\multicolumn{3}{l}{\emph{Paire PPO (492 questions)}}\\
+lecteur : départ & 0,295 & 0,363\\
+lecteur : agent & 0,334 & 0,420\\
+\multicolumn{3}{l}{\emph{Paire GRPO (500 questions)}}\\
+lecteur : départ & 0,297 & 0,363\\
+lecteur : agent & 0,350 & 0,407\\\bottomrule
+\end{tabular}
+\caption{Exploratoire. Lecture croisée avec réponse forcée : 8 trajectoires de chercheur par question, raisonnement du chercheur retiré.}\label{tab:lecture}
+\end{table}
+
+Avec une réponse forcée, les deux effets sont positifs (tableau~\ref{tab:lecture}). À plans de recherche identiques, l'agent lit mieux : $+0{,}048$ (IC à 95~\% : 0,031 à 0,065) pour PPO, $+0{,}049$ (0,034 à 0,064) pour GRPO. À lecteur identique, ses plans valent plus : $+0{,}077$ (0,054 à 0,099) et $+0{,}061$ (0,044 à 0,078). La lecture pèse environ 40~\% de l'écart, la recherche 60~\% ; l'interaction n'est pas distinguable de 0.
+
+\paragraph{Les trois mesures se rejoignent.} La décomposition par les paragraphes utiles (section précédente), la lecture croisée prévue et sa variante forcée racontent la même histoire. Le renforcement améliore nettement la recherche. Il améliore aussi la lecture, mais ce gain ne se voit que si l'on oblige l'agent à répondre : dans ses trajectoires naturelles, l'agent renonce à répondre dans 14 à 20~\% des cas où il a pourtant les deux paragraphes utiles, et cette perte annule le gain de lecture. La variante forcée a été ajoutée après avoir vu la session~5 ; elle reste exploratoire.
+
+
+
+\paragraph{Lecture d'ensemble, provisoire.} Les résultats confirmatoires reproduisent, pour un agent de recherche, le constat de \citet{yue2025does} sans outil : le renforcement rend l'agent plus fiable au premier essai sur les questions à plusieurs étapes, sans élargir l'ensemble des questions qu'il finit par résoudre. Les analyses exploratoires nuancent : l'agent gagne là où son modèle de départ hésite, perd là où il est sûr (par des sorties ratées plus que par de mauvaises réponses), et pourrait gagner un peu sur les questions les plus difficiles. Restent à faire : sans recherche ($T = 0$) et le sous-ensemble difficile.
 
 \section{Menaces à la validité}
 

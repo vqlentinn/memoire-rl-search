@@ -335,6 +335,12 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {\f{analysis/exploratoire\_partie2.py} ; chapitre de la partie 2, sections 5 et 6 ; journal du 13 novembre.}
 {L'indice d'élargissement sur les questions difficiles (85~\% contre 70~\% jamais résolues) reste un indice : seule la session 4, sur un vivier séparé, peut le tester.}
 
+\dec{D33. Partie 2 : rapporter H3 telle que prévue, puis amender le protocole}{\ia{} constaté et proposé, délégation de \moi{}}
+{Remplacer le résultat prévu par celui de la variante ; ou abandonner H3.}
+{La règle prévue donne « H3 non soutenue », mais la lecture des sorties montre pourquoi : sans son raisonnement, l'agent PPO veut chercher encore dans 95~\% des lectures, et le protocole compte ces tentatives comme des échecs. Le résultat prévu est rapporté tel quel, avec ce constat, qui a sa valeur (la décision d'arrêter de chercher semble portée par le raisonnement écrit). Une variante « réponse forcée » a été ajoutée, datée et déclarée exploratoire dans le plan avant d'être lancée. Elle a coûté une heure de GPU. Une mesure indépendante, sans GPU, fondée sur les paragraphes utiles de HotpotQA, donne une lecture cohérente : le renforcement améliore surtout la recherche ; son gain de lecture n'apparaît que si l'agent répond.}
+{Plan, amendement du 13 novembre ; \f{scripts/run\_lecture\_forcee.py}, \f{analysis/recherche\_partie2.py} ; chapitre de la partie 2.}
+{Forcer la réponse change la tâche : l'agent répond parfois alors qu'il « savait » ne pas avoir assez d'information. La variante mesure une capacité de lecture, pas le comportement naturel.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}
