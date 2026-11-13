@@ -103,6 +103,12 @@ corrigé : it-em-ppo répétait `<answer>` jusqu'à la limite (arrêt à `</answ
 lancée le 12 nov. au soir : kernel `valentinproux/memoire-partie2-principal`. Sessions 2 à 4 : `scripts/genere_notebooks_partie2.py`
 -> `kaggle/partie2_s{2,3,4}/` (la 4 lit `difficiles_ponts.txt` produit par la 3). Analyse : `analysis/confirmatoire_partie2.py`
 (verdicts H1/H2, Holm, figures, tableaux LaTeX) ; Python avec matplotlib requis.
+Sessions 1 et 2 faites (13 nov., `results/partie2_s1`, `results/partie2_s2`, liens dans `results/partie2/`, non versionnés) :
+ponts, H1 soutenue, H2 « fiabilisation seule » pour les deux paires Instruct (frontière 351/350 contre 346) ;
+comparaisons, aucun gain. Statut « budget épuisé » corrigé (l'EM n'en dépend pas). Exploratoire
+(`analysis/exploratoire_partie2.py`, tirages séparés) : gain en U inversé, agents sans réponse environ 20 % (GRPO format,
+PPO budget T = 4), indice d'élargissement sur les questions difficiles (85 % contre 70 % jamais résolues, PPO).
+Chapitre : `docs/partie2/chapitre/partie2.tex`. Session 5 (H3) lancée le 13 nov. ; session 3 puis 4 à lancer (quota).
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour
 séparer règle de recherche et modèle ; H4 (BM25).
