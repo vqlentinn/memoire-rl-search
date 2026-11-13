@@ -349,3 +349,9 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   (+0,064) ; « lire » nul (PPO) ou négatif (GRPO), car l'agent ne répond pas dans 14 à 20 % des cas où il a trouvé.
 - État de l'art de la partie 2 rédigé dans le chapitre. OpenAlex en panne (erreur serveur) : 7 articles cités par
   identifiant arXiv ou DOI, à convertir en entrées bibliographiques.
+- Sensibilité au format (`analysis/sensibilite_format_partie2.py`) : GRPO déclare souvent sa réponse hors balises
+  (`&lt;answer&gt;`, tableau HTML, chevrons). Réparation stricte (déclaration seule, puis EM) : verdict H2 inchangé ;
+  GRPO +0,063 au premier essai sur les ponts, +0,064 sur les comparaisons. La notation « mention » donnerait un
+  élargissement partout mais avantage les agents (plus de sorties sans réponse) : rapportée comme borne haute seulement.
+- Mémoire complet assemblé (`docs/article/memoire.tex`, 55 pages, `scripts/assemble_memoire.py`). Bibliographie de la
+  partie 2 complétée : 8 références vérifiées sur l'API arXiv et Crossref (OpenAlex en panne).
