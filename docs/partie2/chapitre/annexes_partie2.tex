@@ -1,0 +1,41 @@
+% Annexes de la partie 2 (incluses par docs/article/memoire.tex ; \genere pointe vers docs/partie2/genere).
+\section{Plan d'analyse gelé : règles de décision}\label{ann:plan}
+Le plan complet, avec ses précisions opératoires datées et l'amendement «~réponse forcée~», est dans le dépôt (\texttt{docs/partie2/plan\_analyse.md}, version 1.0, gelée le 12 novembre 2026 avant les runs de l'étude principale). Tests principaux : H2 sur les ponts à $T = 4$, pour les deux paires Instruct, sur 500 questions ; correction de Holm sur ces deux tests. Tout le reste est secondaire.
+
+\begin{center}\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{7.2cm}}
+\toprule
+Hypothèse & Énoncé & Règle de décision \\
+\midrule
+H1 (contrôle) & Au premier essai, l'agent bat son modèle de départ. & Borne basse de l'IC ponctuel à 95~\% de $D(1)$ positive. \\
+H2 (principale) & Sur les ponts, l'écart reste positif quand $k$ augmente. & « Élargissement » : test de dominance rejeté \emph{et} borne basse de la bande simultanée à $k = 32$ positive, après Holm. « Fiabilisation seule » : H1 soutenue, bande à $k = 32$ contenant 0. « Rétrécissement » : bande entièrement sous 0 pour au moins un $k$. Sinon « indéterminé ». \\
+H2' (secondaire) & Sur les comparaisons et à $T = 0$, l'écart se referme ou s'inverse. & Mêmes règles, sans correction. \\
+H3 (secondaire) & À passages identiques, l'avantage vient de la lecture. & Lecture croisée en plan $2 \times 2$ (lecteur $\times$ chercheur), raisonnement du chercheur retiré. \\
+H4 (option) & Un apprentissage supervisé sur les bonnes traces récupère la frontière. & Non testée. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Prompt}\label{ann:prompt}
+Le même prompt, copié du dépôt officiel de Search-R1 (licence Apache 2.0), est donné aux agents et au modèle de départ, dans le gabarit de conversation de Qwen2.5-Instruct. Les passages ramenés sont insérés entre \texttt{<information>} et \texttt{</information>} sous la forme \texttt{Doc i(Title: ...) texte}.
+\begin{Verbatim}[breaklines=true, fontsize=\footnotesize, frame=single]
+Answer the given question. You must conduct reasoning inside <think> and </think> first every time you get new information. After reasoning, if you find you lack some knowledge, you can call a search engine by <search> query </search> and it will return the top searched results between <information> and </information>. You can search as many times as your want. If you find no further external knowledge needed, you can directly provide the answer inside <answer> and </answer>, without detailed illustrations. For example, <answer> Beijing </answer>. Question: {question}
+\end{Verbatim}
+
+\section{Figures complémentaires}\label{ann:figures}
+\IfFileExists{\genere/passk_it-em-ppo_comparison_T4_chat_q42.pdf}{%
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{\genere/passk_it-em-ppo_comparison_T4_chat_q42.pdf}\\
+\includegraphics[width=\linewidth]{\genere/passk_it-em-grpo_comparison_T4_chat_q42.pdf}
+\caption{Questions de comparaison ($T = 4$, 500 questions) : pass@k des deux modèles et écart apparié $D(k)$, avec IC ponctuel et bande simultanée à 95~\%.}\label{fig:ann-comparaisons}
+\end{figure}}{}
+\IfFileExists{\genere/dispersion_it-em-ppo_bridge_T4_chat_q42.pdf}{%
+\begin{figure}[h]\centering
+\includegraphics[width=0.49\linewidth]{\genere/dispersion_it-em-ppo_bridge_T4_chat_q42.pdf}\hfill
+\includegraphics[width=0.49\linewidth]{\genere/dispersion_it-em-grpo_bridge_T4_chat_q42.pdf}
+\caption{Ponts, $T = 4$ : nombre de réussites sur 32 de l'agent (ordonnée) contre celui du modèle de départ (abscisse), question par question ; à gauche PPO, à droite GRPO.}\label{fig:ann-dispersion}
+\end{figure}}{}
+\FloatBarrier
+
+\section{Exemples de trajectoires}\label{ann:exemples}
+\IfFileExists{\genere/exemples_trajectoires.tex}{\input{\genere/exemples_trajectoires.tex}}{}

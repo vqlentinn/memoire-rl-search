@@ -376,3 +376,7 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
     mesure.
   - figures : entonnoir (cherche, trouve, répond, juste) et typologie des échecs ; schéma des deux études dans
     l'introduction. Discussion mise à jour (« la frontière garde sa taille mais change de composition »).
+- Annexe B (partie 2) : règles de décision du plan gelé, prompt, figures complémentaires (comparaisons, dispersion),
+  exemples de trajectoires choisis mécaniquement (`analysis/exemples_partie2.py` : la plus courte qui remplit chaque
+  critère). Critères resserrés après une première lecture : la question gagnée doit avoir les deux paragraphes utiles
+  (cas typique, 93 %), le « presque juste » au moins une recherche (le premier tiré était une sortie dégénérée).

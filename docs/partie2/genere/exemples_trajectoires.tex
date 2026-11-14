@@ -1,0 +1,118 @@
+% Fichier généré par analysis/exemples_partie2.py : ne pas modifier à la main.
+
+Les exemples sont choisis mécaniquement : pour chaque cas, la trajectoire la plus courte qui remplit le critère (\texttt{analysis/exemples\_partie2.py}). Les passages ramenés sont abrégés.
+
+\subsection*{Une question gagnée : réussite de l'agent PPO}
+Le modèle de départ ne résout jamais cette question en 32 tirages ; l'agent PPO la résout 19 fois sur 32.
+
+\noindent\textbf{Question :} In which region is the village after which lager Fucking Hell is named ? \quad \textbf{Référence :} Innviertel
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, frame=single]
+<think> <think> First, I need to determine the region where the village named after the lager "Fucking Hell" is located. To do this, I will search for information about this lager and its naming origin. </think><think> <search>Which region is the village after which lager Fucking Hell is named?</search>
+<information>
+Doc 1(Title: Chopper Heavy) Chopper Heavy, is a 6% Australian Lager that is named after Australian ex-con Mark [...]
+Doc 2(Title: Fucking Hell) Fucking Hell is a German Pilsner or pale lager with an alcohol content of 4.9%. It  [...]
+Doc 3(Title: Fucking, Austria) Fucking (] , rhymes with ""booking"") is an Austrian village in the municipalit [...]
+</information>
+<think> Based on the search results, the village after which the lager "Fucking Hell" is named is Fucking, which is located in the Innviertel region of western Upper Austria. </think>
+<answer> Innviertel </answer>
+\end{Verbatim}
+
+\subsection*{La même question : échec du modèle de départ}
+Trajectoire la plus courte du modèle de départ.
+
+\noindent\textbf{Question :} In which region is the village after which lager Fucking Hell is named ? \quad \textbf{Référence :} Innviertel
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, frame=single]
+To determine in which region the village after which lager "Fucking Hell" is named is located, I'll need to follow a logical reasoning process.
+First, I need to identify the brewery or company behind the lager "Fucking Hell." After searching, I find that "Fucking Hell" is a lager produced by the brewery Hofbräu München GmbH, also known as Hofbräu München.
+Next, I need to find out if Hofbräu München GmbH has any breweries or production facilities in a particular region or country. Searching this information, I find that Hofbräu München GmbH is based in Munich, Germany.
+Given that Hofbräu München GmbH is located in Munich, Germany, and the lager "Fucking Hell" is produced there, it's likely that the village name for this lager is also in the vicinity of Munich, Germany. 
+To pinpoint the exact village, I need to search for the specific name of the village where Hofbräu München GmbH has its brewery. After searching, I find that the brewery is located in the district of Hofbräuhaus in Munich.
+Therefore, the village name after which the lager "Fucking Hell" is named is in Munich, Germany.
+<answer> Munich, Germany </answer>
+\end{Verbatim}
+
+\subsection*{Une réponse presque juste (agent PPO)}
+Réponse « Troy » : EM 0, F1 0.67.
+
+\noindent\textbf{Question :} What city, located in Lincoln County, Montana, United States, is Vegepet based in? \quad \textbf{Référence :} Troy, Montana
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, frame=single]
+<think> <think> First, I need to determine the city located in Lincoln County, Montana, United States, where Vegepet is based. <search>What city in Lincoln County, Montana, is Vegepet based in?</search>
+<information>
+Doc 1(Title: Vegepet) Vegepet is the brand of a line of vegan dog and cat food by Harbingers of a New Age, bas [...]
+Doc 2(Title: Troy, Montana) Troy is a city in Lincoln County, Montana, United States. The population was 938 a [...]
+Doc 3(Title: Kemmerer, Wyoming) Kemmerer is the largest city in and the county seat of Lincoln County, Wyoming [...]
+</information>
+<thought> The search returned two relevant documents, one of which directly states that Vegepet is based in Troy, Montana. </think>
+<thought> Now I've confirmed that Vegepet is based in Troy, Montana. </think>
+<think> Based on the obtained information, the city where Vegepet is based is Troy, Montana. <answer>Troy</answer>
+\end{Verbatim}
+
+\subsection*{Une réponse mal balisée (agent GRPO)}
+Statut « format » : la réponse est déclarée hors des balises attendues. La notation stricte la compte fausse ; la notation « réparée » (section des analyses exploratoires) la récupère et la trouve juste. Le chevron typographique U+3008, que l'agent écrit à la place de « < », est noté \texttt{\{U+3008\}}.
+
+\noindent\textbf{Question :} A pakistani photogropher was the personal photographer of a Pakistani politician who served as Prime Minister of Pakistan from 1973 to 1977,and who also served in what political office prior to that? \quad \textbf{Référence :} President of Pakistan
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, frame=single]
+<think>
+To answer this question, I need to identify the Pakistani politician who was the Prime Minister from 1973 to 1977 and find out about their political career before that. I'll start with the prime minister role.
+</think>
+<i>If you could provide me with the name of the Pakistani politician who served as Prime Minister of Pakistan from 1973 to 1977, that would aid in finding the answer to your question."</i>
+{U+3008}/i>
+{U+3008}think>
+Searching for the Pakistani politician who was Prime Minister from 1973 to 1977.
+</think>
+<i>
+The Pakistani politician who was the Prime Minister of Pakistan from 1973 to 1977 was Zulfikar Ali Bhutto.
+</i>
+{U+3008}/i>
+{U+3008}think>
+Now that I have identified Zulfikar Ali Bhutto as the Prime Minister, I need to find out what political office he held prior to serving as Prime Minister.
+</think>
+<i>
+Zulfikar Ali Bhutto previously served as the President of Pakistan from 1973 to 1977.
+</i>
+{U+3008}/i>
+{U+3008}think>
+I have the information needed. Zulfikar Ali Bhutto was the Prime Minister of Pakistan from 1973 to 1977 and previously served as President of Pakistan.
+</think>
+{U+3008}/think>
+{U+3008}answer>
+President of Pakistan
+</answer>
+\end{Verbatim}
+
+\subsection*{Un budget épuisé (agent PPO)}
+Quatre recherches faites, l'agent en demande une cinquième au lieu de répondre.
+
+\noindent\textbf{Question :} What region of Italy was Giorgio Pini born in? \quad \textbf{Référence :} Emilia-Romagna Region
+\begin{Verbatim}[breaklines=true, breakanywhere=true, fontsize=\scriptsize, frame=single]
+<think] <mask> cannot be determined from the given information. </think>
+<search>What region of Italy was Giorgio Pini born in?</search>
+<information>
+Doc 1(Title: Giorgio Pini) Giorgio Pini (1 February 1899, in Bologna – 30 March 1987, in Rome) was an Italian  [...]
+Doc 2(Title: Carolina Pini) Carolina Pini (born June 13, 1988 in Florence, Italy) is an Italian soccer player  [...]
+Doc 3(Title: Enzo Nini) Enzo Nini (born 29 August 1954) is a jazz saxophonist and flautist. He was born in San [...]
+</information>
+<think> <mask> implies a region of Italy where Giorgio Pini was born. </think>
+<search>What region of Italy was Giorgio Pini born in?</search>
+<information>
+Doc 1(Title: Giorgio Pini) Giorgio Pini (1 February 1899, in Bologna – 30 March 1987, in Rome) was an Italian  [...]
+Doc 2(Title: Carolina Pini) Carolina Pini (born June 13, 1988 in Florence, Italy) is an Italian soccer player  [...]
+Doc 3(Title: Enzo Nini) Enzo Nini (born 29 August 1954) is a jazz saxophonist and flautist. He was born in San [...]
+</information>
+<think> From the retrieved documents, it is clear that Giorgio Pini was born in Bologna. </think>
+<search>Where was Giorgio Pini born?</search>
+<information>
+Doc 1(Title: Giorgio Pini) Giorgio Pini (1 February 1899, in Bologna – 30 March 1987, in Rome) was an Italian  [...]
+Doc 2(Title: Giorgio Giunchi) Giorgio Giunchi (, Albanian: "Gjergj Junki" ; 1717–1787) was a Catholic prelate. [...]
+Doc 3(Title: Carolina Pini) Carolina Pini (born June 13, 1988 in Florence, Italy) is an Italian soccer player  [...]
+</information>
+<think> <mask> refers to Bologna, as it is stated that Giorgio Pini was born in Bologna. </think>
+<search>What region of Italy was Giorgio Pini born in?</search>
+<information>
+Doc 1(Title: Giorgio Pini) Giorgio Pini (1 February 1899, in Bologna – 30 March 1987, in Rome) was an Italian  [...]
+Doc 2(Title: Carolina Pini) Carolina Pini (born June 13, 1988 in Florence, Italy) is an Italian soccer player  [...]
+Doc 3(Title: Enzo Nini) Enzo Nini (born 29 August 1954) is a jazz saxophonist and flautist. He was born in San [...]
+</information>
+<think> <mask> is confirmed to be Bologna, which is a region in Italy. </think>
+<search>What region of Italy is Bologna located in?</search>
+\end{Verbatim}
