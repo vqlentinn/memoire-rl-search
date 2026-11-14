@@ -380,3 +380,12 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   exemples de trajectoires choisis mécaniquement (`analysis/exemples_partie2.py` : la plus courte qui remplit chaque
   critère). Critères resserrés après une première lecture : la question gagnée doit avoir les deux paragraphes utiles
   (cas typique, 93 %), le « presque juste » au moins une recherche (le premier tiré était une sortie dégénérée).
+- Session 3 terminée vers 19 h (démarrée vers 14 h 37 après environ 2 h 30 de file). 8 runs, aucun échec, toutes les
+  questions complètes. Vivier : 344 questions de pont sur 1 000 sans réussite du départ en 16 tirages (34 %, le
+  double de l'attendu, qui comptait sur 32 tirages) -> `difficiles_ponts.txt`.
+- T = 0 (H2') : « rétrécissement » pour les 4 paires selon le plan (ponts : D(32) −0,126 PPO, −0,140 GRPO ; frontière
+  37 et 30 contre 100). Mais tous les modèles tentent de chercher (départ ~76 %, PPO 79-85 %, GRPO 95-97 %), ce que le
+  plan compte sans réponse : le résultat mesure d'abord l'attachement à l'outil. Écrit tel quel dans le chapitre, avec
+  la réserve ; une variante « réponse forcée » sans recherche n'est pas faite.
+- Session 4 lancée vers 19 h 20 (344 questions difficiles, 3 modèles, 32 tirages). Notebooks : un fichier d'entrée
+  Kaggle introuvable au chemin attendu est cherché sous /kaggle/input.
