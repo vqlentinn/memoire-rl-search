@@ -207,3 +207,14 @@ def test_reponse_forcee_complete_les_lectures_sans_reponse(tmp_path, monkeypatch
            if l.strip()]
     assert [r["force"] for r in res] == [False, True] and all(r["em"] == 1 for r in res)
     assert len(vus) == 1 and vus[0].endswith("<think>encore</think>\n<answer>") and "Scott Derrickson" in vus[0]
+
+
+def test_typologie_echecs_cause():
+    from analysis.echecs_partie2 import cause
+    m = {"trouve_2": False}
+    assert cause({"status": "budget_exhausted", "n_search": 4, "f1": 0}, m) == "sans_reponse_budget"
+    assert cause({"status": "format", "n_search": 1, "f1": 0}, m) == "sans_reponse_format"
+    assert cause({"status": "answer", "n_search": 0, "f1": 0}, m) == "sans_recherche"
+    assert cause({"status": "answer", "n_search": 2, "f1": 0}, m) == "recherche_ratee"
+    assert cause({"status": "answer", "n_search": 2, "f1": 0.6}, {"trouve_2": True}) == "lecture_ratee_presque"
+    assert cause({"status": "answer", "n_search": 2, "f1": 0.2}, {"trouve_2": True}) == "lecture_ratee"

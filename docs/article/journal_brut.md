@@ -355,3 +355,14 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   élargissement partout mais avantage les agents (plus de sorties sans réponse) : rapportée comme borne haute seulement.
 - Mémoire complet assemblé (`docs/article/memoire.tex`, 55 pages, `scripts/assemble_memoire.py`). Bibliographie de la
   partie 2 complétée : 8 références vérifiées sur l'API arXiv et Crossref (OpenAlex en panne).
+
+## 14 novembre 2026
+
+- Le lancement programmé de la session 3 (1 h) n'a pas eu lieu : le Mac était en veille, et `sleep` ne compte pas ce
+  temps. Session 3 lancée à la main à 12 h 10. Pas de quota perdu, environ 11 h de calendrier.
+- `scripts/apres_session.sh` : téléchargement, contrôle des runs et des questions complètes, liens, analyses.
+- Typologie des échecs (`analysis/echecs_partie2.py`, exploratoire, ponts, T = 4). En part des échecs : départ, recherche
+  ratée 46 %, réponse sans recherche 28 % ; GRPO, recherche ratée 34 %, format 28 % ; PPO, budget 20 %, sans recherche
+  23 %, recherche ratée 19 %, lecture ratée 30 %. Recherche ratée : un paragraphe utile sur deux trouvé dans 87 à 91 %
+  des cas (le second saut manque). Presque justes (F1 >= 0,5, EM 0) : 10 % des trajectoires PPO contre 6 % au départ ;
+  rapporté, non corrigé (le plan fixe l'EM). Paragraphe ajouté au chapitre.

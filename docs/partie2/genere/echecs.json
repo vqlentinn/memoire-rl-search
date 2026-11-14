@@ -1,0 +1,77 @@
+{
+ "Qwen2.5-3B-Instruct": {
+  "trajectoires": 16000,
+  "echecs": 11993,
+  "part_des_trajectoires": {
+   "sans_reponse_budget": 0.0025,
+   "sans_reponse_format": 0.01975,
+   "sans_recherche": 0.2105625,
+   "recherche_ratee": 0.344875,
+   "lecture_ratee_presque": 0.057,
+   "lecture_ratee": 0.114875
+  },
+  "part_des_echecs": {
+   "sans_reponse_budget": 0.0033352789126990744,
+   "sans_reponse_format": 0.026348703410322687,
+   "sans_recherche": 0.28091386642207955,
+   "recherche_ratee": 0.4601017260068373,
+   "lecture_ratee_presque": 0.07604435920953889,
+   "lecture_ratee": 0.15325606603852246
+  },
+  "recherche_ratee_detail": {
+   "q1_est_question": 0.012685755708590069,
+   "requete_repetee": 0.02138455962305183,
+   "un_seul_utile": 0.8680681406306633
+  }
+ },
+ "it-em-grpo": {
+  "trajectoires": 16000,
+  "echecs": 11380,
+  "part_des_trajectoires": {
+   "sans_reponse_budget": 0.0040625,
+   "sans_reponse_format": 0.196125,
+   "sans_recherche": 0.0459375,
+   "recherche_ratee": 0.24125,
+   "lecture_ratee_presque": 0.0826875,
+   "lecture_ratee": 0.1411875
+  },
+  "part_des_echecs": {
+   "sans_reponse_budget": 0.0057117750439367315,
+   "sans_reponse_format": 0.2757469244288225,
+   "sans_recherche": 0.06458699472759227,
+   "recherche_ratee": 0.3391915641476274,
+   "lecture_ratee_presque": 0.11625659050966608,
+   "lecture_ratee": 0.198506151142355
+  },
+  "recherche_ratee_detail": {
+   "q1_est_question": 0.08419689119170984,
+   "requete_repetee": 0.009844559585492229,
+   "un_seul_utile": 0.910880829015544
+  }
+ },
+ "it-em-ppo": {
+  "trajectoires": 16000,
+  "echecs": 10960,
+  "part_des_trajectoires": {
+   "sans_reponse_budget": 0.1365,
+   "sans_reponse_format": 0.0554375,
+   "sans_recherche": 0.155375,
+   "recherche_ratee": 0.131125,
+   "lecture_ratee_presque": 0.1039375,
+   "lecture_ratee": 0.102625
+  },
+  "part_des_echecs": {
+   "sans_reponse_budget": 0.19927007299270072,
+   "sans_reponse_format": 0.08093065693430657,
+   "sans_recherche": 0.22682481751824818,
+   "recherche_ratee": 0.19142335766423357,
+   "lecture_ratee_presque": 0.15173357664233578,
+   "lecture_ratee": 0.14981751824817519
+  },
+  "recherche_ratee_detail": {
+   "q1_est_question": 0.3713060057197331,
+   "requete_repetee": 0.34938036224976166,
+   "un_seul_utile": 0.897998093422307
+  }
+ }
+}
