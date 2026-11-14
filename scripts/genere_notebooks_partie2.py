@@ -149,9 +149,21 @@ WORK = Path("/kaggle/working")
 (WORK / "logs").mkdir(exist_ok=True)
 status, verrou = [], threading.Lock()
 
+def localiser(o):
+    """Un fichier attendu sous /kaggle/input peut être monté ailleurs (selon la version de Kaggle) : on le cherche."""
+    if not o.startswith("/kaggle/input") or Path(o).exists():
+        return o
+    import glob
+    f = sorted(glob.glob(f"/kaggle/input/**/{Path(o).name}", recursive=True))
+    if not f:
+        raise FileNotFoundError(o)
+    print(f"{o} introuvable, utilisé : {f[0]}", flush=True)
+    return f[0]
+
 def file_de_runs(gpu, runs):
     env = dict(os.environ, VLLM_WORKER_MULTIPROC_METHOD="spawn", CUDA_VISIBLE_DEVICES=str(gpu))
     for model, opts in runs:
+        opts = [localiser(o) for o in opts]
         nom = model.split("/")[-1] + "".join("_" + o.strip("-").replace("/", "of").replace(":", "-")
                                              for o in opts if not o.startswith("/kaggle"))
         cmd = ["python", "-u", "scripts/run_passk.py", "--model", model, "--type", "bridge",
