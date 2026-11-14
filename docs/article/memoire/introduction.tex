@@ -15,3 +15,33 @@ Ce mémoire pose donc deux questions. La première, traitée au chapitre~\ref{ch
 
 % 5. Contribution
 Le mémoire apporte trois éléments. D'abord, la première mesure appariée de la frontière d'agents de recherche publics face à leur modèle de départ, avec un plan d'analyse gelé et publié avant les données. Ensuite, une séparation expérimentale de la recherche et de la lecture, par trois mesures indépendantes qui se recoupent. Enfin, une correction de notre propre conclusion initiale : à modèle de départ identique, l'avantage de l'agent tient à sa recherche, et sa meilleure lecture est masquée par ses refus de répondre. Le chapitre~\ref{ch:partie1} présente l'étude initiale, le chapitre~\ref{ch:partie2} l'étude appariée ; la discussion générale (chapitre~\ref{ch:discussion}) les relit ensemble.
+
+\begin{figure}[h]\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}[font=\small,
+  boite/.style={draw, rounded corners=3pt, align=center, minimum height=1cm, inner sep=4pt, text width=3.5cm},
+  fl/.style={-{Stealth[length=2.5mm]}, thick}, cmp/.style={{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick, dashed}]
+% Partie 1
+\node[font=\bfseries] at (0, 2.4) {Partie 1 (chapitre~\ref*{ch:partie1})};
+\node[boite, fill=gray!10] (b1) at (-2.3, 1.2) {Qwen2.5-3B\\(modèle de \emph{base})};
+\node[boite, fill=gray!10] (i1) at (2.3, 1.2) {Qwen2.5-3B-Instruct};
+\node[boite, fill=blue!8] (s1) at (-2.3, -0.8) {agent Search-R1\\(règle apprise)};
+\node[boite, fill=orange!10] (h1) at (2.3, -0.8) {harnais RAG, ReAct,\\IRCoT (règle fixe)};
+\draw[fl] (b1) -- node[left, font=\footnotesize] {RL} (s1);
+\draw[fl] (i1) -- node[right, font=\footnotesize] {prompt} (h1);
+\draw[cmp] (s1) -- (h1);
+\node[font=\footnotesize, align=center, anchor=north] at (0, -1.5) {comparés au premier essai\\{\color{red!70!black}mais modèles de départ différents}};
+% séparation
+\draw[gray!50] (5.0, 2.6) -- (5.0, -2.3);
+% Partie 2
+\begin{scope}[xshift=10cm]
+\node[font=\bfseries] at (0, 2.4) {Partie 2 (chapitre~\ref*{ch:partie2})};
+\node[boite, fill=gray!10] (i2) at (0, 1.2) {Qwen2.5-3B-Instruct\\(modèle de départ)};
+\node[boite, fill=blue!8] (p2) at (-2.3, -0.8) {agent PPO};
+\node[boite, fill=blue!8] (g2) at (2.3, -0.8) {agent GRPO};
+\draw[fl] (i2) -- node[above left, font=\footnotesize] {RL} (p2);
+\draw[fl] (i2) -- node[above right, font=\footnotesize] {RL} (g2);
+\node[font=\footnotesize, align=center, anchor=north] at (0, -1.5) {chaque agent comparé à \emph{son} départ, pass@$k$ apparié\\H1 premier essai \quad H2 frontière ($k = 32$) \quad H3 recherche ou lecture};
+\end{scope}
+\end{tikzpicture}}
+\caption{Les deux études. La partie~1 compare, au premier essai, un agent entraîné et des harnais construits sur des modèles de départ différents ; la partie~2 compare chaque agent à son propre modèle de départ, à 1 et jusqu'à 32 essais.}\label{fig:deux-etudes}
+\end{figure}

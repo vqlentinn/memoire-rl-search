@@ -1,0 +1,122 @@
+{
+ "effet_exclu": {
+  "it-em-grpo_bridge": {
+   "D32": 0.008,
+   "bande_simultanee_k32": [
+    -0.03138512989375236,
+    0.04738512989375236
+   ],
+   "ic_ponctuel_k32": [
+    -0.024327424251231383,
+    0.040327424251231384
+   ],
+   "D1": 0.03831250000000023
+  },
+  "it-em-ppo_bridge": {
+   "D32": 0.01,
+   "bande_simultanee_k32": [
+    -0.0316441980580409,
+    0.0516441980580409
+   ],
+   "ic_ponctuel_k32": [
+    -0.024574130124371818,
+    0.04457413012437182
+   ],
+   "D1": 0.06456250000000027
+  },
+  "it-em-grpo_comparison": {
+   "D32": 0.002,
+   "bande_simultanee_k32": [
+    -0.01982768206361875,
+    0.023827682063618745
+   ],
+   "ic_ponctuel_k32": [
+    -0.015650426301075833,
+    0.019650426301075836
+   ],
+   "D1": 0.015312500000000562
+  },
+  "it-em-ppo_comparison": {
+   "D32": 0.016,
+   "bande_simultanee_k32": [
+    -0.010599317460354474,
+    0.042599317460354474
+   ],
+   "ic_ponctuel_k32": [
+    -0.005864501578017021,
+    0.03786450157801702
+   ],
+   "D1": -0.019749999999999813
+  }
+ },
+ "redistribution": {
+  "it-em-grpo_bridge": {
+   "questions": 500,
+   "change_agent_depart": 75.0,
+   "change_depart_depart": 58.0,
+   "gagnees": 43.0,
+   "perdues": 32.0,
+   "difference": 17.0,
+   "ic95": [
+    3.5,
+    30.5
+   ]
+  },
+  "it-em-ppo_bridge": {
+   "questions": 500,
+   "change_agent_depart": 91.0,
+   "change_depart_depart": 58.0,
+   "gagnees": 50.5,
+   "perdues": 40.5,
+   "difference": 33.0,
+   "ic95": [
+    18.0,
+    48.5
+   ]
+  },
+  "it-em-grpo_comparison": {
+   "questions": 500,
+   "change_agent_depart": 24.0,
+   "change_depart_depart": 21.0,
+   "gagnees": 14.0,
+   "perdues": 10.0,
+   "difference": 3.0,
+   "ic95": [
+    -5.5,
+    12.0
+   ]
+  },
+  "it-em-ppo_comparison": {
+   "questions": 500,
+   "change_agent_depart": 42.0,
+   "change_depart_depart": 21.0,
+   "gagnees": 24.0,
+   "perdues": 18.0,
+   "difference": 21.0,
+   "ic95": [
+    11.0,
+    32.0
+   ]
+  }
+ },
+ "composition": {
+  "it-em-grpo": {
+   "perdues": 33,
+   "gagnees": 43,
+   "sans_reponse_sur_perdues": 0.20833333333333334,
+   "sans_reponse_partout": 0.197,
+   "trouve_2_sur_perdues": 0.45075757575757575,
+   "trouve_2_reussites_gagnees": 0.8346456692913385,
+   "trouve_2_reussites_partout": 0.7285714285714285
+  },
+  "it-em-ppo": {
+   "perdues": 41,
+   "gagnees": 54,
+   "sans_reponse_sur_perdues": 0.22103658536585366,
+   "sans_reponse_partout": 0.192,
+   "trouve_2_sur_perdues": 0.2972560975609756,
+   "trouve_2_reussites_gagnees": 0.9253731343283582,
+   "trouve_2_reussites_partout": 0.8292973402143707
+  }
+ }
+}

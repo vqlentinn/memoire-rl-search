@@ -366,3 +366,13 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   23 %, recherche ratée 19 %, lecture ratée 30 %. Recherche ratée : un paragraphe utile sur deux trouvé dans 87 à 91 %
   des cas (le second saut manque). Presque justes (F1 >= 0,5, EM 0) : 10 % des trajectoires PPO contre 6 % au départ ;
   rapporté, non corrigé (le plan fixe l'EM). Paragraphe ajouté au chapitre.
+- Compléments sans GPU (`analysis/complements_partie2.py`, exploratoire) :
+  - effet exclu : borne haute de la bande simultanée de D(32), +0,052 (PPO) et +0,047 (GRPO) sur les ponts ;
+  - redistribution : à 16 tirages, 58 questions de pont changent de statut entre deux moitiés du départ, 91 (PPO) et
+    75 (GRPO) entre agent et départ ; excès +33 [18, 48] et +17 [4, 31]. Comparaisons : PPO +21 [11, 32], GRPO +3 ;
+  - gains : 93 % des réussites PPO sur les questions gagnées ont les deux paragraphes (83 % en général). Pertes : pas
+    dues aux sorties sans réponse (22 % contre 19 %) ; l'agent répond faux et n'a les deux paragraphes que dans 30 %.
+    Une première version du texte attribuait les pertes aux sorties sans réponse sans l'avoir mesuré : corrigée après
+    mesure.
+  - figures : entonnoir (cherche, trouve, répond, juste) et typologie des échecs ; schéma des deux études dans
+    l'introduction. Discussion mise à jour (« la frontière garde sa taille mais change de composition »).

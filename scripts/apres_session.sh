@@ -38,3 +38,4 @@ done
 echo "== Analyses"
 "$PY" analysis/confirmatoire_partie2.py --indir results/partie2
 "$PY" analysis/sensibilite_format_partie2.py --indir results/partie2 | tail -12
+"$PY" analysis/complements_partie2.py --indir results/partie2 | tail -10
