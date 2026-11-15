@@ -213,3 +213,22 @@ exploratoire : chaque lecture sans réponse est complétée en imposant « <answ
 (`scripts/run_lecture_forcee.py`, session 6), puis la même analyse (`analysis/lecture_croisee.py --force`).
 Seul résultat de la session 5 non touché par ce défaut : avec le modèle de départ comme lecteur (qui répond), les
 plans de recherche des agents valent plus que les siens.
+
+## Amendement du 15 novembre 2026 (APRÈS la session 4) : sous-ensemble miroir
+
+Constat : sur le sous-ensemble difficile (questions sans réussite du modèle de départ en présélection), la règle donne
+« élargissement » pour les deux paires. Mais sélectionner sur l'échec d'un seul modèle avantage l'autre dès que
+leurs profils par question diffèrent, même à frontière égale. Un contrôle sur l'échantillon principal (moitiés de
+tirages, `asymetrie_selection` dans `analysis/complements_partie2.py`) donne une asymétrie de +0,02 [−0,07 ; +0,11].
+Le verdict de la session 4 est rapporté tel quel. Test ajouté, déclaré exploratoire (conçu après les données), écrit
+avant les sessions 8 et 9 :
+- **Présélection miroir (session 8) :** chaque agent (PPO, GRPO) tire 16 générations sur le même vivier que la
+  session 3 (1 000 ponts, graine 43, graine de génération 1). S_A = questions sans réussite de l'agent A.
+- **Évaluation (session 9) :** sur S_A, l'agent A et le modèle de départ tirent 32 générations nouvelles (graine 0).
+- **Mesures :** D_miroir(k) = pass@k(départ) − pass@k(agent) sur S_A ; D_diff(k) = pass@k(agent) − pass@k(départ) sur
+  S_D (session 4). Asymétrie Δ(k) = D_diff(k) − D_miroir(k). IC à 95 % par bootstrap des questions du vivier (une
+  question peut appartenir à S_D et à S_A : on rééchantillonne le vivier, pas chaque sous-ensemble), 10 000 tirages.
+- **Règle, à k = 32 et par paire, sans correction :** « élargissement net » si la borne basse de l'IC de Δ(32) est
+  positive ; « rétrécissement net » si la borne haute est négative ; sinon « redistribution » si D_miroir(32) est
+  positif (borne basse de la bande simultanée au-dessus de 0, mêmes règles que H2), « indéterminé » sinon.
+- **Prédiction (d'après le contrôle par moitiés) :** redistribution pour les deux paires.

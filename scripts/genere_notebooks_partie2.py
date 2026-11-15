@@ -22,6 +22,9 @@ T0 = ["--max-turns", "0"]
 VIVIER = ["--n-questions", "1000", "--seed-questions", "43", "--exclure-tirage", "7:50", "--n-samples", "16",
           "--seed", "1"]
 IDS = ["--ids", "/kaggle/input/memoire-partie2-s3/difficiles_ponts.txt"]
+# Miroir (amendement du 15 novembre) : questions du vivier sans réussite de chaque agent (sortie de la session 8).
+IDS_PPO = ["--ids", "/kaggle/input/memoire-partie2-s8/difficiles_ppo.txt"]
+IDS_GRPO = ["--ids", "/kaggle/input/memoire-partie2-s8/difficiles_grpo.txt"]
 
 SESSIONS = {
     2: {
@@ -65,6 +68,21 @@ SESSIONS = {
                   "Même protocole que la session 1, T = 8, pour l'agent PPO et le modèle de départ (moitiés sur deux GPU)."),
         "files": [[(PPO, ["--max-turns", "8", "--shard", "0/2"]), (QWEN_IT, ["--max-turns", "8", "--shard", "0/2"])],
                   [(PPO, ["--max-turns", "8", "--shard", "1/2"]), (QWEN_IT, ["--max-turns", "8", "--shard", "1/2"])]],
+    },
+    8: {
+        "titre": "session 8 : présélection miroir (agents sur le vivier)",
+        "texte": ("Amendement du 15 novembre (exploratoire) : chaque agent tire 16 générations sur le vivier de la "
+                  "session 3 (1 000 ponts, graine 43, graine de génération 1). Les questions sans aucune réussite de "
+                  "l'agent forment `difficiles_ppo.txt` et `difficiles_grpo.txt`, utilisés en session 9."),
+        "files": [[(PPO, VIVIER)], [(GRPO, VIVIER)]],
+        "difficiles_agents": True,
+    },
+    9: {
+        "titre": "session 9 : sous-ensemble miroir (ponts, T = 4, tirages nouveaux)",
+        "texte": ("Questions sans réussite de chaque agent à la présélection miroir (sortie de la session 8). 32 tirages "
+                  "**nouveaux** (graine 0) pour l'agent et le modèle de départ."),
+        "files": [[(PPO, IDS_PPO), (QWEN_IT, IDS_PPO)], [(GRPO, IDS_GRPO), (QWEN_IT, IDS_GRPO)]],
+        "sources": ["valentinproux/memoire-partie2-s8"],
     },
     6: {
         "titre": "session 6 : lecture croisée, variante « réponse forcée » (exploratoire)",
@@ -196,6 +214,20 @@ difficiles = sorted(i for i in completes if c[i] == 0)
 print(f"{len(completes)} questions complètes du vivier, {len(difficiles)} sans réussite ({len(difficiles) / max(len(completes), 1):.1%})")
 '''
 
+CELLULE_DIFFICILES_AGENTS = '''# Miroir : questions du vivier sans aucune réussite de chaque agent (16 tirages, graine 1).
+from collections import defaultdict
+for court in ("ppo", "grpo"):
+    c = defaultdict(int); vus = defaultdict(set)
+    for f in sorted((WORK / "results" / "partie2").glob(f"*it-em-{court}-v0.3_bridge_q1000_n16_*_seed43_g1*.jsonl")):
+        for l in f.read_text().split("\\n"):
+            if l.strip():
+                x = json.loads(l); c[x["id"]] += x["em"]; vus[x["id"]].add(x["sample"])
+    completes = [i for i in c if len(vus[i]) >= 16]
+    difficiles = sorted(i for i in completes if c[i] == 0)
+    (WORK / f"difficiles_{court}.txt").write_text("".join(i + "\\n" for i in difficiles))
+    print(f"{court} : {len(completes)} questions complètes du vivier, {len(difficiles)} sans réussite ({len(difficiles) / max(len(completes), 1):.1%})")
+'''
+
 
 def source(texte):
     return texte.splitlines(keepends=True)
@@ -222,9 +254,10 @@ def generer(num, s, modele):
         resume = resume.replace('"questions_completes": sum(v >= N_SAMPLES for v in par_q.values()),', '"questions": len(par_q),')
         resume = resume.replace('                "recherches": round(sum(l["n_search"] for l in L) / len(L), 2),\n', "")
     cellules[5]["source"] = source(resume)
-    if s.get("difficiles"):
+    if s.get("difficiles") or s.get("difficiles_agents"):
         cellules.insert(5, {"cell_type": "code", "metadata": {}, "outputs": [], "execution_count": None,
-                            "source": source("import json\n" + CELLULE_DIFFICILES)})
+                            "source": source("import json\n" + (CELLULE_DIFFICILES if s.get("difficiles")
+                                                                  else CELLULE_DIFFICILES_AGENTS))})
     for c in cellules:
         if c["cell_type"] == "code":
             c["outputs"], c["execution_count"] = [], None
