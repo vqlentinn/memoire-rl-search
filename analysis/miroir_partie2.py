@@ -56,6 +56,35 @@ def verdict(asym, miroir):
     return "indéterminé"
 
 
+def figure(res, chemin):
+    """Par paire : avantage de l'agent sur S_D, avantage du départ sur S_A, et leur différence Δ(k) avec son IC."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    noms = {"it-em-ppo": "paire PPO", "it-em-grpo": "paire GRPO"}
+    fig, axes = plt.subplots(1, len(res), figsize=(4.6 * len(res), 3.3), sharey=True, squeeze=False)
+    for a, (ag, r) in zip(axes[0], res.items()):
+        x = r["asymetrie"]
+        ks = x["ks"]
+        a.plot(ks, x["D_diff"], "-o", color="#2563eb", lw=2, ms=4,
+               label="agent − départ, sur les questions ratées par le départ")
+        a.plot(ks, x["D_miroir"], "-o", color="#6b7280", lw=2, ms=4,
+               label="départ − agent, sur les questions ratées par l'agent")
+        a.fill_between(ks, x["ic_bas"], x["ic_haut"], color="#111827", alpha=0.12, lw=0, label="IC 95 % de Δ(k)")
+        a.plot(ks, x["delta"], "-", color="#111827", lw=1.5, label="Δ(k) : différence des deux")
+        a.axhline(0, color="#111827", lw=0.8)
+        a.set(xscale="log", xticks=ks, xticklabels=ks, xlabel="k (essais)", title=f"{noms[ag]} ({x['n_diff']} et {x['n_miroir']} questions) : {r['verdict']}")
+        a.title.set_fontsize(9)
+        a.spines[["top", "right"]].set_visible(False)
+        a.grid(axis="y", color="#e5e7eb", lw=0.6)
+    axes[0][0].set_ylabel("écart de pass@k")
+    h, l = axes[0][0].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", ncol=2, fontsize=7, frameon=False, bbox_to_anchor=(0.5, -0.02))
+    fig.tight_layout(rect=(0, 0.12, 1, 1))
+    fig.savefig(chemin)
+    plt.close(fig)
+
+
 def contributions(c_a, c_b, n, ks):
     """{id: pass@k(a) − pass@k(b)} sur les ids communs et complets."""
     ids = sorted(set(c_a) & set(c_b))
@@ -100,6 +129,7 @@ def main(argv=None):
         print(f"    frontière sur S_A : départ {miroir['frontiere']['rl']}, agent {miroir['frontiere']['base']}")
     if res:
         Path(args.out).write_text(json.dumps(res, indent=1, ensure_ascii=False))
+        figure(res, Path(args.out).with_name("miroir.pdf"))
     return res
 
 
