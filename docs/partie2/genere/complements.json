@@ -118,5 +118,29 @@
    "trouve_2_reussites_gagnees": 0.9253731343283582,
    "trouve_2_reussites_partout": 0.8292973402143707
   }
+ },
+ "asymetrie_selection": {
+  "it-em-grpo": {
+   "gain_selection_depart": 0.07650273224043716,
+   "questions_depart": 183.0,
+   "gain_selection_agent": 0.05813953488372093,
+   "questions_agent": 172.0,
+   "asymetrie": 0.01836319735671623,
+   "ic95": [
+    -0.06885279810813719,
+    0.10348668175579498
+   ]
+  },
+  "it-em-ppo": {
+   "gain_selection_depart": 0.11748633879781421,
+   "questions_depart": 183.0,
+   "gain_selection_agent": 0.0953757225433526,
+   "questions_agent": 173.0,
+   "asymetrie": 0.022110616254461618,
+   "ic95": [
+    -0.06894212652632342,
+    0.11293234974187226
+   ]
+  }
  }
 }

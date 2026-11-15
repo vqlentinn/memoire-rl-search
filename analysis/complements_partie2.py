@@ -49,6 +49,42 @@ def redistribution(agent, depart, n=32, n_boot=5000, seed=0):
             "difference": float(x.sum()), "ic95": [float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))]}
 
 
+def asymetrie_selection(dep, agent, n_boot=5000, seed=0):
+    """Contrôle du sous-ensemble difficile (session 4), sur l'échantillon principal, par moitiés de tirages.
+
+    Sélectionner les questions sur l'échec d'un modèle avantage tout autre modèle dont le profil par question diffère,
+    même sans gain global. On sélectionne donc dans les deux sens (questions sans réussite du départ sur une moitié,
+    puis sans réussite de l'agent), on évalue sur l'autre moitié (questions résolues au moins une fois en 16 tirages)
+    et on compare les deux gains. Moyenne des deux sens de moitiés ; IC par bootstrap des questions.
+    dep, agent : matrices questions x 32 tirages (0/1), mêmes lignes.
+    """
+    def parts(S, O):
+        num, den = np.zeros(len(S)), np.zeros(len(S))
+        for h in (0, 1):
+            sel = S[:, 16 * h:16 * h + 16].sum(1) == 0
+            ev = slice(16 * (1 - h), 16 * (1 - h) + 16)
+            num += sel * ((O[:, ev].sum(1) > 0).astype(float) - (S[:, ev].sum(1) > 0))
+            den += sel
+        return num, den
+    nd, dd = parts(dep, agent)
+    na, da = parts(agent, dep)
+    stat = lambda j: nd[j].sum() / dd[j].sum() - na[j].sum() / da[j].sum()  # noqa: E731
+    tout = np.arange(len(dep))
+    rng = np.random.default_rng(seed)
+    bs = [stat(rng.integers(0, len(dep), len(dep))) for _ in range(n_boot)]
+    return {"gain_selection_depart": float(nd.sum() / dd.sum()), "questions_depart": float(dd.sum() / 2),
+            "gain_selection_agent": float(na.sum() / da.sum()), "questions_agent": float(da.sum() / 2),
+            "asymetrie": float(stat(tout)), "ic95": [float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))]}
+
+
+def matrice(lignes, ids, n=32):
+    m = {i: np.zeros(n, int) for i in ids}
+    for t in lignes:
+        if t["id"] in m:
+            m[t["id"]][int(t["sample"])] = int(t["em"])
+    return np.array([m[i] for i in ids])
+
+
 def figure_entonnoir(rech, chemin):
     import matplotlib
     matplotlib.use("Agg")
@@ -166,6 +202,16 @@ def main(argv=None):
         }
         print(f"  composition {ag} : " + ", ".join(f"{k} {v:.2f}" if isinstance(v, float) else f"{k} {v}"
                                                   for k, v in res["composition"][ag].items()))
+    res["asymetrie_selection"] = {}
+    for ag, L in sorted(ponts.items()):
+        if ag == court(DEPART["it"]):
+            continue
+        ids = sorted({t["id"] for t in dep} & {t["id"] for t in L})
+        r = asymetrie_selection(matrice(dep, ids), matrice(L, ids))
+        res["asymetrie_selection"][ag] = r
+        print(f"  sélection {ag} : gain si sélection sur le départ {r['gain_selection_depart']:+.3f} "
+              f"({r['questions_depart']:.0f} q.), sur l'agent {r['gain_selection_agent']:+.3f} "
+              f"({r['questions_agent']:.0f} q.) ; asymétrie {r['asymetrie']:+.3f} [{r['ic95'][0]:+.3f}, {r['ic95'][1]:+.3f}]")
     for k, v in res["effet_exclu"].items():
         print(f"  {k:22} D(32) {v['D32']:+.3f}, bande simultanée [{v['bande_simultanee_k32'][0]:+.3f}, "
               f"{v['bande_simultanee_k32'][1]:+.3f}], IC ponctuel [{v['ic_ponctuel_k32'][0]:+.3f}, {v['ic_ponctuel_k32'][1]:+.3f}]")

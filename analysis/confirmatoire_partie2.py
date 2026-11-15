@@ -152,7 +152,7 @@ def figure(res, titre, chemin):
     a1.plot(ks, res["passk_depart"], "-o", color="#6b7280", lw=2, ms=4, label="modèle de départ")
     a1.plot(ks, res["passk_agent"], "-o", color="#2563eb", lw=2, ms=4, label="agent (RL)")
     a1.set(xscale="log", xticks=ks, xticklabels=ks, xlabel="k (essais)", ylabel="pass@k", ylim=(0, 1))
-    a1.legend(frameon=False, loc="lower right")
+    a1.legend(frameon=False, loc="upper left")
     a2.fill_between(ks, res["simul_bas"], res["simul_haut"], color="#2563eb", alpha=0.15, lw=0,
                     label="bande simultanée 95 %")
     a2.fill_between(ks, res["ponct_bas"], res["ponct_haut"], color="#2563eb", alpha=0.3, lw=0,

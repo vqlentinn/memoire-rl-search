@@ -117,7 +117,10 @@ inchangé). Mémoire complet assemblé : `docs/article/memoire.tex` (55 p.), ré
 14 nov. : session 3 lancée à 12 h 10 (le lancement programmé à 1 h n'a pas eu lieu : `sleep` s'arrête pendant la
 veille du Mac). Après chaque session : `PY=~/.venvs/memoire-rl-search/bin/python scripts/apres_session.sh <N>`
 (télécharge, contrôle, relie, analyse). Ce venv a désormais matplotlib. Typologie des échecs : `analysis/echecs_partie2.py`.
-Session 3 faite (14 nov., `results/partie2_s3`) : T = 0 « rétrécissement » (surtout attachement à l'outil), 344 questions difficiles. Session 4 lancée le 14 nov. vers 19 h 20. Reste : analyser la 4 ; session 7 optionnelle (T = 8, paire PPO).
+Session 3 faite (14 nov., `results/partie2_s3`) : T = 0 « rétrécissement » (surtout attachement à l'outil), 344 questions difficiles. Session 4 faite (15 nov., `results/partie2_s4`) : sous-ensemble difficile (344 q.), « élargissement » selon le plan
+(118 et 104 contre 78), mais le contrôle miroir (`asymetrie_selection` dans `complements_partie2.py`) donne une
+asymétrie de +0,02 [−0,07 ; +0,11] : redistribution plutôt qu'élargissement net. Reste : session 7 optionnelle
+(T = 8, paire PPO) ; miroir sur vivier séparé possible.
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour
 séparer règle de recherche et modèle ; H4 (BM25).

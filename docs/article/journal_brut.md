@@ -389,3 +389,18 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   la réserve ; une variante « réponse forcée » sans recherche n'est pas faite.
 - Session 4 lancée vers 19 h 20 (344 questions difficiles, 3 modèles, 32 tirages). Notebooks : un fichier d'entrée
   Kaggle introuvable au chemin attendu est cherché sous /kaggle/input.
+
+## 15 novembre 2026
+
+- Session 4 terminée à 2 h 07 (lancée vers 19 h 15 le 14). 4 runs, aucun échec, aucune erreur dans le journal,
+  344 questions complètes partout. EM par tirage : départ 0,016, GRPO 0,036, PPO 0,058. Sans réponse : PPO budget
+  15 %, GRPO format et troncature 20 %.
+- H2 sur le sous-ensemble difficile (secondaire, sans correction) : « élargissement » pour les deux paires selon la
+  règle du plan. Frontière 118 (PPO) et 104 (GRPO) contre 78 ; gagnées/perdues 65/25 (McNemar p < 1e-4) et 53/27
+  (p = 0,005). D(k) croît avec k : PPO de +0,043 (k = 1) à +0,116 (k = 32, bande [+0,06 ; +0,18]) ; GRPO de +0,020 à
+  +0,076 ([+0,02 ; +0,13]). Le départ résout quand même 78 questions sur 344 (régression vers la moyenne attendue).
+- Contrôle miroir (exploratoire, conçu après avoir vu la session 4) : sur l'échantillon principal, sélection sur 16
+  tirages, mesure sur les 16 autres, dans les deux sens. Sélection sur l'échec du départ : +0,117 (PPO) et +0,077
+  (GRPO), ce qui reproduit la session 4. Sélection sur l'échec de l'agent : le départ gagne +0,095 et +0,058.
+  Asymétrie +0,022 [−0,069 ; +0,113] et +0,018 [−0,069 ; +0,103]. Lecture : redistribution plutôt qu'élargissement
+  net. Écrit dans le chapitre, la discussion, le résumé et la conclusion (décision D34).

@@ -341,6 +341,12 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {Plan, amendement du 13 novembre ; \f{scripts/run\_lecture\_forcee.py}, \f{analysis/recherche\_partie2.py} ; chapitre de la partie 2.}
 {Forcer la réponse change la tâche : l'agent répond parfois alors qu'il « savait » ne pas avoir assez d'information. La variante mesure une capacité de lecture, pas le comportement naturel.}
 
+\dec{D34. Partie 2 : rapporter l'« élargissement » du sous-ensemble difficile, puis le contrôler par le miroir}{\ia{} constaté et proposé, délégation de \moi{}}
+{Présenter l'élargissement de la session 4 comme le résultat du mémoire ; ou le taire parce qu'il gêne le verdict principal.}
+{Sur 344 questions que le modèle de départ ne résolvait pas en 16 tirages de présélection, la règle du plan donne « élargissement » pour les deux paires (118 et 104 questions résolues contre 78 en 32 tirages nouveaux). Le résultat est rapporté tel quel. Mais une sélection sur l'échec d'un seul modèle avantage l'autre dès que leurs profils par question diffèrent, ce que l'analyse de redistribution avait montré. Le contrôle miroir (sélection sur l'échec de l'agent, sur l'échantillon principal, par moitiés de tirages) donne au modèle de départ un avantage presque aussi grand : asymétrie de $+0{,}02$, IC de $-0{,}07$ à $+0{,}11$. La conclusion écrite est donc « redistribution plutôt qu'élargissement net », avec l'intervalle.}
+{\f{analysis/complements\_partie2.py} (fonction \texttt{asymetrie\_selection}, testée sur simulation) ; chapitre de la partie 2 ; discussion ; journal du 15 novembre.}
+{Le contrôle a été conçu après avoir vu la session 4 et n'utilise que 16 tirages ; un sous-ensemble miroir sur un vivier séparé en ferait un vrai test.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}

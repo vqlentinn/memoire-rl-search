@@ -218,3 +218,16 @@ def test_typologie_echecs_cause():
     assert cause({"status": "answer", "n_search": 2, "f1": 0}, m) == "recherche_ratee"
     assert cause({"status": "answer", "n_search": 2, "f1": 0.6}, {"trouve_2": True}) == "lecture_ratee_presque"
     assert cause({"status": "answer", "n_search": 2, "f1": 0.2}, {"trouve_2": True}) == "lecture_ratee"
+
+
+def test_asymetrie_selection_symetrique_sous_redistribution():
+    """Deux modèles de même frontière mais de profils différents : chaque sélection avantage l'autre, sans asymétrie."""
+    import numpy as np
+    from analysis.complements_partie2 import asymetrie_selection
+    rng = np.random.default_rng(1)
+    p = rng.beta(0.3, 3, size=(4000, 2))
+    dep = (rng.random((4000, 32)) < p[:, :1]).astype(int)
+    ag = (rng.random((4000, 32)) < p[:, 1:]).astype(int)
+    r = asymetrie_selection(dep, ag, n_boot=200)
+    assert r["gain_selection_depart"] > 0.05 and r["gain_selection_agent"] > 0.05
+    assert r["ic95"][0] < 0 < r["ic95"][1]
