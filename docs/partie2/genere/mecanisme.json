@@ -1,0 +1,206 @@
+{
+ "entonnoir_principal": {
+  "Qwen2.5-3B-Instruct": {
+   "trajectoires": 16000,
+   "em": 0.2504375,
+   "a_cherche": 0.75575,
+   "trouve_2": 0.321375,
+   "trouve_1": 0.7064375,
+   "trouve_2_si_cherche": 0.4252398279854449,
+   "em_si_trouve_2": 0.44651886425515364,
+   "em_si_non_trouve_2": 0.15757966476330815,
+   "repond_si_trouve_2": 0.9813302217036173,
+   "em_si_trouve_2_et_repond": 0.45501387237415775,
+   "requetes_repetees": 0.00743604587054802,
+   "q1_est_question": 0.010585511081706914,
+   "recherches": 0.8906875
+  },
+  "mots_par_reference": 2.49,
+  "it-em-ppo": {
+   "trajectoires": 16000,
+   "em": 0.315,
+   "a_cherche": 0.7928125,
+   "trouve_2": 0.542125,
+   "trouve_1": 0.7704375,
+   "trouve_2_si_cherche": 0.6837997635001971,
+   "em_si_trouve_2": 0.4784413188840212,
+   "em_si_non_trouve_2": 0.12148512148512149,
+   "repond_si_trouve_2": 0.8594650680193682,
+   "em_si_trouve_2_et_repond": 0.556673373574782,
+   "requetes_repetees": 0.11964262252003678,
+   "q1_est_question": 0.3613716988569176,
+   "recherches": 2.169875
+  },
+  "it-em-grpo": {
+   "trajectoires": 16000,
+   "em": 0.28875,
+   "a_cherche": 0.9444375,
+   "trouve_2": 0.54125,
+   "trouve_1": 0.9145,
+   "trouve_2_si_cherche": 0.5730924492091853,
+   "em_si_trouve_2": 0.3894919168591224,
+   "em_si_non_trouve_2": 0.16989100817438693,
+   "repond_si_trouve_2": 0.8031177829099307,
+   "em_si_trouve_2_et_repond": 0.4849748382458663,
+   "requetes_repetees": 0.0034963492378620427,
+   "q1_est_question": 0.07537555423201642,
+   "recherches": 1.319125
+  }
+ },
+ "it-em-ppo_principal": {
+  "gagnees": {
+   "questions": 42,
+   "q_suffit": 0.42857142857142855,
+   "ecart_trouve_2": 0.28943452380952384,
+   "em_agent": 0.15699404761904762,
+   "em_depart": 0.0
+  },
+  "perdues": {
+   "questions": 37,
+   "q_suffit": 0.43243243243243246,
+   "ecart_trouve_2": 0.02533783783783784,
+   "em_agent": 0.0,
+   "em_depart": 0.15371621621621623
+  },
+  "autres": {
+   "questions": 421,
+   "q_suffit": 0.45368171021377673,
+   "ecart_trouve_2": 0.23107185273159145,
+   "em_agent": 0.35844714964370544,
+   "em_depart": 0.28392220902612825
+  },
+  "D1_si_question_suffit": 0.09583333333333334,
+  "D1_si_question_ne_suffit_pas": 0.03897727272727273,
+  "questions_ou_la_question_suffit": 225,
+  "questions_ou_elle_ne_suffit_pas": 275
+ },
+ "it-em-grpo_principal": {
+  "gagnees": {
+   "questions": 35,
+   "q_suffit": 0.4857142857142857,
+   "ecart_trouve_2": 0.2392857142857143,
+   "em_agent": 0.09821428571428571,
+   "em_depart": 0.0
+  },
+  "perdues": {
+   "questions": 31,
+   "q_suffit": 0.3548387096774194,
+   "ecart_trouve_2": 0.17338709677419356,
+   "em_agent": 0.0,
+   "em_depart": 0.07762096774193548
+  },
+  "autres": {
+   "questions": 434,
+   "q_suffit": 0.4539170506912442,
+   "ecart_trouve_2": 0.22163018433179724,
+   "em_agent": 0.32474078341013823,
+   "em_depart": 0.28297811059907835
+  },
+  "D1_si_question_suffit": 0.04513888888888889,
+  "D1_si_question_ne_suffit_pas": 0.03272727272727273,
+  "questions_ou_la_question_suffit": 225,
+  "questions_ou_elle_ne_suffit_pas": 275
+ },
+ "entonnoir_difficile": {
+  "Qwen2.5-3B-Instruct": {
+   "trajectoires": 11008,
+   "em": 0.015625,
+   "a_cherche": 0.7311954941860465,
+   "trouve_2": 0.268077761627907,
+   "trouve_1": 0.6746911337209303,
+   "trouve_2_si_cherche": 0.36662939495589514,
+   "em_si_trouve_2": 0.03354794984750932,
+   "em_si_non_trouve_2": 0.0090604443341194,
+   "repond_si_trouve_2": 0.973568281938326,
+   "em_si_trouve_2_et_repond": 0.03445875391576749,
+   "requetes_repetees": 0.0060359464943885366,
+   "q1_est_question": 0.010436079016026835,
+   "recherches": 0.8584665697674418
+  },
+  "mots_par_reference": 3.4709302325581395,
+  "it-em-ppo": {
+   "trajectoires": 11008,
+   "em": 0.05813953488372093,
+   "a_cherche": 0.7980559593023255,
+   "trouve_2": 0.5251635174418605,
+   "trouve_1": 0.7663517441860465,
+   "trouve_2_si_cherche": 0.658053500284576,
+   "em_si_trouve_2": 0.09548521017125065,
+   "em_si_non_trouve_2": 0.016835660991008226,
+   "repond_si_trouve_2": 0.8197543677564435,
+   "em_si_trouve_2_et_repond": 0.11648027009917704,
+   "requetes_repetees": 0.12275659267691139,
+   "q1_est_question": 0.37712009106431416,
+   "recherches": 2.2190225290697674
+  },
+  "it-em-grpo": {
+   "trajectoires": 11008,
+   "em": 0.035701308139534885,
+   "a_cherche": 0.9422238372093024,
+   "trouve_2": 0.5048146802325582,
+   "trouve_1": 0.9087936046511628,
+   "trouve_2_si_cherche": 0.5357693790975704,
+   "em_si_trouve_2": 0.048947273708835705,
+   "em_si_non_trouve_2": 0.022197761878554392,
+   "repond_si_trouve_2": 0.7961130106172395,
+   "em_si_trouve_2_et_repond": 0.06148282097649186,
+   "requetes_repetees": 0.00414577709217123,
+   "q1_est_question": 0.0841689163131508,
+   "recherches": 1.3702761627906976
+  }
+ },
+ "it-em-ppo_difficile": {
+  "gagnees": {
+   "questions": 65,
+   "q_suffit": 0.4153846153846154,
+   "ecart_trouve_2": 0.24278846153846154,
+   "em_agent": 0.12451923076923077,
+   "em_depart": 0.0
+  },
+  "perdues": {
+   "questions": 25,
+   "q_suffit": 0.36,
+   "ecart_trouve_2": 0.09875,
+   "em_agent": 0.0,
+   "em_depart": 0.06
+  },
+  "autres": {
+   "questions": 254,
+   "q_suffit": 0.43700787401574803,
+   "ecart_trouve_2": 0.2763287401574803,
+   "em_agent": 0.046875,
+   "em_depart": 0.015255905511811024
+  },
+  "D1_si_question_suffit": 0.03486394557823129,
+  "D1_si_question_ne_suffit_pas": 0.048223350253807105,
+  "questions_ou_la_question_suffit": 147,
+  "questions_ou_elle_ne_suffit_pas": 197
+ },
+ "it-em-grpo_difficile": {
+  "gagnees": {
+   "questions": 53,
+   "q_suffit": 0.3584905660377358,
+   "ecart_trouve_2": 0.24882075471698112,
+   "em_agent": 0.10495283018867925,
+   "em_depart": 0.0
+  },
+  "perdues": {
+   "questions": 27,
+   "q_suffit": 0.48148148148148145,
+   "ecart_trouve_2": 0.17939814814814814,
+   "em_agent": 0.0,
+   "em_depart": 0.06018518518518518
+  },
+  "autres": {
+   "questions": 264,
+   "q_suffit": 0.4356060606060606,
+   "ecart_trouve_2": 0.2401751893939394,
+   "em_agent": 0.025449810606060608,
+   "em_depart": 0.014204545454545454
+  },
+  "D1_si_question_suffit": 0.012967687074829932,
+  "D1_si_question_ne_suffit_pas": 0.025380710659898477,
+  "questions_ou_la_question_suffit": 147,
+  "questions_ou_elle_ne_suffit_pas": 197
+ }
+}

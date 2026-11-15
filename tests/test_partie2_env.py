@@ -231,3 +231,33 @@ def test_asymetrie_selection_symetrique_sous_redistribution():
     r = asymetrie_selection(dep, ag, n_boot=200)
     assert r["gain_selection_depart"] > 0.05 and r["gain_selection_agent"] > 0.05
     assert r["ic95"][0] < 0 < r["ic95"][1]
+
+
+def _simuler_miroir(gain, seed=0, m=1000, n=32):
+    """Vivier simulé : départ et agent de profils différents ; `gain` ajoute une réussite propre à l'agent sur les
+    questions où le départ est nul (élargissement net)."""
+    import numpy as np
+    from analysis.miroir_partie2 import asymetrie, contributions
+    from analysis.passk import grille_k
+    rng = np.random.default_rng(seed)
+    p = rng.beta(0.3, 3, size=(m, 2))
+    p[:, 1] = np.where(p[:, 0] < 0.01, np.maximum(p[:, 1], gain), p[:, 1])
+    tire = lambda q, k: rng.binomial(k, q)  # noqa: E731
+    ids = [f"q{i}" for i in range(m)]
+    pre_d, pre_a = tire(p[:, 0], 16), tire(p[:, 1], 16)
+    ev = lambda col, sel: {ids[i]: int(tire(p[i, col], n)) for i in range(m) if sel[i]}  # noqa: E731
+    sd, sa = pre_d == 0, pre_a == 0
+    ks = grille_k(n)
+    return asymetrie(ids, contributions(ev(1, sd), ev(0, sd), n, ks), contributions(ev(0, sa), ev(1, sa), n, ks),
+                     ks, n_boot=300)
+
+
+def test_miroir_sans_elargissement_ic_contient_zero():
+    r = _simuler_miroir(gain=0.0)
+    assert r["D_diff"][-1] > 0.03 and r["D_miroir"][-1] > 0.03
+    assert r["ic_bas"][-1] < 0 < r["ic_haut"][-1]
+
+
+def test_miroir_detecte_un_elargissement_net():
+    r = _simuler_miroir(gain=0.15)
+    assert r["ic_bas"][-1] > 0

@@ -404,3 +404,16 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   (GRPO), ce qui reproduit la session 4. Sélection sur l'échec de l'agent : le départ gagne +0,095 et +0,058.
   Asymétrie +0,022 [−0,069 ; +0,113] et +0,018 [−0,069 ; +0,103]. Lecture : redistribution plutôt qu'élargissement
   net. Écrit dans le chapitre, la discussion, le résumé et la conclusion (décision D34).
+- Accord de l'utilisateur pour le GPU et pour un mémoire de plus de 50 pages (« l'objectif est qu'on ait toutes les
+  informations nécessaires »). Amendement du plan (sous-ensemble miroir) écrit et poussé AVANT la session 8
+  (commit 05db825). Session 8 lancée (agents sur le vivier, 16 tirages) ; session 9 ensuite (évaluation sur S_A).
+  Analyse prête : `analysis/miroir_partie2.py` (testée sur simulation : IC contenant 0 sans élargissement, positif avec).
+- Mécanisme (`analysis/mecanisme_partie2.py`) : hypothèse « l'agent gagne là où la question seule ne suffit pas comme
+  requête » NON soutenue (43 % des gagnées et des perdues PPO). Ce qui distingue : écart de trouve_2 agent − départ
+  +0,29 sur les gagnées, +0,03 sur les perdues (PPO).
+- Sous-ensemble difficile : références plus longues (3,5 mots contre 2,5) ; presque justes 18 % des réponses du départ
+  pour une EM de 1,6 %. EM si trouve et répond : 0,03 / 0,06 / 0,12 (contre 0,46 à 0,56 sur le principal).
+- Sensibilité à la notation (`sensibilite_format_partie2.py`) : « souple » (partie 1) inéquitable ici (le départ répond
+  par des phrases : >10 mots dans 10 % / 19 % de ses réponses contre 1-2 % ; une phrase qui nomme les deux entités
+  d'une comparaison est créditée) : non retenue. F1 >= 0,5 : verdict principal inchangé (fiabilisation seule) ;
+  difficile : GRPO élargissement tient, PPO devient fiabilisation seule ; le départ résout 230/344 « difficiles » à F1.
