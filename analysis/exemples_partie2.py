@@ -91,7 +91,7 @@ def main(argv=None):
              f"Réponse « {echapper(presque['prediction'])} » : EM 0, F1 {float(presque['f1']):.2f}."),
         bloc("Une réponse mal balisée (agent GRPO)", format_,
              "Statut « format » : la réponse est déclarée hors des balises attendues. La notation stricte la compte "
-             "fausse ; la notation « réparée » (section des analyses exploratoires) la récupère et la trouve juste. "
+             "fausse ; la notation « réparée » (section~\\ref{sec:solidite-p2}) la récupère et la trouve juste. "
              "Le chevron typographique U+3008, que l'agent écrit à la place de « < », est noté \\texttt{\\{U+3008\\}}."),
         bloc("Un budget épuisé (agent PPO)", budget,
              "Quatre recherches faites, l'agent en demande une cinquième au lieu de répondre."),
