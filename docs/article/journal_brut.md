@@ -428,3 +428,12 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   (bande contenant 0) ; hétérogénéité z = 0,89 / 0,64. Réunis (1 500 q.) : D(16) +0,031 / +0,031, bande
   [+0,008 ; +0,054] / [+0,010 ; +0,052]. Lecture : l'écart se referme lentement, ~3 points à 16 essais, +0,01 à 32
   (principal seul). Le verdict du plan (k = 32) reste ; il est écrit avec son horizon.
+- Session 9 terminée vers 16 h (lancée à 8 h 35). 4 runs, aucun échec, aucune erreur ; 307 et 309 questions × 32
+  tirages complètes. Test miroir (règle de l'amendement du 15 nov., `analysis/miroir_partie2.py`) :
+  PPO : départ 86 contre agent 49 sur S_A ; D_miroir(32) +0,121 [+0,055 ; +0,186] ; Δ(32) −0,004 [−0,091 ; +0,079]
+  -> « redistribution ». GRPO : 76 contre 58 ; D_miroir(32) +0,058 [−0,002 ; +0,119] ; Δ(32) +0,017 [−0,061 ; +0,096]
+  -> « indéterminé » (borne basse à −0,002). Prédiction (redistribution pour les deux) : vérifiée pour PPO, à la limite
+  pour GRPO. Aucun élargissement net. Écrit dans le chapitre, la discussion, le résumé, l'introduction (D35).
+- Dans la même journée, sans GPU : chapitre 3 restructuré (tests prévus, solidité, ce que l'agent apprend, frontière,
+  lecture d'ensemble), figure de synthèse D(k), robustesse de la partie 1 en annexe du mémoire (article inchangé),
+  relecture façon jury (formulations ramenées aux mesures), diapositives de soutenance (14, artefact privé).

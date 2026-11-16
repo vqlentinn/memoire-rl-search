@@ -347,6 +347,12 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {\f{analysis/complements\_partie2.py} (fonction \texttt{asymetrie\_selection}, testée sur simulation) ; chapitre de la partie 2 ; discussion ; journal du 15 novembre.}
 {Le contrôle a été conçu après avoir vu la session 4 et n'utilise que 16 tirages ; un sous-ensemble miroir sur un vivier séparé en ferait un vrai test.}
 
+\dec{D35. Partie 2 : refaire le contrôle miroir comme un test, sur GPU}{\ia{} proposé, accord de \moi{} (« on peut lancer sur le GPU »)}
+{Garder le contrôle par moitiés de tirages, conçu après les données ; ou ne rien ajouter.}
+{Le contrôle par moitiés reposait sur l'échantillon principal et avait été imaginé après la session~4. La règle du test (asymétrie $\Delta(32)$, bootstrap des questions du vivier, verdicts « élargissement net », « redistribution », « indéterminé ») a été écrite et poussée avant la session~8 (commit 05db825). Coût : environ 14 h de quota GPU (sessions 8 et 9). Résultat : « redistribution » pour PPO ($\Delta(32) = -0{,}004$), « indéterminé » pour GRPO (avantage du départ à la limite), aucun élargissement net. La session~8 a aussi fourni, sans coût supplémentaire, une réplication du verdict principal sur 1~000 questions à 16 essais.}
+{Plan, amendement du 15 novembre ; \f{analysis/miroir\_partie2.py}, \f{analysis/replication\_partie2.py} ; chapitre de la partie 2 ; journal des 15 et 16 novembre.}
+{Le test reste exploratoire (ajouté après la session~4). Le quota de la semaine est presque épuisé : la sensibilité au budget de recherche ($T = 8$) attend la semaine suivante.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}
