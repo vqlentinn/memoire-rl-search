@@ -123,6 +123,8 @@ asymétrie de +0,02 [−0,07 ; +0,11] : redistribution plutôt qu'élargissement
 (T = 8, paire PPO). Sessions 8 (présélection miroir) et 9 (évaluation miroir) : amendement du 15 nov.,
 analyse `analysis/miroir_partie2.py` (dans `apres_session.sh`). Notation : F1 >= 0,5 est la sensibilité équitable ;
 « souple » favorise le départ verbeux. Mécanisme : `analysis/mecanisme_partie2.py`.
+Session 8 faite (16 nov., 307/309 q. sans réussite des agents) ; session 9 lancée le 16 nov. à 8 h 35. Réplication
+sur le vivier à 16 tirages : `analysis/replication_partie2.py` (D(16) ≈ +0,03 certifié sur 1 500 q.).
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour
 séparer règle de recherche et modèle ; H4 (BM25).

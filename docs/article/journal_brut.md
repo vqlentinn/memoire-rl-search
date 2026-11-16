@@ -417,3 +417,14 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   par des phrases : >10 mots dans 10 % / 19 % de ses réponses contre 1-2 % ; une phrase qui nomme les deux entités
   d'une comparaison est créditée) : non retenue. F1 >= 0,5 : verdict principal inchangé (fiabilisation seule) ;
   difficile : GRPO élargissement tient, PPO devient fiabilisation seule ; le départ résout 230/344 « difficiles » à F1.
+
+## 16 novembre 2026
+
+- Session 8 terminée vers 1 h 30 (vue à 8 h 30 : Mac en veille). 2 runs, code 0, 1 000 questions complètes chacun,
+  6,7 h. Questions sans réussite en 16 tirages : PPO 307 (30,7 %), GRPO 309 (30,9 %), départ 344. Recouvrement avec
+  S_D : 241 (PPO) et 259 (GRPO). Session 9 lancée à 8 h 35.
+- Réplication sur le vivier (`analysis/replication_partie2.py`, exploratoire) : à k = 16, règle -> « élargissement »
+  pour les deux (D(16) +0,037 et +0,035 ; frontière 693 et 691 contre 656). Principal à k = 16 : +0,019 / +0,024
+  (bande contenant 0) ; hétérogénéité z = 0,89 / 0,64. Réunis (1 500 q.) : D(16) +0,031 / +0,031, bande
+  [+0,008 ; +0,054] / [+0,010 ; +0,052]. Lecture : l'écart se referme lentement, ~3 points à 16 essais, +0,01 à 32
+  (principal seul). Le verdict du plan (k = 32) reste ; il est écrit avec son horizon.

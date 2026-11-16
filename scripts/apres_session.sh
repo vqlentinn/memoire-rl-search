@@ -40,3 +40,4 @@ echo "== Analyses"
 "$PY" analysis/sensibilite_format_partie2.py --indir results/partie2 | tail -12
 "$PY" analysis/complements_partie2.py --indir results/partie2 | tail -10
 "$PY" analysis/miroir_partie2.py --indir results/partie2
+"$PY" analysis/replication_partie2.py --indir results/partie2
