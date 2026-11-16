@@ -424,48 +424,9 @@ Une décomposition contrefactuelle chiffre ces trois contributions. L'écart moy
 \end{figure}
 
 
-\subsection{Robustesse et analyses avancées}\label{sec:avance}
-Ces analyses, elles aussi exploratoires, répondent à cinq objections que l'on peut faire aux résultats précédents.
+\subsection{Robustesse}
+Cinq analyses, elles aussi exploratoires, répondent aux objections que l'on peut faire aux résultats précédents : l'écart vient-il de questions plus faciles (régression logistique), les recherches supplémentaires rapportent-elles, le résultat dépend-il de la métrique, la décomposition tient-elle sur chaque jeu, les systèmes réussissent-ils les mêmes questions. Elles sont reportées en annexe~\ref{sec:avance}.
 
-\paragraph{L'écart vient-il seulement de questions plus faciles ?} Un modèle de régression logistique explique la réussite de chaque trajectoire (\valAv{glm-nobs} trajectoires des cinq systèmes qui cherchent, \valAv{glm-nq} questions) par la famille du système, la présence de la réponse dans les passages, leur interaction, la connaissance préalable de la question et le jeu ; les erreurs-types sont groupées par question, puisque chaque question apparaît cinq fois (tableau~\ref{tab:glm}). À situation égale, être un agent entraîné multiplie les chances de bonne réponse par \valAv{glm-rl} [\valAv{glm-rl-lo}\,; \valAv{glm-rl-hi}]. L'avantage des agents ne s'explique donc ni par la difficulté des questions, ni par des passages plus utiles. L'interaction entre famille et présence de la réponse est en revanche nulle (\valAv{glm-rlxtrouvee}, $p = \valAv{glm-rlxtrouvee-p}$) : en chances relatives, l'avantage des agents est le même que la réponse soit dans les passages ou non. La part importante de la « lecture » dans la décomposition additive (section~\ref{sec:exploratoire}) tient au fait que, quand la réponse est là, il y a plus de points à gagner ; ce que les agents font mieux, c'est répondre à partir de l'information dont ils disposent, qu'elle vienne des passages ou de leurs connaissances.
-
-\begin{table}[ht]
-\centering\small
-\input{genere/avance_glm.tex}
-\caption{Régression logistique de la réussite (EM) sur 1\,000 trajectoires (A1 à A5, 200 questions), erreurs-types groupées par question. Un odds ratio supérieur à 1 signifie de meilleures chances de réussite. Référence : harnais, réponse absente des passages, question non connue, jeu NQ.}
-\label{tab:glm}
-\end{table}
-
-\paragraph{Les recherches supplémentaires rapportent-elles ?} La figure~\ref{fig:fourragement} trace, pour chaque système, la part des questions dont la réponse a été trouvée après $k$ recherches, et ce qu'apporte chaque recherche. Le rendement décroît brutalement : la première recherche trouve la réponse pour environ un tiers des questions ; la deuxième n'ajoute que de \valAv{A5-marg2} à \valAv{A3-marg2}~points, sauf pour A4 (\valAv{A4-marg2}~points) ; la troisième et la quatrième presque rien. Pourtant, IRCoT fait au moins trois recherches sur \valAv{A3-atteint3}~\% des questions et A4 sur \valAv{A4-atteint3}~\%. C'est la courbe de rendement décroissant que décrit la théorie du fourragement, et un agent qui la suivrait s'arrêterait après la deuxième recherche ; sans coût dans sa récompense, A4 continue.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\linewidth]{genere/fig_fourragement.pdf}
-\caption{Rendement des recherches successives. À gauche, part cumulée des questions où la réponse attendue figure dans les passages lus après $k$ recherches ; à droite, gain apporté par la $k$-ième recherche, en points. 200 questions par système ; une question qui s'arrête avant la $k$-ième recherche n'apporte aucun gain à ce rang. A1 ne fait qu'une recherche.}
-\label{fig:fourragement}
-\end{figure}
-
-\paragraph{Le résultat dépend-il de la métrique ?} La correspondance exacte compte faux « Dame Judi Dench » pour « Judi Dench ». Le tableau~\ref{tab:sensibilite} recalcule l'écart entre agents et harnais avec une correspondance souple (une réponse attendue apparaît, en mots entiers, dans la réponse donnée) et avec F1. L'écart reste du même ordre (\valAv{sens-souple}~points en correspondance souple, \valAv{sens-f1} en F1), et les six comparaisons restent significatives après correction de Holm. Les tailles d'effet sont grandes : pour chaque paire, les questions que seul l'agent réussit sont \valAv{or-min} à \valAv{or-max} fois plus nombreuses que celles que seul le harnais réussit.
-
-\begin{table}[ht]
-\centering\small
-\input{genere/avance_sensibilite.tex}
-\caption{Sensibilité de HA1 à la métrique, et tailles d'effet. Écart moyen entre agents (A4, A5) et harnais (A1 à A3) sur 200 questions, intervalle bootstrap apparié. Odds ratio de McNemar avec intervalle exact.}
-\label{tab:sensibilite}
-\end{table}
-
-\paragraph{La décomposition tient-elle sur chaque jeu ?} Recalculée sur chaque jeu séparément (tableau~\ref{tab:jeux}), la part « trouver » reste faible sur les deux. Sur NQ, où le corpus couvre moins bien les réponses, l'écart se joue presque autant sans appui (\valAv{jeu-nq-sans}~points) qu'à la lecture (\valAv{jeu-nq-lire}) ; sur TriviaQA, surtout à la lecture (\valAv{jeu-triviaqa-lire}~points). Les intervalles, sur 100 questions, sont larges.
-
-\begin{table}[ht]
-\centering\small
-\input{genere/avance_jeux.tex}
-\caption{Décomposition de l'écart d'EM entre agents et harnais, jeu par jeu, en points ; intervalle bootstrap à 95~\% sur les 100 questions du jeu.}
-\label{tab:jeux}
-\end{table}
-
-\paragraph{Les systèmes réussissent-ils les mêmes questions ?} Les deux agents se ressemblent davantage entre eux (indice de Jaccard de \valAv{comp-jac_rl} entre leurs ensembles de questions réussies) que les harnais entre eux (\valAv{comp-jac_h} en moyenne). Une question réussie par au moins un harnais l'est dans \valAv{comp-oracle_h}~\% des cas, par au moins un agent dans \valAv{comp-oracle_rl}~\%, par au moins un des six systèmes dans \valAv{comp-oracle_tous}~\% : aucun système ne trouve la réponse à \valAv{comp-aucun}~\% des questions. Ce plafond est d'abord celui du corpus réduit.
-
-\FloatBarrier
 \section{Discussion}\label{sec:discussion}
 % Cinq mouvements (étape 10) : rappel, comparaison, explication, contributions, limites et ouverture.
 
