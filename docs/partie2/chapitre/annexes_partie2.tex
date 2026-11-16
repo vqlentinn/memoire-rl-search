@@ -39,3 +39,31 @@ Answer the given question. You must conduct reasoning inside <think> and </think
 
 \section{Exemples de trajectoires}\label{ann:exemples}
 \IfFileExists{\genere/exemples_trajectoires.tex}{\input{\genere/exemples_trajectoires.tex}}{}
+
+\section{Reproduire les résultats}\label{ann:reproduire}
+Tout le code est dans le dépôt public \texttt{vqlentinn/memoire-rl-search} (branche \texttt{partie2-passk}). Les trajectoires (fichiers JSONL, une ligne par trajectoire : question, texte complet, requêtes, réponse, EM, F1, jetons) sont produites par \texttt{scripts/run\_passk.py} dans les notebooks Kaggle générés par \texttt{scripts/genere\_notebooks\_partie2.py} ; elles ne sont pas versionnées, mais chaque session se retélécharge et se contrôle par \texttt{scripts/apres\_session.sh}~\textit{N}. Chaque résultat se recalcule ensuite sans GPU, en quelques minutes au plus, par la commande \texttt{python analysis/<script>.py --indir results/partie2}.
+
+\begin{center}\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{6.2cm}>{\raggedright\arraybackslash}p{5.2cm}l}
+\toprule
+Résultat & Script (\texttt{analysis/}) & Statut\\
+\midrule
+Estimateurs, bootstrap, bandes, dominance, McNemar & \texttt{passk.py} & bibliothèque\\
+Verdicts H1, H2, H2', tableaux, figures pass@k & \texttt{confirmatoire\_partie2.py} & confirmatoire\\
+Gain par difficulté (tirages séparés) & \texttt{exploratoire\_partie2.py} & exploratoire\\
+Paragraphes utiles, trouver contre lire & \texttt{recherche\_partie2.py} & exploratoire\\
+Sensibilité à la notation (réparée, souple, F1) & \texttt{sensibilite\_format\_partie2.py} & exploratoire\\
+Effet exclu, redistribution, entonnoir & \texttt{complements\_partie2.py} & exploratoire\\
+Typologie des échecs & \texttt{echecs\_partie2.py} & exploratoire\\
+Questions gagnées et perdues & \texttt{mecanisme\_partie2.py} & exploratoire\\
+Réplication sur le vivier (16 essais) & \texttt{replication\_partie2.py} & exploratoire\\
+Test miroir & \texttt{miroir\_partie2.py} & amendement\\
+À coût égal & \texttt{cout\_partie2.py} & exploratoire\\
+Au-delà de 32 essais & \texttt{extrapolation\_partie2.py} & exploratoire\\
+Validation par simulation & \texttt{simulation\_partie2.py} & méthode\\
+Figure de synthèse & \texttt{synthese\_partie2.py} & figure\\
+Exemples de trajectoires & \texttt{exemples\_partie2.py} & annexe\\
+\bottomrule
+\end{tabular}
+\end{center}
+Les tests (\texttt{python -m pytest tests/}) couvrent les estimateurs, la règle de décision, le piège de la sélection sur les mêmes tirages, le contrôle miroir et les modèles de difficulté sur données simulées.
