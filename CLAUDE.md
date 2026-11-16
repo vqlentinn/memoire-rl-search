@@ -124,7 +124,9 @@ asymétrie de +0,02 [−0,07 ; +0,11] : redistribution plutôt qu'élargissement
 analyse `analysis/miroir_partie2.py` (dans `apres_session.sh`). Notation : F1 >= 0,5 est la sensibilité équitable ;
 « souple » favorise le départ verbeux. Mécanisme : `analysis/mecanisme_partie2.py`.
 Sessions 8 et 9 faites (16 nov.) : test miroir « redistribution » (PPO, Δ(32) −0,004) et « indéterminé » (GRPO),
-aucun élargissement net. Diapositives de soutenance : artefact claude.ai/artifact/F8dcnYqVn9N9gb6h4Y5B9H (privé). Réplication
+aucun élargissement net. Analyses sans GPU ajoutées le 16 nov. : coût égal (`cout_partie2.py`),
+extrapolation au-delà de 32 essais (`extrapolation_partie2.py`), validation par simulation (`simulation_partie2.py`).
+Diapositives de soutenance : artefact claude.ai/artifact/F8dcnYqVn9N9gb6h4Y5B9H (privé). Réplication
 sur le vivier à 16 tirages : `analysis/replication_partie2.py` (D(16) ≈ +0,03 certifié sur 1 500 q.).
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour

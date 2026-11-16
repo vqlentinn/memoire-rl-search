@@ -437,3 +437,15 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
 - Dans la même journée, sans GPU : chapitre 3 restructuré (tests prévus, solidité, ce que l'agent apprend, frontière,
   lecture d'ensemble), figure de synthèse D(k), robustesse de la partie 1 en annexe du mémoire (article inchangé),
   relecture façon jury (formulations ramenées aux mesures), diapositives de soutenance (14, artefact privé).
+- Demande de l'utilisateur : ajouter de la valeur (calculs, statistique, schémas). Sans GPU :
+  - coût égal (`analysis/cout_partie2.py`) : coût par essai agent/départ, jetons ×1,24 (PPO) ×1,65 (GRPO),
+    recherches ×2,44 / ×1,48. pass@budget : PPO jetons +0,029 [+0,002 ; +0,056] au plus petit budget puis ~0 ;
+    GRPO jetons −0,045 [−0,065 ; −0,025] au plus petit ; PPO recherches perte certifiée partout (−0,084 à −0,053).
+    Jetons lus non comptés (favorable à l'agent).
+  - extrapolation (`analysis/extrapolation_partie2.py`) : bêta-binomiale à inflation de zéros bien meilleure
+    (erreur ≤ 0,013 contre 0,044-0,090 ; LR p < 1e-4). pi0 agent 0,245 / 0,274 contre 0,208. D(∞) −0,038
+    [−0,134 ; +0,045] PPO, −0,067 [−0,157 ; −0,007] GRPO ; la bêta-binomiale simple donne D -> 0. Dépend du modèle.
+  - simulation (`analysis/simulation_partie2.py`, 400 réplications) : identiques -> élargissement 0 %, erreur 5 % ;
+    fiabilisation pure -> élargissement 30-78 % ; vrai élargissement 4-8 % -> détecté 6-29 % ; redistribution ->
+    sous-ensemble difficile 100 % élargissement, miroir 100 % rétrécissement.
+  - schémas TikZ : boucle de l'agent, plan d'expérience ; tableau des sessions (312 448 trajectoires, 45 h GPU).

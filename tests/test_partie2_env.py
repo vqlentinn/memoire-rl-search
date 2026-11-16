@@ -261,3 +261,24 @@ def test_miroir_sans_elargissement_ic_contient_zero():
 def test_miroir_detecte_un_elargissement_net():
     r = _simuler_miroir(gain=0.15)
     assert r["ic_bas"][-1] > 0
+
+
+def test_pass_reel_interpole_entre_entiers():
+    import numpy as np
+    from analysis.cout_partie2 import pass_reel
+    from analysis.passk import pass_at_k
+    c = np.array([0, 3, 10, 32])
+    assert np.allclose(pass_reel(c, 32, 4), pass_at_k(32, c, 4))
+    v = pass_reel(c, 32, 5.5)
+    assert np.all(v >= pass_at_k(32, c, 5) - 1e-12) and np.all(v <= pass_at_k(32, c, 6) + 1e-12)
+
+
+def test_zibb_retrouve_la_part_hors_de_portee():
+    import numpy as np
+    from analysis.extrapolation_partie2 import ajuster
+    from analysis.simulation_partie2 import quantile_zibb
+    rng = np.random.default_rng(3)
+    p = quantile_zibb(rng.random(4000), 0.8, 2.0, 0.25)
+    assert abs(np.mean(p == 0) - 0.25) < 0.03
+    a, b, pi0, _ = ajuster(rng.binomial(32, p))
+    assert abs(pi0 - 0.25) < 0.05

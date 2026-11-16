@@ -1,0 +1,98 @@
+{
+ "parametres": [
+  0.6203098163199854,
+  1.3574222915810201,
+  0.2075272111706274
+ ],
+ "reps": 400,
+ "scenarios": {
+  "identique": {
+   "taux": {
+    "élargissement": 0.005,
+    "fiabilisation seule": 0.0325,
+    "rétrécissement": 0.015,
+    "indéterminé": 0.9475
+   },
+   "D32_moyen": -0.00019500000000000002
+  },
+  "fiabilisation_1.5": {
+   "taux": {
+    "élargissement": 0.3025,
+    "fiabilisation seule": 0.6975,
+    "rétrécissement": 0.0,
+    "indéterminé": 0.0
+   },
+   "D32_moyen": 0.021980000000000003
+  },
+  "fiabilisation_2.0": {
+   "taux": {
+    "élargissement": 0.7825,
+    "fiabilisation seule": 0.2175,
+    "rétrécissement": 0.0,
+    "indéterminé": 0.0
+   },
+   "D32_moyen": 0.03481
+  },
+  "elargissement_0.02": {
+   "taux": {
+    "élargissement": 0.01,
+    "fiabilisation seule": 0.04,
+    "rétrécissement": 0.0075,
+    "indéterminé": 0.9425
+   },
+   "D32_moyen": 0.015645000000000003
+  },
+  "elargissement_0.04": {
+   "taux": {
+    "élargissement": 0.0575,
+    "fiabilisation seule": 0.03,
+    "rétrécissement": 0.0025,
+    "indéterminé": 0.91
+   },
+   "D32_moyen": 0.03233
+  },
+  "elargissement_0.06": {
+   "taux": {
+    "élargissement": 0.1625,
+    "fiabilisation seule": 0.01,
+    "rétrécissement": 0.0,
+    "indéterminé": 0.8275
+   },
+   "D32_moyen": 0.048490000000000005
+  },
+  "elargissement_0.08": {
+   "taux": {
+    "élargissement": 0.29,
+    "fiabilisation seule": 0.0,
+    "rétrécissement": 0.0025,
+    "indéterminé": 0.7075
+   },
+   "D32_moyen": 0.0649
+  },
+  "redistribution": {
+   "taux": {
+    "élargissement": 0.005,
+    "fiabilisation seule": 0.0425,
+    "rétrécissement": 0.02,
+    "indéterminé": 0.9325
+   },
+   "D32_moyen": 0.0015899999999999998
+  },
+  "redistribution_difficile": {
+   "taux": {
+    "élargissement": 1.0,
+    "fiabilisation seule": 0.0,
+    "rétrécissement": 0.0,
+    "indéterminé": 0.0
+   }
+  },
+  "redistribution_miroir": {
+   "taux": {
+    "élargissement": 0.0,
+    "fiabilisation seule": 0.0,
+    "rétrécissement": 1.0,
+    "indéterminé": 0.0
+   }
+  }
+ }
+}

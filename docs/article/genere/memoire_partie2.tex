@@ -32,7 +32,28 @@ Base, GRPO & Qwen2.5-3B & \texttt{qwen2.5-3b-em-grpo} & secondaire\\\bottomrule
 
 \subsection{Environnement fermé}
 
-Les questions viennent de HotpotQA \citep{yang2018hotpotqa}, cadre « distracteurs », partie validation : chaque question arrive avec 10 paragraphes, dont 2 utiles. Le moteur de recherche est un BM25 Okapi construit \emph{pour chaque question} sur ses 10 paragraphes ($k_1 = 1{,}5$, $b = 0{,}75$, 3 paragraphes par recherche), comme chez \citet{zhai2026does}. La réponse est donc toujours atteignable ; un échec tient à la recherche ou à la lecture, jamais à un corpus incomplet. Avec la question telle quelle comme requête, BM25 ramène les deux paragraphes utiles dans 45~\% des cas seulement (ponts) : une seconde recherche bien choisie est nécessaire plus d'une fois sur deux. Les réponses « oui / non » sont exclues, car un modèle les trouve au hasard en 32 essais.
+Les questions viennent de HotpotQA \citep{yang2018hotpotqa}, cadre « distracteurs », partie validation : chaque question arrive avec 10 paragraphes, dont 2 utiles. Le moteur de recherche est un BM25 Okapi construit \emph{pour chaque question} sur ses 10 paragraphes ($k_1 = 1{,}5$, $b = 0{,}75$, 3 paragraphes par recherche), comme chez \citet{zhai2026does}. La réponse est donc toujours atteignable ; un échec tient à la recherche ou à la lecture, jamais à un corpus incomplet. Avec la question telle quelle comme requête, BM25 ramène les deux paragraphes utiles dans 45~\% des cas seulement (ponts) : une seconde recherche bien choisie est nécessaire plus d'une fois sur deux. Les réponses « oui / non » sont exclues, car un modèle les trouve au hasard en 32 essais. La figure~\ref{fig:boucle} montre le déroulement d'une trajectoire.
+
+\begin{figure}[h]\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}[font=\small,
+  boite/.style={draw, rounded corners=3pt, align=center, minimum height=1.1cm, inner sep=5pt},
+  fl/.style={-{Stealth[length=2.5mm]}, thick}]
+\node[boite, fill=gray!10, text width=2.6cm] (q) at (0,0) {prompt de Search-R1\\+ question};
+\node[boite, fill=blue!8, text width=4.4cm] (m) at (5.0,0) {modèle : \texttt{<think>}~…\\génère jusqu'à \texttt{</search>}\\ou \texttt{</answer>}};
+\node[boite, fill=orange!12, text width=4.4cm] (r) at (5.0,-3.4) {BM25 fermé sur les 10 paragraphes\\de \emph{cette} question (2 utiles,\\8 distracteurs) $\to$ 3 meilleurs};
+\node[boite, fill=gray!5, text width=3.6cm] (i) at (0,-3.4) {\texttt{<information>}\\Doc 1, Doc 2, Doc 3\\ajoutés au contexte};
+\node[boite, fill=green!10, text width=3.2cm] (a) at (10.6,0) {réponse extraite\\$\to$ EM avec les\\réponses de référence};
+\node[boite, draw=red!60, fill=red!5, text width=3.2cm] (x) at (10.6,-3.4) {aucune réponse\\(budget, format,\\troncature) $\to$ faux};
+\draw[fl] (q) -- (m);
+\draw[fl] (m) -- node[left, font=\footnotesize, align=right] {\texttt{<search>} requête\\(au plus $T$ fois)} (r);
+\draw[fl] (r) -- (i);
+\draw[fl] (i.north) -- node[left, font=\footnotesize, align=right, pos=0.5] {tour\\suivant} (q.south);
+\draw[fl] (m) -- node[above, font=\footnotesize] {\texttt{<answer>}} (a);
+\draw[fl] (m.east) ++(0,-0.35) -- node[below left, font=\footnotesize] {sinon} (x.north west);
+\end{tikzpicture}}
+\caption{Une trajectoire. Le modèle alterne raisonnement et recherches ; les passages ramenés s'ajoutent au contexte, que le modèle reprend au tour suivant ; chaque recherche interroge un BM25 construit sur les seuls 10 paragraphes de la question et renvoie les 3 meilleurs. Après $T$ recherches, une dernière génération sans recherche est permise : une nouvelle demande de recherche compte comme « budget épuisé ». À $T = 0$, toute tentative de recherche compte sans réponse.}\label{fig:boucle}
+\end{figure}
+
 
 \subsection{Mesure}
 
@@ -53,7 +74,56 @@ Pour chaque question, chaque modèle produit $n = 32$ trajectoires indépendante
 \caption{Chaîne de mesure. Les deux modèles voient les mêmes questions : la différence est calculée question par question, ce qui retire la variabilité entre questions.}
 \end{figure}
 
-\section{Statistique}
+\subsection{Plan d'expérience}
+
+La figure~\ref{fig:plan} et le tableau~\ref{tab:sessions} résument l'ensemble des échantillons et des sessions. Trois ensembles de questions de pont sont disjoints : le pilote (50 questions, graine 7), l'échantillon principal (500, graine 42) et le vivier (1~000, graine 43), qui sert aux présélections et, après la session~8, à une réplication. Toutes les présélections utilisent une graine de génération (1) différente de celle des évaluations (0) : les tirages d'évaluation sont toujours nouveaux.
+
+\begin{figure}[h]\centering
+\resizebox{\linewidth}{!}{\begin{tikzpicture}[font=\small,
+  boite/.style={draw, rounded corners=3pt, align=center, minimum height=1cm, inner sep=4pt},
+  ses/.style={draw, rounded corners=8pt, align=center, fill=blue!6, inner sep=4pt},
+  fl/.style={-{Stealth[length=2.2mm]}, thick}]
+\node[boite, fill=gray!10, text width=2.4cm] (h) at (0,0) {HotpotQA\\validation,\\distracteurs ;\\oui/non exclues};
+\node[boite, text width=3.0cm] (p) at (3.9,2.6) {échantillon principal\\500 ponts, 500 comp.\\(graine 42)};
+\node[boite, text width=2.0cm, fill=gray!5] (pi) at (3.9,0.5) {pilote\\50 ponts};
+\node[boite, text width=3.0cm] (v) at (3.9,-1.6) {vivier, 1~000 ponts\\(graine 43) ;\\réplication : S3 + S8,\\3 modèles $\times$ 16 tirages};
+\draw[fl] (h) -- (p); \draw[fl] (h) -- (v); \draw[fl] (h) -- (pi);
+\node[ses, text width=3.3cm] (s12) at (8.0,3.4) {S1, S2 : $T = 4$, 3 modèles,\\32 tirages (H1, H2, H2')};
+\node[ses, text width=3.3cm] (s3a) at (8.0,2.0) {S3 : $T = 0$ (H2')};
+\node[ses, text width=3.0cm] (s56) at (12.0,3.4) {S5, S6 : lecture\\croisée (H3), sur\\les trajectoires de S1};
+\draw[fl] (p) -- (s12); \draw[fl] (p) -- (s3a); \draw[fl] (s12) -- (s56);
+\node[ses, text width=3.3cm] (s3b) at (8.0,-0.6) {S3 : départ, 16 tirages\\(présélection)};
+\node[ses, text width=3.3cm] (s8) at (8.0,-2.8) {S8 : agents, 16 tirages\\(présélection miroir)};
+\draw[fl] (v) -- (s3b); \draw[fl] (v) -- (s8);
+\node[boite, text width=2.3cm, fill=orange!12] (sd) at (11.6,-0.6) {$S_D$ : 344\\ratées par\\le départ};
+\node[boite, text width=2.3cm, fill=violet!10] (sa) at (11.6,-2.8) {$S_A$ : 307 et 309\\ratées par\\l'agent};
+\draw[fl] (s3b) -- (sd); \draw[fl] (s8) -- (sa);
+\node[ses, text width=2.4cm] (s4) at (14.8,-0.6) {S4 : 32 tirages\\nouveaux,\\3 modèles};
+\node[ses, text width=2.4cm] (s9) at (14.8,-2.8) {S9 : 32 tirages\\nouveaux, paire};
+\draw[fl] (sd) -- (s4); \draw[fl] (sa) -- (s9);
+\draw[thick, gray] (16.3,0.0) -- (16.5,0.0) -- (16.5,-3.4) -- (16.3,-3.4);
+\node[align=center, anchor=west] at (16.6,-1.7) {test\\miroir\\$\Delta(k)$};
+\end{tikzpicture}}
+\caption{Plan d'expérience. En bleu, les sessions Kaggle (S1 à S9 ; S7, sensibilité à $T = 8$, n'a pas été lancée). Le sous-ensemble difficile $S_D$ et son miroir $S_A$ sont choisis sur des tirages de présélection, puis évalués sur des tirages nouveaux.}\label{fig:plan}
+\end{figure}
+
+\begin{table}[h]\centering\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{6.6cm}rr}\toprule
+Session & Contenu & Trajectoires & Durée (h)\\\midrule
+S1 & ponts, $T = 4$, 500 q., départ et deux agents & 48~000 & 8,2\\
+S2 & comparaisons, $T = 4$, 500 q. & 48~000 & 9,4\\
+S3 & $T = 0$ (ponts et comparaisons) ; présélection du départ sur le vivier & 112~000 & 3,5\\
+S4 & sous-ensemble difficile $S_D$ (344 q.), trois modèles & 33~024 & 6,6\\
+S5 & lecture croisée (H3) & 22~986 lectures & 3,1\\
+S6 & lecture croisée, réponse forcée & complétions de S5 & 1,2\\
+S8 & présélection des agents sur le vivier & 32~000 & 6,7\\
+S9 & sous-ensembles miroirs $S_A$ (307 et 309 q.) & 39~424 & 6,4\\\midrule
+Total & & 312~448 + lectures & 45,1\\\bottomrule
+\end{tabular}
+\caption{Sessions de calcul (Kaggle, 2 GPU T4 par session). Durée : file de calcul la plus longue des deux GPU, hors installation. Toutes les sessions sont complètes (aucun run en échec, aucune question incomplète).}\label{tab:sessions}
+\end{table}
+
+\section{Statistique}\label{sec:stat-p2}
 
 \paragraph{pass@k.} Pour une question où $c$ tirages sur $n$ sont justes, la probabilité qu'au moins un de $k$ tirages pris sans remise soit juste est estimée sans biais par \citep{chen2021evaluating}
 \begin{equation}
@@ -72,6 +142,26 @@ Pour chaque question, chaque modèle produit $n = 32$ trajectoires indépendante
 Les deux tests principaux (paires Instruct, ponts, $T = 4$) sont corrigés par la méthode de Holm \citep{holm1979simple}. La frontière est aussi comparée directement : questions gagnées ou perdues à $k = n$, test exact de McNemar \citep{mcnemar1947note}.
 
 \paragraph{Un piège noté avant les données.} Un agent qui ne fait que fiabiliser peut « gagner » des questions où le modèle de départ a une probabilité de succès faible mais non nulle et les rate par hasard en 32 essais. Un gain à $k = n$ ne prouve donc pas à lui seul un élargissement. D'où un sous-ensemble difficile, construit sur des tirages \emph{indépendants} : le modèle de départ tire 16 générations sur un vivier de 1~000 questions distinct de l'échantillon principal ; les questions sans aucune réussite sont ensuite évaluées avec 32 tirages nouveaux pour les deux modèles. Réutiliser les tirages de présélection donnerait au modèle de départ un pass@k nul par construction, et donc un élargissement fabriqué ; un test unitaire le montre sur simulation.
+
+
+\paragraph{Ce que la règle détecte : validation par simulation.} Après les données, on a vérifié par simulation ce que la règle de décision sait reconnaître (\texttt{analysis/simulation\_partie2.py}). Les probabilités de réussite par question sont tirées de la loi ajustée au modèle de départ sur les ponts (section~\ref{sec:solidite-p2}), et chaque réplication reproduit l'étude : 500 questions, 32 tirages par modèle, même bootstrap, même règle ; 400 réplications par scénario (tableau~\ref{tab:simulation}). Trois enseignements. La règle contrôle les fausses alarmes : avec deux modèles identiques, elle ne conclut jamais à un élargissement, et à un verdict erroné quelconque dans 5~\% des cas. Mais elle peut prendre une fiabilisation pure pour un élargissement : si l'agent rend plus probables des réponses déjà possibles sans en rendre aucune nouvelle, des questions rarement résolues franchissent le seuil de 32 essais, et la règle conclut à l'élargissement dans 30 à 78~\% des cas. À l'inverse, elle détecte mal un vrai élargissement qui ne s'accompagne pas d'un gain au premier essai (6 à 29~\% de détection quand 4 à 8~\% des questions hors de portée deviennent résolubles), parce qu'elle exige un écart positif à \emph{tous} les $k$. Enfin, sous une pure redistribution (même loi, profils différents), le sous-ensemble difficile donne « élargissement » dans 100~\% des réplications, et son miroir « rétrécissement » dans 100~\% : c'est exactement ce que donnent les sessions 4 et 9. Un « élargissement » au sens de la règle, à nombre d'essais fini, n'établit donc pas que des questions hors de portée sont devenues résolubles ; le verdict « fiabilisation seule » de l'échantillon principal, lui, n'est pas un artefact de la règle.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{6.4cm}rrrr}\toprule
+Monde simulé (ce que fait le renforcement) & élarg. & fiab. & rétréc. & indét.\\\midrule
+rien (modèles identiques) & 0~\% & 3~\% & 2~\% & 95~\%\\
+fiabilisation, $p' = 1 - (1-p)^{1{,}5}$ & 30~\% & 70~\% & 0~\% & 0~\%\\
+fiabilisation, $p' = 1 - (1-p)^{2}$ & 78~\% & 22~\% & 0~\% & 0~\%\\
+élargissement : 2~\% des questions deviennent résolubles & 1~\% & 4~\% & 1~\% & 94~\%\\
+élargissement : 4~\% & 6~\% & 3~\% & 0~\% & 91~\%\\
+élargissement : 6~\% & 16~\% & 1~\% & 0~\% & 83~\%\\
+élargissement : 8~\% & 29~\% & 0~\% & 0~\% & 71~\%\\
+redistribution (échantillon complet) & 0~\% & 4~\% & 2~\% & 93~\%\\
+redistribution, sous-ensemble difficile & 100~\% & 0~\% & 0~\% & 0~\%\\
+redistribution, sous-ensemble miroir & 0~\% & 0~\% & 100~\% & 0~\%\\\bottomrule
+\end{tabular}
+\caption{Validation par simulation (400 réplications par ligne) : fréquence de chaque verdict de la règle H2. Dans les scénarios d'élargissement, les questions devenues résolubles ont une probabilité de réussite de 0,05 ; dans la redistribution, les profils de l'agent et du départ sont corrélés à 0,7, avec la même loi.}\label{tab:simulation}
+\end{table}
 
 \section{Session pilote}
 
@@ -133,6 +223,22 @@ Les sessions 1 et 2 ont produit 96~000 trajectoires (500 questions par type, 32 
 \paragraph{Le verdict ne dépend pas de la notation du format.} En lisant les sorties sans réponse de l'agent GRPO, on trouve souvent la bonne réponse, déclarée hors des balises attendues : entités HTML (« \&lt;answer\&gt; »), tableau, chevrons typographiques. La notation stricte de Search-R1 les compte fausses. Deux notations de sensibilité ont été appliquées, par la même règle, aux deux modèles de chaque paire. La « réparation » récupère seulement une déclaration de réponse mal balisée, puis applique l'EM habituelle : elle relève l'EM de l'agent GRPO de 0,289 à 0,314 sur les ponts et de 0,390 à 0,439 sur les comparaisons, et ne change presque rien pour les autres modèles. Le verdict reste « fiabilisation seule » sur les ponts pour les deux agents ($D(32)$ de $+0{,}012$ et $+0{,}010$, bande simultanée contenant 0) ; seul change le gain de GRPO au premier essai, qui passe à $+0{,}063$ sur les ponts et devient positif sur les comparaisons ($+0{,}064$). Une notation bien plus indulgente, qui crédite toute \emph{mention} de la bonne réponse dans le texte, donnerait un « élargissement » partout ; elle n'est pas équitable, car elle profite au modèle qui produit le plus de trajectoires sans réponse et de longs raisonnements, c'est-à-dire aux agents, et n'est rapportée que comme borne haute (\texttt{analysis/sensibilite\_format\_partie2.py}). Deux notations plus tolérantes envers la formulation ont été ajoutées après la session~4, toujours avec la même règle pour les deux modèles. La correspondance « souple » de la partie~1 (la référence apparaît en mots entiers dans la réponse balisée) se révèle inéquitable ici : le modèle de départ répond par une phrase entière bien plus souvent que les agents (plus de 10 mots dans 10~\% de ses réponses sur les ponts et 19~\% sur les comparaisons, contre 1 à 2~\% pour les agents, entraînés sur l'EM), et une phrase qui nomme les deux entités d'une comparaison est créditée même quand elle désigne la mauvaise ; elle donnerait un « rétrécissement » partout et n'est pas retenue. La notation F1 d'au moins 0,5 avec une référence accepte les variantes (« Mineola » pour « Mineola, New York ») et pénalise la verbosité dans les deux sens : avec elle, le verdict principal reste « fiabilisation seule » pour les deux paires (frontière 434 et 436 contre 436), et les comparaisons restent sans gain.
 
 \paragraph{Réplication sur 1~000 questions nouvelles, à 16 essais.} Après la session~8 (présélection du contrôle miroir, section~\ref{sec:frontiere-p2}), les trois modèles ont chacun 16 tirages sur les 1~000 questions de pont du vivier, disjointes de l'échantillon principal : un second échantillon indépendant, deux fois plus grand, mais à 16 essais seulement. Les mêmes règles, appliquées à $k = 16$, y donnent « élargissement » pour les deux agents : $D(16) = +0{,}037$ (PPO, bande simultanée de $+0{,}007$ à $+0{,}067$) et $+0{,}035$ (GRPO, $+0{,}007$ à $+0{,}063$) ; l'agent résout au moins une fois 693 et 691 questions, contre 656. Sur l'échantillon principal, l'écart à $k = 16$ était plus faible ($+0{,}019$ et $+0{,}024$, bande contenant 0), mais les deux estimations ne diffèrent pas plus que le hasard ne le permet ($z = 0{,}89$ et $0{,}64$). Réunis (1~500 questions), ils donnent un écart qui se referme sans s'annuler à 16 essais : de $+0{,}071$ à $k = 1$ à $+0{,}031$ à $k = 16$ pour PPO, de $+0{,}034$ à $+0{,}031$ pour GRPO, bande simultanée à $k = 16$ de $+0{,}008$ à $+0{,}054$ et de $+0{,}010$ à $+0{,}052$ (\texttt{analysis/replication\_partie2.py}). Le verdict du plan est fixé à 32 essais, et à 32 essais l'échantillon principal ne montre plus que $+0{,}010$ et $+0{,}008$ ; le vivier, à 16 tirages, ne permet pas de le prolonger. La conclusion « fiabilisation seule » doit donc être lue avec son horizon : à 16 essais, l'agent garde une avance d'environ 3 points de questions résolues ; elle se réduit encore entre 16 et 32 essais, sans que nous puissions dire si elle disparaît.
+
+\paragraph{À coût égal, l'avantage disparaît.} pass@k compare les modèles à nombre d'essais égal, mais un essai de l'agent coûte plus cher : sur les ponts, il génère 268 jetons (PPO) et 357 (GRPO) contre 217 pour le modèle de départ, et lance 2,17 et 1,32 recherches contre 0,89. À budget égal, le modèle de départ peut donc tenter plus d'essais. On compare alors pass@budget : pour un budget $B$, chaque modèle dispose de $B / c_m$ essais, $c_m$ étant son coût moyen par essai (estimateur sans biais interpolé entre entiers, mêmes bandes simultanées ; \texttt{analysis/cout\_partie2.py}). À budget de jetons égal, l'agent PPO ne garde qu'un petit avantage aux plus petits budgets ($+0{,}029$, bande de $+0{,}002$ à $+0{,}056$, quand il dispose d'un essai et le modèle de départ de 1,24), qui s'efface ensuite ; l'agent GRPO fait \emph{moins bien} que son modèle de départ aux petits budgets ($-0{,}045$, de $-0{,}065$ à $-0{,}025$). Si l'on paie à la recherche, comme avec un moteur facturé à l'appel, l'agent PPO perd partout ($-0{,}084$ à $-0{,}053$, perte certifiée sur toute la grille) : avec 2,4 fois plus de recherches par essai, il n'en tire pas 2,4 fois plus de réussite. Sur les comparaisons, les deux agents perdent aux petits budgets, quelle que soit la mesure du coût (figure~\ref{fig:cout}). Les jetons lus (les passages insérés dans le contexte) ne sont pas comptés ; l'agent en lit davantage, et la comparaison lui est donc plutôt favorable. Le gain au premier essai, qui est le résultat confirmatoire, s'achète par un surcoût qui l'annule presque.
+
+\IfFileExists{\genere/cout_ponts.pdf}{%
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{\genere/cout_ponts.pdf}
+\caption{Exploratoire. Ponts, $T = 4$ : écart de pass@budget entre agent et départ quand chaque modèle dispose du même budget de jetons générés (gauche) ou de recherches (droite), avec bande simultanée à 95~\%. Entre parenthèses, le coût d'un essai de l'agent rapporté à celui du modèle de départ.}\label{fig:cout}
+\end{figure}}{}
+
+\paragraph{Au-delà de 32 essais : un croisement probable, mais dépendant du modèle.} Les estimateurs sans biais s'arrêtent à $k = 32$. Pour aller au-delà, il faut un modèle de la difficulté. On ajuste, pour chaque modèle séparément, la répartition des probabilités de réussite par question : une loi bêta-binomiale, et la même avec une part $\pi_0$ de questions hors de portée (« à inflation de zéros », ZIBB), pour laquelle pass@$\infty = 1 - \pi_0$ (\texttt{analysis/extrapolation\_partie2.py}). Le second modèle décrit beaucoup mieux les données : erreur maximale sur pass@k à $k \leq 32$ de 0,013 contre 0,044 à 0,090, et test du rapport de vraisemblance qui rejette nettement l'absence de questions hors de portée ($p < 10^{-4}$ pour les six ajustements). Il attribue à l'agent \emph{plus} de questions hors de portée que son modèle de départ : 24,5~\% (PPO) et 27,4~\% (GRPO) contre 20,8~\%. Les courbes se croisent alors un peu après $k = 32$ : l'écart extrapolé vaut $-0{,}030$ (PPO) et $-0{,}055$ (GRPO) à $k = 1~024$, et $-0{,}038$ (IC à 95~\% : $-0{,}134$ à $+0{,}045$) et $-0{,}067$ ($-0{,}157$ à $-0{,}007$) à la limite (figure~\ref{fig:extrapolation}). C'est le schéma décrit par \citet{yue2025does} sans outil. Mais 32 tirages ne permettent pas de distinguer une question vraiment hors de portée d'une question à probabilité très faible : la bêta-binomiale simple, moins bien ajustée, extrapole un écart qui tend vers 0 sans s'inverser. Le sens de l'écart au-delà de 32 essais dépend donc du modèle choisi ; seul le modèle le mieux ajusté prédit un croisement, et l'intervalle ne l'établit que pour GRPO.
+
+\IfFileExists{\genere/extrapolation_ponts.pdf}{%
+\begin{figure}[h]\centering
+\includegraphics[width=\linewidth]{\genere/extrapolation_ponts.pdf}
+\caption{Exploratoire. Ponts, $T = 4$ : écart $D(k)$ estimé sans modèle jusqu'à $k = 32$ (points) et extrapolé par deux modèles de la difficulté des questions, avec IC à 95~\% par bootstrap apparié des questions. La ligne pointillée verticale marque la limite des données ($k = n = 32$).}\label{fig:extrapolation}
+\end{figure}}{}
 
 \section{Ce que le renforcement apprend : surtout à chercher}\label{sec:apprend-p2}
 
@@ -205,7 +311,7 @@ Le nombre de questions que l'agent finit par résoudre ne change pas, ou à pein
 
 \paragraph{Ce qui distingue les questions gagnées des questions perdues.} Une hypothèse naturelle : l'agent gagne les questions où la question seule ne suffit pas comme requête (il faut reformuler pour atteindre le second paragraphe) et perd les autres. Elle ne tient pas : la question, utilisée telle quelle comme requête, ramène les deux paragraphes utiles pour 43~\% des questions gagnées par l'agent PPO comme des perdues, et 45~\% des autres (GRPO : 49, 35 et 45~\% ; \texttt{analysis/mecanisme\_partie2.py}). Ce qui les distingue est ce que l'agent fait de la recherche : sur les questions gagnées, il ramène les deux paragraphes dans 29 points de trajectoires de plus que le modèle de départ ; sur les questions perdues, 3 points seulement (GRPO : 24 et 17 points ; sur le sous-ensemble difficile, PPO : 24 et 10). Là où l'agent perd, sa recherche n'est pas meilleure que celle du modèle de départ, et ce dernier atteignait la réponse autrement : par sa lecture, ou parce que sa réponse correspondait mieux à la référence.
 
-\paragraph{Le gain sur les questions difficiles est surtout un effet de sélection.} Si le renforcement change \emph{quelles} questions l'agent atteint, alors choisir les questions que le modèle de départ rate avantage l'agent, même sans élargissement : on retient précisément celles où leurs profils diffèrent en faveur de l'agent. Le contrôle naturel est le miroir : choisir les questions que l'\emph{agent} rate, et regarder si le modèle de départ y gagne autant. On le fait sur l'échantillon principal, par moitiés de tirages (sélection sur 16 tirages, mesure de la frontière sur les 16 autres, dans les deux sens, moyenne des deux). Sélection sur l'échec du départ (environ 183 questions) : l'agent résout $11{,}7$ points de questions de plus que le départ (PPO) et $7{,}7$ (GRPO), ce qui reproduit la session~4 ($D(16) = +0{,}125$ et $+0{,}080$). Sélection miroir, sur l'échec de l'agent (environ 173 questions) : le modèle de départ résout $9{,}5$ et $5{,}8$ points de plus que l'agent. L'asymétrie, seule trace d'un élargissement net, n'est que de $+0{,}022$ (IC à 95~\% par bootstrap des questions : $-0{,}069$ à $+0{,}113$) pour PPO et $+0{,}018$ ($-0{,}069$ à $+0{,}103$) pour GRPO. Le gain de la session~4 est donc réel, au sens où l'agent résout bien des questions que son modèle de départ ne résout pas ; mais son symétrique existe, et l'ensemble est ce qu'on attend d'une redistribution de la frontière plus que d'un élargissement. Ce contrôle a été conçu après avoir vu la session~4 ; il est exploratoire, et son intervalle large n'exclut pas un élargissement net de quelques points, ce que l'échantillon principal n'excluait pas non plus.
+\paragraph{Le gain sur les questions difficiles est surtout un effet de sélection.} Si le renforcement change \emph{quelles} questions l'agent atteint, alors choisir les questions que le modèle de départ rate avantage l'agent, même sans élargissement : on retient précisément celles où leurs profils diffèrent en faveur de l'agent. Le contrôle naturel est le miroir : choisir les questions que l'\emph{agent} rate, et regarder si le modèle de départ y gagne autant. On le fait sur l'échantillon principal, par moitiés de tirages (sélection sur 16 tirages, mesure de la frontière sur les 16 autres, dans les deux sens, moyenne des deux). Sélection sur l'échec du départ (environ 183 questions) : l'agent résout $11{,}7$ points de questions de plus que le départ (PPO) et $7{,}7$ (GRPO), ce qui reproduit la session~4 ($D(16) = +0{,}125$ et $+0{,}080$). Sélection miroir, sur l'échec de l'agent (environ 173 questions) : le modèle de départ résout $9{,}5$ et $5{,}8$ points de plus que l'agent. L'asymétrie, seule trace d'un élargissement net, n'est que de $+0{,}022$ (IC à 95~\% par bootstrap des questions : $-0{,}069$ à $+0{,}113$) pour PPO et $+0{,}018$ ($-0{,}069$ à $+0{,}103$) pour GRPO. Le gain de la session~4 est donc réel, au sens où l'agent résout bien des questions que son modèle de départ ne résout pas ; mais son symétrique existe, et l'ensemble est ce qu'on attend d'une redistribution de la frontière plus que d'un élargissement. La simulation de la section~\ref{sec:stat-p2} montre le même phénomène sous une redistribution pure. Ce contrôle a été conçu après avoir vu la session~4 ; il est exploratoire, et son intervalle large n'exclut pas un élargissement net de quelques points, ce que l'échantillon principal n'excluait pas non plus.
 
 \IfFileExists{\genere/miroir.pdf}{%
 \begin{figure}[h]\centering
@@ -243,6 +349,8 @@ H3 : lecture croisée prévue & secondaire & Non soutenue : l'agent PPO, privé 
 Lecture croisée, réponse forcée & exploratoire & Lecture $+0{,}048$ ; $+0{,}049$ ; recherche $+0{,}077$ ; $+0{,}061$. \\
 Paragraphes utiles & exploratoire & Trouvés dans 54~\% des trajectoires contre 32~\% ; l'écart d'EM vient de « trouver ». \\
 Réplication (vivier, 1~000 q., 16 essais) & exploratoire & « Élargissement » à $k = 16$ : $D(16) = +0{,}037$ ; $+0{,}035$. Réuni avec l'échantillon principal : $+0{,}031$ ; $+0{,}031$, bande au-dessus de 0. \\
+À coût égal (jetons, recherches) & exploratoire & Avantage presque nul à budget de jetons égal (PPO), négatif pour GRPO aux petits budgets ; PPO perd partout à budget de recherches égal. \\
+Au-delà de 32 essais & exploratoire, modèle & Modèle le mieux ajusté : plus de questions hors de portée pour l'agent (24,5 ; 27,4~\% contre 20,8~\%), croisement après $k = 32$ ; dépend du modèle. \\
 Gagnées contre perdues & exploratoire & Non distinguées par la difficulté de la question comme requête ; distinguées par l'écart de recherche (+29 contre +3 points, PPO). \\
 \bottomrule
 \end{tabular}
