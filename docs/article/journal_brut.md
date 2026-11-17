@@ -457,3 +457,8 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   de la question, R² 0,028 (PPO) et 0,015 (GRPO). Effets isolés p < 0,05 (PPO rang du paragraphe le plus enfoui
   −0,041/ET ; GRPO mots de la réponse −0,013/ET) non confirmés par le GEE et non robustes à 12 comparaisons.
   Lecture : le gain ne se prédit pas par la forme de la question (cohérent avec le mécanisme).
+- Relecture globale : (1) deux étiquettes en double avec la partie 1 (fig:boucle, fig:cout) : les renvois de la
+  partie 2 pouvaient pointer vers la partie 1, corrigé ; (2) quatre flottants jamais cités (paires, chaîne de mesure,
+  pilote, détail par difficulté) : renvois ajoutés ; (3) arrondis harmonisés (3,8 à 6,5 points ; jetons ×1,2 à 1,7) ;
+  (4) lecture d'ensemble, conclusion et résumé complétés (coût égal, extrapolation, simulation) ; (5) précision : seule
+  la paire de base PPO a été évaluée, au pilote. Placement des figures vérifié (au plus 2 pages de leur renvoi).
