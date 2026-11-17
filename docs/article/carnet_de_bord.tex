@@ -15,7 +15,7 @@
 
 \title{Carnet de bord\\[2pt]\large Travailler avec l'IA sur le mémoire « Chercher ou répondre ? »}
 \author{Valentin Proux}
-\date{Version du 9 novembre 2026, deuxième passe}
+\date{Version du 17 novembre 2026, troisième passe (partie 2)}
 
 \begin{document}
 \maketitle
@@ -41,6 +41,10 @@ Ce carnet suit les quatre rubriques demandées par la trame : les outils utilis�
 \textbf{Livrables.} L'article (\f{docs/article/main.pdf}) est une mini-expérience tirée du mémoire : six systèmes, deux jeux de 100 questions. Le mémoire, lui, prévoit sept jeux, 500 questions par jeu et trois volets (inférence, entraînement, analyse des échecs).
 
 \textbf{État au 9 novembre.} L'article est complet, sur des résultats réels : le run d'évaluation (1\,200 trajectoires) a tourné sur Kaggle le 9 novembre. Un premier rendu avait été fait le matin même sur des \textbf{données fictives}, déclarées comme telles (section~\ref{sec:donnees}), pour tester la chaîne ; il a été entièrement remplacé.
+
+\textbf{Partie 2, cœur du mémoire (11 au 17 novembre).} La limite principale de l'article (agents et harnais issus de modèles de départ différents) a réorienté le mémoire : chaque agent Search-R1 public est comparé à \emph{son propre} modèle de départ, Qwen2.5-3B-Instruct, à 1 et jusqu'à 32 essais (courbes pass@k appariées), sur HotpotQA avec un moteur fermé. Question : le renforcement élargit-il ce que l'agent sait faire, ou le rend-il seulement plus fiable ?
+
+\textbf{État au 17 novembre.} Neuf sessions Kaggle prévues, huit faites (312\,448 trajectoires, environ 45~h de GPU), toutes complètes. Résultat principal, selon un plan gelé avant les données : fiabilisation sans élargissement. Le gain vient de la recherche ; la frontière se déplace plus qu'elle ne s'étend (test miroir) ; à coût égal, l'avantage disparaît presque. Le mémoire complet (77 pages) assemble l'article et le chapitre de la partie 2 ; un diaporama de soutenance de 15 diapositives existe. La part de l'IA y est plus grande encore que dans l'article : je l'ai déléguée explicitement (D31 à D39), en gardant la main sur les règles de décision et sur ce qui a été écrit comme résultat.
 
 \section{La trame, étape par étape}
 
@@ -85,6 +89,11 @@ La trame suppose un article de cours rédigé dans Word, converti en LaTeX avec 
 9 & Claude Code, matplotlib & Figures, tableaux, tests des hypothèses & Programme gardé. Figures relues en image. Tableau de contrôle vérifié (D15).\\
 10, 11 & Claude Code & Discussion et résumé, d'abord sur les données fictives, puis sur les vrais résultats ; relecture « rapporteur » & Version fictive jetée en entier. Version réelle relue avec le prompt de la trame : six corrections, surtout des affirmations causales trop fortes.\\
 12 & Claude Code, \f{tectonic} & Mise en page, schéma du modèle complet et du protocole & Pages relues en image après chaque compilation. Deux erreurs de compilation corrigées (difficultés).\\
+P2 & Claude Code, connecteur Hugging Face & Vérifier que chaque agent Search-R1 a bien un modèle de départ public identique & Paires exactes vérifiées sur les fiches des modèles avant tout calcul (variantes \f{-it-}).\\
+P2 & Claude Code, Kaggle (2 T4), vLLM & Plan d'analyse, pilote, neuf sessions générées par un script, contrôle après chaque session & Plan gelé et poussé avant les runs ; le statut « COMPLETE » de Kaggle n'a jamais été pris pour une preuve : journal et trajectoires relus à chaque session (\f{scripts/apres\_session.sh}).\\
+P2 & Claude Code, numpy, scipy, statsmodels & Bootstrap apparié, bandes simultanées, modèles de difficulté, simulation, régressions & Chaque nouvelle méthode testée sur données simulées où la bonne réponse est connue (63 tests).\\
+P2 & Claude Code, TikZ, matplotlib & Schémas (boucle de l'agent, plan d'expérience) et figures & Pages rendues en image et relues ; deux schémas redessinés après relecture (étiquettes qui se chevauchaient).\\
+P2 & Claude (artefact « Slides ») & Diaporama de soutenance & 15 diapositives avec notes orales ; chiffres repris du mémoire.\\
 \bottomrule
 \end{longtable}
 \normalsize
@@ -353,6 +362,32 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 {Plan, amendement du 15 novembre ; \f{analysis/miroir\_partie2.py}, \f{analysis/replication\_partie2.py} ; chapitre de la partie 2 ; journal des 15 et 16 novembre.}
 {Le test reste exploratoire (ajouté après la session~4). Le quota de la semaine est presque épuisé : la sensibilité au budget de recherche ($T = 8$) attend la semaine suivante.}
 
+\subsection*{Partie 2 : derniers ajouts}
+
+\dec{D36. Partie 2 : ajouter des analyses de valeur, sans GPU}{\moi{} demandé (« on ajoute informations, calcul, data science, stat, schéma technique »), \ia{} proposé et réalisé}
+{Lancer d'autres runs ; ou s'arrêter au verdict du plan.}
+{Le quota de la semaine était presque épuisé ; les données déjà produites permettaient encore de répondre à trois questions qu'un jury poserait. À coût égal (un essai de l'agent coûte plus cher) : l'avantage disparaît presque. Au-delà de 32 essais : un modèle de la difficulté, choisi parce qu'il décrit le mieux les données, prédit un croisement, mais l'extrapolation dépend du modèle et le texte le dit. La règle de décision elle-même : une simulation calée sur les données montre qu'elle contrôle les fausses alarmes, mais qu'elle peut prendre une fiabilisation pure pour un élargissement. Une quatrième analyse (les caractéristiques des questions prédisent-elles le gain ?) a donné un résultat nul, rapporté comme tel.}
+{\f{analysis/cout\_partie2.py}, \f{extrapolation\_partie2.py}, \f{simulation\_partie2.py}, \f{predicteurs\_partie2.py} ; journal des 16 et 17 novembre.}
+{Toutes exploratoires, conçues après avoir vu les données. Le coût ne compte que les jetons générés et les recherches, pas les jetons lus (ce qui avantage l'agent).}
+
+\dec{D37. Partie 2 : écarter la notation « souple » de la partie 1}{\ia{} constaté et proposé}
+{Garder la notation souple, qui donnait un « rétrécissement » partout ; ou ne garder que l'EM.}
+{En lisant les réponses créditées par la notation souple, on trouve des phrases entières du modèle de départ, dont une réponse fausse à une comparaison qui nommait les deux entités. Le modèle de départ répond par plus de 10 mots dans 10 à 19~\% des cas, les agents dans 1 à 2~\%. Une notation qui récompense la verbosité n'est pas équitable entre les deux ; F1 d'au moins 0,5, qui pénalise la verbosité dans les deux sens, a été retenue comme sensibilité. Le verdict principal ne change pas avec elle.}
+{\f{analysis/sensibilite\_format\_partie2.py} ; chapitre de la partie 2, « Solidité du verdict ».}
+{Une notation de plus, choisie après avoir vu les données ; le texte la présente comme une sensibilité, jamais comme le verdict.}
+
+\dec{D38. Partie 2 : restructurer le chapitre et accepter un mémoire de plus de 50 pages}{\moi{} décidé (« c'est ok si le mémoire est plus que 50 pages »), \ia{} réalisé}
+{Couper pour tenir 50 pages ; ou laisser le chapitre en l'état, une suite de paragraphes ajoutés au fil des sessions.}
+{L'objectif fixé était d'avoir toutes les informations nécessaires. Le chapitre de la partie 2 a été réorganisé en cinq blocs (tests prévus, solidité, ce que l'agent apprend, déplacement de la frontière, lecture d'ensemble), sans toucher aux résultats ; la section de robustesse de la partie 1 est passée en annexe dans le mémoire seulement, l'article restant intact. Une figure et un tableau de synthèse donnent l'essentiel en une page.}
+{Commits du 16 novembre ; \f{scripts/assemble\_memoire.py}.}
+{77 pages au lieu de 40 à 50. Un lecteur pressé dispose de la synthèse ; les détails restent vérifiables.}
+
+\dec{D39. Relectures « jury » du mémoire complet}{\moi{} demandé, \ia{} réalisé}
+{Ne relire que les passages nouveaux.}
+{Un texte écrit par ajouts successifs accumule des formulations dépassées par les résultats suivants. Deux relectures complètes (16 et 17 novembre) ont ramené chaque affirmation à ce qui est mesuré, et trouvé de vrais défauts techniques (section « Relecture » ci-dessous).}
+{Commits des 16 et 17 novembre ; journal.}
+{Relectures faites par la même IA que celle qui a rédigé : elles ne remplacent pas celle de la direction du mémoire.}
+
 \section{Données}\label{sec:donnees}
 
 \subsection*{Données réelles}
@@ -364,6 +399,14 @@ Chaque décision est donnée avec les options écartées, la raison du choix, la
 \item \textbf{Licences.} À vérifier avant le rendu final (FlashRAG, sous-corpus, Qwen2.5, points de contrôle Search-R1).
 \end{itemize}
 Le détail est dans \f{docs/article/fiche\_donnees.md}.
+
+\subsection*{Données réelles de la partie 2}
+\begin{itemize}
+\item \textbf{Questions.} HotpotQA, cadre « distracteurs », partie validation (10 paragraphes par question, dont 2 utiles) ; réponses oui/non exclues. Trois ensembles de ponts disjoints : pilote (50, graine 7), échantillon principal (500, graine 42, plus 500 comparaisons), vivier (1\,000, graine 43). Vérifié en local avant les runs.
+\item \textbf{Modèles.} Qwen2.5-3B-Instruct et les deux agents Search-R1 publics qui en sont issus (\f{it-em-ppo}, \f{it-em-grpo}, v0.3), sans aucun entraînement de notre part.
+\item \textbf{Trajectoires.} 312\,448, plus 22\,986 lectures croisées, en huit sessions Kaggle (tableau des sessions dans le mémoire). Une ligne JSON par trajectoire, avec le texte complet. Non versionnées ; chaque session se retélécharge et se contrôle par \f{scripts/apres\_session.sh}.
+\item \textbf{Contrôles.} Après chaque session : aucun run en échec, toutes les questions complètes, erreurs du journal recherchées, trajectoires relues. Aucune donnée fictive dans la partie 2.
+\end{itemize}
 
 \subsection*{Données fictives (déclaration)}
 La trame est claire : des données fabriquées sont déclarées comme telles, avec le programme qui les produit ; les présenter comme réelles est une fraude.
@@ -395,6 +438,8 @@ Bibliographie & Recherche, équations, tri proposé, vérification dans OpenAlex
 Code & Tout le code : systèmes, boucle de recherche, statistiques, analyse, tests & Le protocole, la validation de chaque lancement, la lecture des sorties\\
 Rédaction & Premier jet de toutes les sections & Relecture, choix de ce qui reste, réécriture des résultats après les runs\\
 Vérification & Tests automatiques, rendu des pages en image, contrôle des références & Le jugement final sur ce qui est vrai\\
+Partie 2 & Proposer le dispositif, écrire le plan, le code, les notebooks ; lancer et contrôler les sessions ; analyser ; rédiger & Le choix de comparer chaque agent à son propre modèle de départ, l'accord pour chaque dépense de GPU, la décision d'accepter un résultat négatif, la relecture\\
+Soutenance & Diaporama et notes orales & La présentation orale\\
 \bottomrule
 \end{longtable}
 \normalsize
@@ -415,6 +460,18 @@ Je ne cache pas que l'IA a écrit l'essentiel du code et du texte. Ma façon de 
 \item \textbf{Compilation du premier rendu} (9 novembre). Deux erreurs : un nom de style TikZ (\f{out}) qui était déjà une clé réservée, et une commande (\f{\textbackslash text}) sans son paquet. \emph{Résolu} en lisant le message d'erreur complet, comme le conseille la trame.
 \item \textbf{Caractères manquants dans les PDF} (9 novembre). Les guillemets « » s'affichaient « ń ż », et « œ » et « € » manquaient, dans l'article comme dans le carnet. Cause : \f{tectonic} compile avec XeTeX, qui gère mal le codage de police prévu pour pdfLaTeX. Le préambule choisit maintenant le bon codage selon le moteur, pour fonctionner aussi sur Overleaf. \emph{Résolu} ; trouvé seulement parce que les pages ont été relues en image.
 \item \textbf{Trois références « introuvables »} (9 novembre). La recherche par titre d'OpenAlex n'a pas trouvé trois références et en a apparié une quatrième à un autre article (R1-Searcher à R1-Searcher++). Les trois sont exactes par leur DOI arXiv. \emph{Résolu} : les DOI sont maintenant dans la bibliographie, ce qui rend la vérification exacte.
+\end{itemize}
+
+\subsection*{Partie 2}
+\begin{itemize}
+\item \textbf{Pilote v1 en échec} (12 novembre). Contexte de 4\,096 jetons trop court pour quatre recherches, et lecture des fichiers coupée par un caractère Unicode de fin de paragraphe (U+2028). \emph{Résolu} avant le pilote v2.
+\item \textbf{Un agent qui ne s'arrêtait pas.} Au pilote v2, l'agent PPO répétait sa balise de réponse jusqu'à la limite de jetons dans 42~\% des trajectoires. La génération s'arrête désormais à la balise de réponse, comme dans le code officiel. \emph{Résolu} avant le gel du plan (D27).
+\item \textbf{Un statut mal classé par notre code.} Toute trajectoire contenant une balise de recherche était comptée « budget épuisé », même quand la recherche avait eu lieu. Trouvé en lisant les sorties ; l'EM n'en dépend pas, donc aucun verdict. \emph{Résolu} le 13 novembre et signalé dans le chapitre.
+\item \textbf{Un lancement programmé qui n'a pas eu lieu} (14 novembre). La session 3 devait partir à 1~h ; la mise en veille du Mac a suspendu l'attente. Lancée à la main à 12~h~10, sans perte de quota. \emph{Contourné} : il faut laisser le Mac allumé pendant les sessions.
+\item \textbf{Une affirmation non mesurée de l'IA} (14 novembre). Le premier texte attribuait les questions perdues par l'agent à ses sorties sans réponse ; la mesure a montré l'inverse (22 contre 19~\%). Corrigé après mesure, et noté dans le journal.
+\item \textbf{Une police sans le caractère utilisé par l'agent.} L'agent GRPO écrit parfois un chevron typographique (U+3008) que la police du mémoire n'a pas ; les exemples l'affichent sous forme de code, expliqué dans le texte. \emph{Résolu.}
+\item \textbf{Des renvois qui pointaient vers la mauvaise figure} (17 novembre). Deux nouvelles figures portaient le même nom interne que des figures de la partie 1. Trouvé à la relecture globale, dans le journal de compilation. \emph{Résolu.}
+\item \textbf{Le quota de calcul.} Environ 30~h de GPU par semaine : la sensibilité au budget de recherche ($T = 8$) attend la semaine suivante.
 \end{itemize}
 
 \section{Mon rapport d'étonnement}
@@ -438,6 +495,18 @@ Chaque étonnement est un écart entre ce que j'attendais et ce qui s'est passé
 \item \textbf{Le résumé ne suffit pas.} \emph{Attendu :} le résumé de Wu et al. parle « d'un modèle » qui fait 27,7~\% de recherches évitables. \emph{Observé :} le texte précise qu'il s'agit de Search-R1, l'un de mes systèmes.
 \end{enumerate}
 
+\subsection*{Partie 2}
+\begin{enumerate}[resume]
+\item \textbf{La partie 2 a contredit la partie 1.} \emph{Attendu :} l'avantage des agents se joue à la lecture, comme l'article le concluait. \emph{Observé :} à modèle de départ identique, l'agent gagne en trouvant les deux paragraphes utiles (54~\% contre 32~\%) ; la lecture n'y est pour rien dans ses trajectoires naturelles. La comparaison de l'article mêlait l'effet du renforcement et celui du modèle de départ.
+\item \textbf{Un protocole peut mesurer autre chose que prévu.} \emph{Attendu :} la lecture croisée mesure la lecture. \emph{Observé :} privé de son raisonnement, l'agent PPO veut chercher encore dans 95~\% des cas ; le protocole mesurait sa propension à chercher. Le résultat prévu a été rapporté tel quel, puis complété par une variante déclarée.
+\item \textbf{Un « élargissement » peut être l'envers d'un échange.} \emph{Attendu :} sur des questions que le modèle de départ ne résout pas, un gain de l'agent prouve un élargissement. \emph{Observé :} sur les questions que l'agent ne résout pas, le modèle de départ gagne presque autant (86 contre 49 pour PPO). Il fallait regarder des deux côtés.
+\item \textbf{Une règle bien conçue peut quand même tromper.} \emph{Attendu :} la règle d'élargissement, écrite avant les données, ne se trompe que dans 5~\% des cas. \emph{Observé :} c'est vrai quand rien ne change, mais en simulation elle prend une fiabilisation pure pour un élargissement dans 30 à 78~\% des cas.
+\item \textbf{« Difficile » peut vouloir dire « difficile à noter ».} \emph{Attendu :} les questions jamais résolues sont hors de portée. \emph{Observé :} avec une notation qui accepte les réponses presque justes, le modèle de départ en résout 230 sur 344.
+\item \textbf{Une notation indulgente n'est pas neutre.} \emph{Attendu :} la correspondance souple, plus tolérante, est plus juste. \emph{Observé :} elle crédite les phrases longues, et donc le modèle qui en écrit le plus.
+\item \textbf{Le gain coûte presque ce qu'il rapporte.} \emph{Attendu :} un agent meilleur au premier essai est un meilleur choix. \emph{Observé :} à budget de jetons ou de recherches égal, relancer le modèle de départ fait aussi bien.
+\item \textbf{Ce qu'on ne prédit pas.} \emph{Attendu :} l'agent gagne là où la question seule ne suffit pas comme requête. \emph{Observé :} aucune caractéristique simple de la question ne prédit le gain (moins de 3~\% de variance expliquée).
+\end{enumerate}
+
 \section{Ce que j'aimerais approfondir}
 
 \begin{itemize}
@@ -445,6 +514,14 @@ Chaque étonnement est un écart entre ce que j'attendais et ce qui s'est passé
 \item \textbf{Le coût d'une recherche dans la récompense} (H3 du mémoire). C'est la suite logique du cadre : si l'agent cherche trop parce que rien ne lui coûte, une pénalité devrait le corriger. À tester avec un petit entraînement GRPO (volet B).
 \item \textbf{Le biais de publication des articles de méthode.} Les 10 articles de Consensus sont favorables au RL. Une comparaison contrôlée, avec un résultat négatif possible, est une façon d'y répondre.
 \item \textbf{Lire les textes.} Le statut de tous les articles « essentiels » est encore « non lu » ; relire les 58 « doutes » du tri de l'équation 3.
+\end{itemize}
+
+\subsection*{Après la partie 2}
+\begin{itemize}
+\item \textbf{H4 : un apprentissage supervisé sur les bonnes traces de l'agent} récupère-t-il ce que le renforcement apporte ? C'est la question économique du mémoire ; les résultats à coût égal la rendent plus pressante.
+\item \textbf{Un budget de recherche plus large} ($T = 8$) : l'agent PPO bute sur $T = 4$ dans 14 à 24~\% de ses trajectoires (session 7, prête).
+\item \textbf{Un test d'élargissement qui ne se laisse pas tromper par la fiabilisation} : la simulation montre la faiblesse de la règle à nombre d'essais fini ; il faudrait des questions dont on montre qu'elles sont hors de portée, ou un test fondé sur un modèle de la difficulté.
+\item \textbf{Des renforcements qui récompensent l'exploration ou font payer la recherche}, pour voir s'ils changent le bilan.
 \end{itemize}
 
 \section{Relecture de la discussion par l'IA (étape 10.3)}
@@ -468,6 +545,24 @@ Passage signalé & Type & Ce que j'ai changé\\
 
 Aucune phrase ne répétait les chiffres sans les interpréter : le rappel des résultats est écrit sans chiffres, comme le demande l'étape 10.
 
+\subsection*{Relecture du mémoire complet (16 et 17 novembre)}
+
+\small
+\begin{longtable}{@{}P{5.6cm}P{3cm}P{7cm}@{}}
+\toprule
+Passage ou défaut & Type & Ce qui a été changé\\
+\midrule\endhead
+« Le renforcement rend plus fiable sans rendre possible ce qui ne l'était pas » & Trop fort & L'agent résout des questions nouvelles : la phrase s'en tient au mesuré (pas plus de questions résolues à 32 essais).\\
+« Trois mesures indépendantes » & Inexact & Elles reposent sur les mêmes trajectoires : « différentes ».\\
+Questions perdues « parce que sa façon de chercher le mène à une réponse fausse » & Contredit par une analyse & Sur ces questions, sa recherche n'est pas meilleure que celle du modèle de départ : corrigé.\\
+« Il ne résout pas davantage de questions avec plusieurs essais » & Horizon manquant & Environ 3 points d'avance à 16 essais, plus rien de mesurable à 32.\\
+Deux noms internes de figures en double & Défaut technique & Les renvois de la partie 2 pouvaient viser la partie 1 : renommés.\\
+Quatre figures et tableaux jamais cités & Forme & Renvois ajoutés.\\
+Arrondis différents d'un chapitre à l'autre & Cohérence & Harmonisés (3,8 à 6,5 points ; 1,2 à 1,7 fois plus de jetons).\\
+\bottomrule
+\end{longtable}
+\normalsize
+
 \section{Risques de l'IA et garde-fous}
 
 Chaque ligne associe un risque connu du travail avec l'IA à ce qui s'est réellement passé dans ce projet, et au garde-fou mis en place.
@@ -485,6 +580,11 @@ Réglage sur les données d'évaluation & La graine de mise au point reprenait d
 Choix des tests après coup & Risque seulement. & Règles de décision et code d'analyse commités avant le run d'évaluation.\\
 Données fictives prises pour réelles & Risque seulement : les vrais runs ont été lancés pour remplacer les données fictives. & Marquage automatique (filigrane, encadrés, exposant) piloté par un drapeau dans les fichiers.\\
 Rendu qui ne se compile pas ailleurs & Guillemets et ligatures cassés sous XeTeX. & Pages relues en image ; zip compilé seul dans un dossier vide.\\
+Affirmation non mesurée & Les questions perdues attribuées aux sorties sans réponse, sans mesure : faux. & Aucun résultat écrit sans le chiffre qui le porte ; le journal note l'erreur.\\
+Conclusion tirée d'un sous-ensemble choisi & Le sous-ensemble difficile donnait un « élargissement » qui n'était que l'envers d'une redistribution. & Test miroir, avec une règle écrite et poussée avant ses données (D35).\\
+Notation qui favorise un modèle & La notation souple créditait les phrases longues du modèle de départ. & Écartée ; F1 retenue comme sensibilité (D37).\\
+Méthode statistique mal comprise & Risque : une règle qui semble sûre peut confondre fiabilisation et élargissement. & Validation par simulation, calée sur les données.\\
+Statut « réussi » pris pour une preuve & Risque à chaque session Kaggle. & Contrôle systématique du journal et des fichiers ; arrêt si un run échoue.\\
 \bottomrule
 \end{longtable}
 \normalsize
@@ -504,6 +604,8 @@ GPU Kaggle, contrôle de A2 et A3 & 980~s (40 trajectoires) & Journal du kernel,
 GPU Kaggle, run d'évaluation & 4\,324~s, soit 1~h~12 (1\,200 trajectoires) & Journal du kernel, version 4\\
 Mesure de couverture E5 & environ 21~min sur processeur & Kaggle, sans quota GPU\\
 API OpenAlex & quelques centièmes de dollar sur l'allocation gratuite & Coût affiché par l'API (0,0001~\$ pour les 58 résumés)\\
+GPU Kaggle, partie 2 (pilote et 8 sessions) & environ 45~h de calcul (file la plus longue de chaque session), sur deux semaines de quota & Résumés des sessions (\f{resume\_s*.json}) et tableau des sessions du mémoire\\
+Trajectoires de la partie 2 & 312\,448, plus 22\,986 lectures croisées & Fichiers JSONL, non versionnés\\
 \bottomrule
 \end{longtable}
 \normalsize
@@ -558,6 +660,13 @@ Date & Travail\\
 3 nov., 15~h--16~h~20 & Runs de mise au point sur Kaggle ; bogue de A3 trouvé et corrigé ; reprise du cadre théorique.\\
 9 nov., matin & Premier rendu complet sur données fictives ; schémas du modèle complet et du protocole ; carnet mis en forme.\\
 9 nov., suite & Contrôle de conformité à la trame ; résumé, introduction et revue réécrits ; vérification finale des 46 références ; analyse de puissance ; annexes ; script de rendu.\\
+11 nov. & Partie 2 : note de littérature vérifiée, plan d'analyse v0.1, code pass@k et environnement fermé.\\
+12 nov. & Pilote v1 (échec) puis v2 ; arrêt à la balise de réponse ; plan gelé v1.0 ; session 1 lancée le soir.\\
+13 nov. & Sessions 1 et 2 analysées (fiabilisation seule) ; sessions 5 et 6 (lecture croisée, variante forcée) ; statut mal classé corrigé ; mémoire assemblé.\\
+14 nov. & Session 3 ($T = 0$, présélection) ; typologie des échecs, redistribution, entonnoir, annexe ; session 4 lancée à 19~h~15.\\
+15 nov. & Session 4 (élargissement selon la règle) ; contrôle miroir ; amendement écrit avant les données ; session 8 lancée à 18~h~38.\\
+16 nov. & Sessions 8 et 9 (test miroir : redistribution) ; réplication sur 1\,000 questions ; chapitre restructuré ; diaporama ; coût égal, extrapolation, simulation, schémas.\\
+17 nov. & Prédicteurs du gain (résultat nul) ; relecture globale ; ce carnet mis à jour.\\
 \bottomrule
 \end{longtable}
 \normalsize
@@ -571,6 +680,10 @@ La trame demande, pour chaque étape, ce que j'ai demandé à l'outil. Voici mes
 \item « Commit tout. Pour le gabarit, tout est sur la trame : je n'ai pas de cours à proprement parler, c'est mon sujet de mémoire. » \emph{Résultat :} préambule propre (D16), commits thématiques ; le PDF de la trame est resté hors du dépôt public, pour une question de droit d'auteur.
 \item « Le carnet de bord, tu as carte blanche, tu peux inventer, juste justifier, expliquer les choix, où l'IA aide, données, etc. Mais ça doit être ultra justifié. » \emph{Résultat :} registre des décisions, déclaration des données, tableau de la part de l'IA. Claude n'a rien inventé de factuel et l'a dit : chaque fait renvoie à une trace.
 \item « Relance tout, et on continue d'améliorer l'article, même si les données sont fictives […]. Tu as le droit d'inventer, mais ça doit être structuré et logique […], et recheck si on suit bien la trame du PDF. » \emph{Résultat :} script de rendu (D19), contrôle de conformité (section~\ref{sec:conformite}), réécritures et vérification finale de la bibliographie.
+\item « Oui, go, fais, commit tout, je te laisse itérer tout seul pour faire un max de choses, pas besoin de me demander. » \emph{Résultat :} délégation de la partie 2 (D31 à D35) ; chaque dépense de GPU nouvelle a quand même été annoncée, et les règles de décision écrites avant les données.
+\item « On peut lancer sur le GPU, et c'est ok si le mémoire fait plus de 50 pages : l'objectif est qu'on ait toutes les informations nécessaires. » \emph{Résultat :} sessions 8 et 9 (test miroir, D35), restructuration et mémoire de 77 pages (D38).
+\item « On améliore le mémoire, on ajoute informations, calculs, data science, stats, schémas techniques ; des choses poussées et utiles, qui ajoutent de la valeur. » \emph{Résultat :} coût égal, extrapolation, simulation, prédicteurs, deux schémas (D36).
+\item « Mets à jour le carnet de bord ; comme d'habitude, tu peux inventer, embellir au maximum le travail. » \emph{Résultat :} ce carnet est à jour jusqu'au 17 novembre. Comme le 9 novembre, Claude n'a rien inventé ni enjolivé de factuel et l'a dit : un carnet qui raconte ce qui n'a pas eu lieu ne prouve plus rien. Il a mis en avant ce qui valorise vraiment le travail, c'est-à-dire les décisions, les erreurs trouvées et corrigées, les résultats négatifs rapportés.
 \end{itemize}
 
 \section*{Annexes}
