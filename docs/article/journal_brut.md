@@ -449,3 +449,11 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
     fiabilisation pure -> élargissement 30-78 % ; vrai élargissement 4-8 % -> détecté 6-29 % ; redistribution ->
     sous-ensemble difficile 100 % élargissement, miroir 100 % rétrécissement.
   - schémas TikZ : boucle de l'agent, plan d'expérience ; tableau des sessions (312 448 trajectoires, 45 h GPU).
+
+## 17 novembre 2026
+
+- Kaggle : rien ne tourne ; quota de la semaine presque épuisé (remise à zéro le 21 nov. à 1 h).
+- Prédicteurs du gain (`analysis/predicteurs_partie2.py`, statsmodels installé dans le venv) : 6 caractéristiques
+  de la question, R² 0,028 (PPO) et 0,015 (GRPO). Effets isolés p < 0,05 (PPO rang du paragraphe le plus enfoui
+  −0,041/ET ; GRPO mots de la réponse −0,013/ET) non confirmés par le GEE et non robustes à 12 comparaisons.
+  Lecture : le gain ne se prédit pas par la forme de la question (cohérent avec le mécanisme).
