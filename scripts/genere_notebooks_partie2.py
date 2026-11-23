@@ -84,6 +84,25 @@ SESSIONS = {
         "files": [[(PPO, IDS_PPO), (QWEN_IT, IDS_PPO)], [(GRPO, IDS_GRPO), (QWEN_IT, IDS_GRPO)]],
         "sources": ["valentinproux/memoire-partie2-s8"],
     },
+    10: {
+        "titre": "session 10 : H4, entraînement supervisé LoRA sur les bonnes traces",
+        "texte": ("Amendement du 23 novembre (H4) : deux adaptateurs LoRA de Qwen2.5-3B-Instruct, un par GPU, sur les "
+                  "trajectoires réussies du vivier (`scripts/sft_donnees.py`) : celles de l'agent PPO (session 8) et "
+                  "celles du modèle de départ (session 3), même nombre d'exemples. Réglages figés dans le plan. "
+                  "Sorties : `lora_sft_ppo/`, `lora_sft_depart/` (adaptateurs seulement)."),
+        "entrainement": [["ppo"], ["depart"]],
+        "sources": ["valentinproux/memoire-partie2-s3", "valentinproux/memoire-partie2-s8"],
+        "pip": "peft==0.21.2",
+    },
+    11: {
+        "titre": "session 11 : H4, évaluation des modèles entraînés (ponts, T = 4)",
+        "texte": ("Adaptateurs de la session 10 fusionnés dans Qwen2.5-3B-Instruct, puis protocole de la session 1 à "
+                  "l'identique (500 ponts, graine 42, n = 32, T = 4) : un modèle par GPU."),
+        "files": [[("/tmp/qwen2.5-3b-it-sft-ppo", [])], [("/tmp/qwen2.5-3b-it-sft-depart", [])]],
+        "sources": ["valentinproux/memoire-partie2-s10"],
+        "pip": "peft==0.21.2",
+        "fusion": True,
+    },
     6: {
         "titre": "session 6 : lecture croisée, variante « réponse forcée » (exploratoire)",
         "texte": ("Amendement du 13 novembre, après la session 5 : les lectures sans réponse (le lecteur voulait chercher "
@@ -229,6 +248,60 @@ for court in ("ppo", "grpo"):
 '''
 
 
+CELLULE_SFT = '''import os, threading, time
+WORK = Path("/kaggle/working")
+(WORK / "logs").mkdir(exist_ok=True)
+status, verrou = [], threading.Lock()
+# Jeux d'entraînement depuis les sorties des sessions 3 et 8 (montées sous /kaggle/input)
+r = subprocess.run(["python", "-u", "scripts/sft_donnees.py", "--indir", "/kaggle/input", "--out", str(WORK / "sft")],
+                   cwd=CLONE, capture_output=True, text=True)
+print(r.stdout, r.stderr[-3000:])
+assert r.returncode == 0, "construction des données en échec"
+
+def file_sft(gpu, sources):
+    env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(gpu))
+    for s in sources:
+        nom = f"sft_{s}"
+        cmd = ["python", "-u", "scripts/train_sft.py", "--data", str(WORK / "sft" / f"sft_{s}.jsonl"),
+               "--out", str(WORK / f"lora_sft_{s}")]
+        t0 = time.time()
+        with open(WORK / "logs" / f"{nom}.log", "a") as f:
+            code = subprocess.run(cmd, cwd=CLONE, env=env, stdout=f, stderr=subprocess.STDOUT).returncode
+        with verrou:
+            status.append((nom, gpu, code, round(time.time() - t0)))
+            print(f"GPU {gpu} : {nom} code {code}, {time.time() - t0:.0f} s", flush=True)
+
+fils = [threading.Thread(target=file_sft, args=(g, s)) for g, s in enumerate(FILES)]
+for f in fils: f.start()
+for f in fils: f.join()
+'''
+
+CELLULE_RESUME_SFT = '''import json
+resume = {}
+for s in ("ppo", "depart"):
+    m = WORK / f"lora_sft_{s}" / "meta_entrainement.json"
+    resume[s] = json.loads(m.read_text()) if m.exists() else None
+(WORK / "resume_s10.json").write_text(json.dumps({"status": status, "resume": resume}, indent=1, ensure_ascii=False))
+print(json.dumps({"status": status, "resume": resume}, indent=1, ensure_ascii=False))
+!tail -n 5 /kaggle/working/logs/*.log
+echecs = [s for s in status if s[2] != 0]
+if echecs or None in resume.values():
+    raise RuntimeError(f"Entraînements en échec : {echecs}")
+'''
+
+CELLULE_FUSION = '''# Fusion des adaptateurs de la session 10 dans le modèle de départ (fp16), sur CPU, avant vLLM
+import glob
+for s in ("ppo", "depart"):
+    cfg = sorted(glob.glob(f"/kaggle/input/**/lora_sft_{s}/adapter_config.json", recursive=True))
+    assert cfg, f"adaptateur lora_sft_{s} introuvable"
+    r = subprocess.run(["python", "-u", "scripts/train_sft.py", "--fusion", str(Path(cfg[0]).parent),
+                        "--out", f"/tmp/qwen2.5-3b-it-sft-{s}"], cwd=CLONE, capture_output=True, text=True,
+                       env=dict(os.environ, CUDA_VISIBLE_DEVICES=""))
+    print(r.stdout[-1500:], r.stderr[-1500:])
+    assert r.returncode == 0, f"fusion {s} en échec"
+'''
+
+
 def source(texte):
     return texte.splitlines(keepends=True)
 
@@ -238,22 +311,32 @@ def generer(num, s, modele):
     cellules[0]["source"] = source(
         f"# Partie 2 : étude principale pass@k, {s['titre']}\n\nPlan gelé : `docs/partie2/plan_analyse.md` (v1.0). "
         f"{s['texte']}\n\nNotebook généré par `scripts/genere_notebooks_partie2.py` : le modifier là, pas ici.\n")
-    files = ",\n".join("    [" + ", ".join(f"({m!r}, {o!r})" for m, o in file) + "]"
-                        for file in s.get("files") or s.get("lecture") or s["forcee"])
+    if "entrainement" in s:
+        files = ",\n".join(f"    {file!r}" for file in s["entrainement"])
+    else:
+        files = ",\n".join("    [" + ", ".join(f"({m!r}, {o!r})" for m, o in file) + "]"
+                            for file in s.get("files") or s.get("lecture") or s["forcee"])
     cellules[1]["source"] = source(
         'BRANCH = "partie2-passk"\n'
         "N_QUESTIONS, N_SAMPLES, T, TEMP = 500, 32, 4, 0.7   # valeurs par défaut ; les options d'un run priment\n"
         "MAX_TOKENS, MAX_MODEL_LEN = 1024, 8192   # figés au pilote v2 ; arrêt à </search> et </answer>\n"
         + ("M = 8   # trajectoires de chercheur par question\n" if "lecture" in s else "")
         + f"FILES = [\n{files},\n]\n")
-    cellules[4]["source"] = source(CELLULE_FORCEE if "forcee" in s else CELLULE_LECTURE if "lecture" in s
-                                   else CELLULE_RUNS)
+    if s.get("pip"):
+        cellules[3]["source"] = source("".join(cellules[3]["source"]).replace(
+            "huggingface_hub 2>&1", f"huggingface_hub {s['pip']} 2>&1"))
+    cellules[4]["source"] = source(CELLULE_SFT if "entrainement" in s else CELLULE_FORCEE if "forcee" in s
+                                   else CELLULE_LECTURE if "lecture" in s else CELLULE_RUNS)
+    if s.get("fusion"):
+        cellules[4]["source"] = source(CELLULE_RUNS.replace("status, verrou = [], threading.Lock()\n",
+                                                            "status, verrou = [], threading.Lock()\n\n"
+                                                            + CELLULE_FUSION + "\n", 1))
     resume = "".join(cellules[5]["source"]).replace("resume_principal.json", f"resume_s{num}.json")
     if "lecture" in s or "forcee" in s:
         resume = resume.replace('"partie2").glob', '"partie2_lecture").glob')
         resume = resume.replace('"questions_completes": sum(v >= N_SAMPLES for v in par_q.values()),', '"questions": len(par_q),')
         resume = resume.replace('                "recherches": round(sum(l["n_search"] for l in L) / len(L), 2),\n', "")
-    cellules[5]["source"] = source(resume)
+    cellules[5]["source"] = source(CELLULE_RESUME_SFT if "entrainement" in s else resume)
     if s.get("difficiles") or s.get("difficiles_agents"):
         cellules.insert(5, {"cell_type": "code", "metadata": {}, "outputs": [], "execution_count": None,
                             "source": source("import json\n" + (CELLULE_DIFFICILES if s.get("difficiles")

@@ -232,3 +232,38 @@ avant les sessions 8 et 9 :
   positive ; « rétrécissement net » si la borne haute est négative ; sinon « redistribution » si D_miroir(32) est
   positif (borne basse de la bande simultanée au-dessus de 0, mêmes règles que H2), « indéterminé » sinon.
 - **Prédiction (d'après le contrôle par moitiés) :** redistribution pour les deux paires.
+
+## Amendement du 23 novembre 2026 (APRÈS les sessions 1 à 9) : H4, fine-tuning supervisé sur les bonnes traces
+
+Motivation : les sessions 1 à 9 montrent une fiabilisation sans élargissement net. Si c'est tout ce que le renforcement
+apporte, un entraînement supervisé sur des trajectoires réussies devrait en récupérer l'essentiel. H4 était prévue en
+option dès la v0.1 ; ce protocole est écrit avant toute donnée d'évaluation des modèles entraînés. Exploratoire (ajouté
+après les résultats principaux), mais règles fixées ici.
+
+- **Données d'entraînement (aucun GPU, déjà produites) :** trajectoires du vivier (1 000 ponts, graine 43, disjoint de
+  l'évaluation et du pilote ; 16 tirages, T = 4). Deux sources : l'agent PPO (session 8) et le modèle de départ
+  (session 3). Gardées : EM = 1, non tronquées, sans dépassement de contexte ; doublons exacts retirés ; au plus 4 par
+  question (tirage aléatoire, graine 0) ; la source la plus grande est sous-échantillonnée à la taille de l'autre (même
+  nombre d'exemples). Mesuré avant entraînement : 2 360 exemples PPO (693 questions), 2 112 départ (656 questions).
+  Code : `scripts/sft_donnees.py`.
+- **Deux modèles, tous deux partant de Qwen2.5-3B-Instruct :** `it-sft-ppo` (distillation des traces de l'agent : faut-il
+  le renforcement, ou seulement ses traces ?) et `it-sft-depart` (auto-amélioration par rejet sur ses propres réussites,
+  sans professeur ni renforcement).
+- **Entraînement (figé) :** LoRA r = 16, alpha = 32, dropout 0,05, sur q, k, v, o, gate, up, down ; 2 époques ; taux 1e-4,
+  cosinus, échauffement 3 % ; lot effectif de 16 trajectoires ; fp16 (poids LoRA en fp32) ; graine 0. Perte sur les seuls
+  jetons générés : prompt et blocs `<information>` masqués, comme Search-R1. Prompt et gabarit de dialogue identiques à
+  l'évaluation. Code : `scripts/train_sft.py` (session 10) ; adaptateur fusionné avant l'évaluation.
+- **Évaluation (session 11) :** protocole de la session 1 à l'identique (500 ponts, graine 42, n = 32, T = 4,
+  température 0,7, 1 024 jetons par tour). Comparaison aux runs départ et PPO de la session 1.
+- **Règles, par modèle entraîné, à n = 32 :**
+  - contre le départ : règle H2 (élargissement / fiabilisation seule / rétrécissement / indéterminé) et H1 (gain au premier essai) ;
+  - contre l'agent PPO : écart E(k) = pass@k(SFT) − pass@k(PPO), IC à 95 % par bootstrap des questions ; **H4 soutenue**
+    si le gain au premier essai sur le départ est certifié (H1) et si la borne basse de E(1) et celle de E(32) sont
+    au-dessus de −0,03 (non-infériorité à 3 points) ; **partiellement** si H1 tient sans la non-infériorité ;
+    **non soutenue** si H1 ne tient pas.
+  - part récupérée au premier essai : ρ = (pass@1(SFT) − pass@1(départ)) / (pass@1(PPO) − pass@1(départ)), IC bootstrap.
+  - `it-sft-ppo` est la comparaison principale de H4, `it-sft-depart` est secondaire ; pas de correction multiple.
+- **Prédictions (écrites avant) :** `it-sft-ppo` récupère une part nette mais incomplète du gain au premier essai
+  (ρ entre 0,3 et 0,8 : « partiellement »), avec un taux de recherche proche de celui de PPO ; `it-sft-depart` gagne
+  moins (ρ < 0,5) ; aucun des deux n'élargit la frontière (verdict H2 « fiabilisation seule » ou « indéterminé »).
+- **Rapporté en plus :** taux de sorties sans réponse, recherches et jetons par trajectoire, perte d'entraînement.
