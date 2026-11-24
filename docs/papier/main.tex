@@ -1,0 +1,126 @@
+% Article court (prépublication arXiv) tiré de la partie 2 du mémoire. Brouillon du 24 novembre 2026.
+% Compilation : tectonic -X compile main.tex (dans docs/papier/).
+% \pending{...} marque ce qui attend des résultats non encore mesurés (H4, 2WikiMultiHopQA) : aucun chiffre n'y est écrit.
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{iftex}
+\ifXeTeX\usepackage{fontspec}\else\usepackage[utf8]{inputenc}\usepackage[T1]{fontenc}\usepackage{lmodern}\fi
+\usepackage{microtype,booktabs,amsmath,amssymb,graphicx,xcolor}
+\usepackage[round,authoryear]{natbib}
+\usepackage[hidelinks]{hyperref}
+\newcommand{\pending}[1]{\textcolor{red}{[PENDING: #1]}}
+\newcommand{\genere}{../partie2/genere}
+\newcommand{\passk}{\mathrm{pass@}k}
+
+\title{An RL-Trained Search Agent Is Worth 1.5 Samples of Its Base Model:\\
+Sharpening, Not Expansion, in Search-R1}
+\author{Valentin Proux}
+\date{Draft, November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Does reinforcement learning (RL) teach a search agent to answer questions its base model could never answer, or does it only make the agent answer more reliably? Recent work reports expansion for tool-use RL, but on agents trained by the authors themselves, with few questions and without paired inference. We compare public Search-R1 checkpoints (PPO and GRPO) to their exact starting model, Qwen2.5-3B-Instruct, on 500 multi-hop HotpotQA questions with 32 samples per question, a closed per-question BM25 environment, and an analysis plan frozen before the runs. RL raises first-attempt accuracy by 3.8 to 6.5 points, but the paired gap in pass@32 shrinks to about one point, within simultaneous confidence bands. We then measure what the agent is worth in samples of its base model: one agent sample is worth a constant 1.3 to 1.5 base samples at every budget (1.85 with a larger search budget), and this single number predicts the agent's pass@32 within half a point. A likelihood comparison of sharpening models shows the shift takes the form predicted by KL-regularized RL theory, a constant multiplication of per-question odds, plus a large question-specific dispersion that a base-versus-base control places at zero. Apparent expansion on questions selected because the base model failed them is matched by an equal and opposite effect on questions the agent failed (a mirror test we introduce). At equal generation or search cost, the base model with more samples matches the agent. \pending{H4: does supervised fine-tuning on successful traces recover the gain? 2WikiMultiHopQA replication of the pre-registered equivalent-samples prediction.}
+\end{abstract}
+
+\section{Introduction}
+
+RL with outcome rewards is now the standard way to turn a language model into a search agent \citep{jin2025search,song2025r1,chen2025research}. Whether it creates new capability or reweights existing behavior matters in practice: if RL only sharpens, supervised fine-tuning on good traces or simply more samples from the base model may deliver most of the gain at a fraction of the cost. For reasoning without tools, \citet{yue2025does} showed that base models catch up with RL-trained models at large $k$, and \citet{yang2026crossovers} that most published pass@$k$ crossovers do not survive paired inference. For agents the question is open. \citet{zhai2026does} report that tool-use RL \emph{expands} the capability boundary on compositional information gathering, in an environment almost identical to ours; \citet{oh2026sharpening} report the opposite on 14 base/post-trained pairs of tool-calling agents, without search agents.
+
+We revisit the question on public Search-R1 checkpoints against their exact base model, with paired per-question inference. Our contributions:
+\begin{enumerate}
+\item \textbf{A paired, pre-registered test.} On 500 multi-hop questions, RL sharpens without measurable expansion; the data exclude an expansion larger than about 5 points of pass@32 (\S\ref{sec:main}).
+\item \textbf{An exchange rate.} We express the agent in samples of its base model, $m(k)$. It is constant across $k$, which is the signature of sharpening, and it predicts the agent's pass@32 within half a point. A likelihood comparison identifies the form of the shift: odds multiplied by a constant, as KL-regularized RL theory predicts, plus question-level dispersion (\S\ref{sec:exchange}).
+\item \textbf{A selection artifact.} Selecting questions on the failure of one model favors the other even when neither expands; a mirror test controls for it (\S\ref{sec:mirror}).
+\item \textbf{Costs and mechanism.} At equal cost the base model matches the agent; the gain comes from searching (in particular, issuing a second, chained query), not from reading (\S\ref{sec:cost}).
+\end{enumerate}
+
+\section{Setup}\label{sec:setup}
+
+\paragraph{Models.} Base: \texttt{Qwen/Qwen2.5-3B-Instruct}. Agents: \texttt{PeterJinGo/SearchR1-nq\_hotpotqa\_train-qwen2.5-3b-it-em-\{ppo,grpo\}-v0.3}, trained by \citet{jin2025search} from that exact checkpoint on NQ and HotpotQA. Both use the Search-R1 prompt and chat template; the base model is evaluated in the same harness.
+
+\paragraph{Environment.} HotpotQA distractor validation \citep{yang2018hotpotqa}: each question comes with 10 paragraphs, 2 of them gold. Each question has its own BM25 index over its 10 paragraphs (top 3 returned), so retrieval is deterministic and identical for both models. Yes/no answers are excluded (they would be found by chance with 32 samples). We sample 500 bridge and 500 comparison questions (seed 42); with the question as query, both gold paragraphs are retrieved for 45\% of bridge questions.
+
+\paragraph{Protocol.} $n = 32$ samples per question at temperature 0.7, at most $T = 4$ searches, 1{,}024 tokens per turn, exact match (EM) with Search-R1 normalization. The analysis plan (hypotheses, decision rules, predictions) was frozen before the main runs and amended, with dates, before each later session. In total 344{,}448 trajectories, about 50 GPU-hours on free Kaggle T4 GPUs. Code and plan are public.
+
+\paragraph{Statistics.} Unbiased $\widehat{\passk} = 1 - \binom{n-c}{k}/\binom{n}{k}$ \citep{chen2021evaluating}. For each question $i$, $d_i(k)$ is the agent-minus-base difference and $D(k)$ its mean. Uncertainty: Gaussian multiplier bootstrap over questions \citep{chernozhukov2013gaussian}, with simultaneous bands over $k \in \{1,2,4,\dots,32\}$. Decision rule for \emph{expansion}: $D(k) > 0$ at every $k$ (intersection-union test, \citealp{berger1982multiparameter}) and the lower simultaneous bound at $k = 32$ positive; \emph{sharpening only}: first-attempt gain without expansion or narrowing. Holm correction over the two main pairs \citep{holm1979simple}.
+
+\section{RL sharpens without expanding}\label{sec:main}
+
+\begin{table}[t]\centering\small
+\resizebox{\linewidth}{!}{\begin{tabular}{lcccccc}\toprule
+Pair (bridge, $T = 4$) & pass@1 & $D(1)$ & $D(32)$ & Simult.\ band at 32 & Frontier & Verdict\\\midrule
+PPO vs base & 0.315 vs 0.250 & $+0.065$ & $+0.010$ & $[-0.032, +0.052]$ & 351 vs 346 & sharpening only\\
+GRPO vs base & 0.289 vs 0.250 & $+0.038$ & $+0.008$ & contains 0 & 350 vs 346 & sharpening only\\\bottomrule
+\end{tabular}}
+\caption{Main pre-registered test (500 bridge questions, 32 samples). Frontier: questions solved at least once.}\label{tab:main}
+\end{table}
+
+On bridge questions both agents beat their base model at the first attempt, and the gap closes as $k$ grows (Table~\ref{tab:main}, Figure~\ref{fig:main}). The upper simultaneous bound excludes an expansion larger than 5.2 points (PPO) and 4.7 points (GRPO) of pass@32. On comparison questions, which do not require chaining searches, neither agent gains even at $k = 1$ (GRPO $+0.015$, PPO $-0.020$). A replication on 1{,}000 fresh bridge questions with 16 samples gives $D(16) = +0.037$ and $+0.035$; pooled over 1{,}500 questions, about 3 points remain at $k = 16$, with the band above zero. Without search ($T = 0$), both agents fall far below their base model, mostly because they keep trying to search.
+
+\IfFileExists{\genere/passk_it-em-ppo_bridge_T4_chat_q42.pdf}{%
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{\genere/passk_it-em-ppo_bridge_T4_chat_q42.pdf}
+\caption{PPO agent vs base, bridge questions: pass@$k$ (left) and paired gap $D(k)$ with pointwise intervals and simultaneous band (right).}\label{fig:main}
+\end{figure}}{}
+
+\paragraph{What the rule can detect.} A simulation calibrated on the base model's per-question difficulty shows the rule never flags expansion for identical models, but flags \emph{pure sharpening} as expansion in 30--78\% of replicates (rare successes cross the 32-sample threshold), and detects a true expansion of 4--8\% of unreachable questions only 6--29\% of the time. With 500 questions, a true 3-point expansion had a 25\% chance of being declared; 80\% power would need about 1{,}800 questions. ``Sharpening only'' is therefore a statement about effects of the size of the first-attempt gain, not about 2--3 points; \S\ref{sec:exchange} addresses the latter directly.
+
+\paragraph{Search budget.} PPO hits the 4-search limit in 14--24\% of trajectories. With $T = 8$ (PPO pair only), its pass@1 rises to 0.351 and the rule declares expansion ($D(32) = +0.044$, band $[+0.003, +0.085]$), but this depends on the base model's draw: the base model behaves identically at $T = 4$ and $T = 8$ (0.9 searches per sample), and against its $T = 4$ run the verdict is sharpening only. Against the pooled 64 base samples, $D(32) = +0.036$ $[+0.006, +0.066]$. The next section shows this residual gap is exactly what sharpening predicts.
+
+\section{An exchange rate between agent and base samples}\label{sec:exchange}
+
+Write $p_{A,i}$, $p_{B,i}$ for per-question success probabilities. Then $\passk_M = \mathbb{E}_i[1-(1-p_{M,i})^k]$ and $D(k) \to \Pr(p_A>0) - \Pr(p_B>0)$ as $k\to\infty$. If RL sharpens every question by the same power, $1-p_A = (1-p_B)^g$, then
+\begin{equation}
+\passk_A = \mathrm{pass@}(g k)_B \quad \text{for all } k,
+\end{equation}
+i.e.\ the agent \emph{is} the base model given $g$ times more samples. We define the exchange rate $m(k) = k'(k)/k$ where $\mathrm{pass@}k'_B = \passk_A$. Sharpening gives a constant $m(k)$; expansion a growing one; loss of questions a decreasing one. Because the base model behaves identically at $T = 4$ and $T = 8$, pooling its two runs gives 64 samples per question and an unbiased base curve up to $k = 64$ without any parametric model.
+
+\begin{table}[t]\centering\small
+\resizebox{\linewidth}{!}{\begin{tabular}{lccccc}\toprule
+Agent & $g = m(1)$ & $m(32)$ & pass@32 observed & predicted $\mathrm{pass@}(32g)_B$ & obs.\ $-$ pred.\\\midrule
+PPO, $T = 4$ & 1.49 [1.30, 1.70] & 1.36 [0.82, 1.92] & 0.702 & 0.707 & $-0.005$ $[-0.038, +0.023]$\\
+GRPO, $T = 4$ & 1.27 [1.15, 1.39] & 1.32 [0.88, 1.92] & 0.700 & 0.697 & $+0.003$ $[-0.024, +0.028]$\\
+PPO, $T = 8$ & 1.85 [1.60, 2.12] & 1.79 [1.05, 2.00] & 0.718 & 0.720 & $-0.002$ $[-0.032, +0.027]$\\\bottomrule
+\end{tabular}}
+\caption{Exchange rate: one agent sample is worth $m(k)$ base samples (95\% bootstrap intervals over questions; the upper bound at $k=32$ is truncated by the 64 available base samples). Calibrated on $k = 1$ only, pure sharpening predicts the agent's pass@32.}\label{tab:exchange}
+\end{table}
+
+One agent sample is worth 1.49 base samples for PPO and 1.27 for GRPO (1.85 for PPO with 8 searches), with no visible trend in $k$ (Table~\ref{tab:exchange}). Calibrated on the first attempt only, pure sharpening predicts pass@32 within half a point for all three agents. The 3--4 points left at $k = 32$ with 8 searches are what a sharpening factor of 1.85 leaves at finite $k$: they do not signal new capability.
+
+\paragraph{Which sharpening?} We fit, by maximum likelihood, the agent's 32 samples given the base model's 64 for each question, under several maps $p \mapsto f(p)$ (base difficulty distribution: zero-inflated beta-binomial fitted on the 64 base samples). Among one-parameter maps, multiplying the odds by a constant, $f/(1-f) = \lambda\, p/(1-p)$, which is the optimum of KL-regularized RL for pass@1 \citep[App.~B]{matrenok2026controlling}, beats the power map (log-likelihood gap 51, 95\% CI $[27, 77]$ for PPO; 36 for GRPO; 76 at $T = 8$) and tracks the agent's pass@$k$ within 1.4 points; pushing a fraction of questions to 0 or 1 \citep[Thm.~2]{oh2026sharpening} fits poorly. Estimated $\lambda$: 1.65 (PPO), 1.36 (GRPO), 2.17 (PPO, $T = 8$). No deterministic map fits individual questions, however: adding a per-question Gaussian dispersion of the logit improves AIC by more than 2{,}000 for PPO, with $\sigma \approx 1.8$ (1.1 for GRPO). The same fit applied to the base model against itself (its $T = 8$ run given its $T = 4$ run) returns $\lambda = 0.99$ and $\sigma \approx 0$. RL thus shifts odds by a factor of about 1.5 on average while moving individual questions by a factor of about $e^{1.8} \approx 6$ either way: sharpening on average, redistribution question by question.
+
+\paragraph{Concentration.} Over 32 samples, the base model gives 13.8 distinct answers per question, PPO 5.4 and GRPO 7.0. Majority voting, which rewards concentration, keeps the agent's advantage at $k = 32$ (maj@32: 0.501 for both agents vs 0.434, gap $+0.067$), while pass@32, which rewards coverage, does not. Majority voting over 32 base samples beats the agent's first attempt by 12 points.
+
+\section{The mirror test}\label{sec:mirror}
+
+A natural way to look for expansion is to evaluate on questions the base model never solves. We selected, on a separate pool of 1{,}000 bridge questions, the 344 the base model failed in 16 samples, and re-sampled both models 32 times: the rule declares expansion (PPO solves 118, GRPO 104, base 78). But selecting on the failure of one model favors the other whenever their per-question profiles differ, even with equal frontiers. The \emph{mirror} control selects, on the same pool, questions each \emph{agent} failed (307 and 309) and re-samples: the base model then solves 86 and 76 vs 49 and 58. The asymmetry between the two effects, specified before the mirror data, is $\Delta(32) = -0.004$ $[-0.091, +0.079]$ for PPO and $+0.017$ $[-0.061, +0.096]$ for GRPO: no net expansion. In simulation, pure redistribution yields ``expansion'' on the hard subset and ``narrowing'' on its mirror in 100\% of replicates. We recommend reporting this control whenever expansion is claimed on a subset selected by one model's failures; it may explain small published expansions such as 5 questions gained vs 1 lost in \citet{zhai2026does}.
+
+\section{Cost and mechanism}\label{sec:cost}
+
+\paragraph{Equal cost.} One agent sample generates 1.24 (PPO) and 1.65 (GRPO) times more tokens and issues 2.44 and 1.48 times more searches. Comparing pass@budget, with each model getting budget$/$cost samples, PPO keeps a small advantage at the smallest token budgets ($+0.029$) that vanishes afterwards; GRPO does worse than its base model ($-0.045$); at equal number of searches PPO loses everywhere ($-0.084$ to $-0.053$, certified). The exchange rate summarizes this in one number: the agent wins at equal cost iff $g/c > 1$ ($1.49/1.24 = 1.20$ in tokens for PPO, below 1 for GRPO, and below 1 in searches for both).
+
+\paragraph{Searching, not reading.} Recomputing the passages each query returns, agents retrieve both gold paragraphs in 54\% of trajectories vs 32\% for the base model, and an exact counterfactual decomposition attributes the whole EM gain to finding them ($+0.064$ for both agents) and none to reading. Agents issue a second query that names the bridge entity found in the first passage in 19.0\% (PPO) and 9.6\% (GRPO) of trajectories, vs 2.8\% for the base model. In a cross-reading experiment where each model reads the other's retrieved passages with a forced answer, reading and searching both contribute ($+0.048$ and $+0.077$ for PPO), but in natural trajectories agents decline to answer in 14--20\% of cases where both gold paragraphs are present, which cancels the reading gain.
+
+\section{Supervised fine-tuning on good traces}\label{sec:h4}
+
+\pending{H4 (pre-registered amendment of 23 November 2026). LoRA SFT of Qwen2.5-3B-Instruct on 2{,}112 successful trajectories from a disjoint pool, either from the PPO agent or from the base model itself (rejection sampling), loss on generated tokens only. Report: H1/H2 verdicts vs base, non-inferiority to PPO at $k=1$ and $k=32$ (margin 3 points), recovered share $\rho$ of the first-attempt gain, exchange rate $m(k)$, diversity. Contrast with \citet{zhai2026does}, whose SFT used oracle trajectories and narrowed the boundary, and with \citet{rath2026passk}.}
+
+\section{Out-of-distribution replication}\label{sec:2wiki}
+
+\pending{2WikiMultiHopQA (not in Search-R1's training data), 500 compositional questions, same protocol; base model sampled $2 \times 32$ times. Pre-registered predictions (24 November 2026): sharpening only; $|\text{observed} - \text{predicted pass@32}| < 0.03$ under pure sharpening; no trend in $m(k)$; fewer distinct answers and more chaining for agents.}
+
+\section{Related work}
+
+\citet{yue2025does} established sharpening for RL on reasoning; \citet{liu2025prorl} report expansion under prolonged training; \citet{yang2026crossovers} show that paired inference removes most crossovers; \citet{zhou2026shrinks} trace boundary loss to commitment to a wrong mode on rare-success prompts, consistent with our finding that the agent repeats one wrong answer in at least half its samples on 57\% of the bridge questions it loses. For agents, \citet{zhai2026does} report expansion for an agent they trained on 200 questions, with 100 evaluation questions per category and no paired test; our setup is close to theirs but uses public checkpoints, five times more questions, question-level inference and a selection control. \citet{oh2026sharpening} find a ``sharpening tax'' for 14 tool-calling agents; \citet{kim2026elicitation} ask the same elicitation-or-expansion question for harness optimization; \citet{rath2026passk} show pass@$k$ is blind to diversity. \citet{matrenok2026controlling} derive the odds form of the KL-regularized optimum that our likelihood comparison supports; \citet{zavidnyi2026budget} show that RL can internalize a token budget, whereas our agent benefits from a larger search budget.
+
+\section{Limitations}
+
+One model size (3B), one family of checkpoints, a closed 10-paragraph environment, and EM scoring (the main verdict is unchanged with F1 $\ge 0.5$). Analyses in \S\ref{sec:exchange}--\ref{sec:cost} were designed after seeing the main results and are exploratory, except the mirror test (amendment written before its data) and the 2WikiMultiHopQA predictions. The $T = 8$ sensitivity covers PPO only. With 500 questions, expansions of 2--3 points cannot be excluded by the decision rule; the exchange-rate prediction is the sharper test. \pending{7B replication.}
+
+\paragraph{Use of AI.} An AI assistant (Claude, Anthropic) was used for code, literature search and drafting; methodological choices, validation of results and final text are the author's.
+
+\bibliographystyle{plainnat}
+\bibliography{../article/refs,../partie2/chapitre/refs_partie2}
+\end{document}
