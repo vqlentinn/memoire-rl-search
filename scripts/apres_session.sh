@@ -70,3 +70,6 @@ if [ "$(n7b '^qwen2.5-7b-it-em-grpo')" -ge 2 ] && [ "$(n7b '^Qwen2.5-7B-Instruct
   "$PY" analysis/diversite_partie2.py --indir results/partie2 --taille 7
   "$PY" analysis/modeles_fiabilisation_partie2.py --indir results/partie2 --taille 7
 fi
+
+echo "== Valeurs des sections en attente de l'article (H4, 2Wiki, 7B)"
+"$PY" analysis/macros_attente.py --verifier docs/papier/main.tex | head -3

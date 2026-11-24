@@ -1,6 +1,7 @@
 % Article court (prépublication arXiv) tiré de la partie 2 du mémoire. Brouillon du 24 novembre 2026.
 % Compilation : tectonic -X compile main.tex (dans docs/papier/).
-% \pending{...} marque ce qui attend des résultats non encore mesurés (H4, 2WikiMultiHopQA) : aucun chiffre n'y est écrit.
+% \pending{...} marque ce qui attend des résultats non encore mesurés (H4, 2WikiMultiHopQA, 7B) : aucun chiffre n'y est écrit.
+% \val{clé} affiche une valeur lue dans ../partie2/genere/macros_attente.tex (analysis/macros_attente.py), ou [PENDING: clé].
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{iftex}
@@ -11,6 +12,8 @@
 \newcommand{\pending}[1]{\textcolor{red}{[PENDING: #1]}}
 \newcommand{\genere}{../partie2/genere}
 \newcommand{\passk}{\mathrm{pass@}k}
+\makeatletter\newcommand{\val}[1]{\ifcsname v@#1\endcsname\csname v@#1\endcsname\else\pending{#1}\fi}\makeatother
+\InputIfFileExists{\genere/macros_attente.tex}{}{}
 
 \title{An RL-Trained Search Agent Is Worth 1.5 Samples of Its Base Model:\\
 Sharpening, Not Expansion, in Search-R1}
@@ -105,11 +108,39 @@ A natural way to look for expansion is to evaluate on questions the base model n
 
 \section{Supervised fine-tuning on good traces}\label{sec:h4}
 
-\pending{H4 (pre-registered amendment of 23 November 2026). LoRA SFT of Qwen2.5-3B-Instruct on 2{,}112 successful trajectories from a disjoint pool, either from the PPO agent or from the base model itself (rejection sampling), loss on generated tokens only. Report: H1/H2 verdicts vs base, non-inferiority to PPO at $k=1$ and $k=32$ (margin 3 points), recovered share $\rho$ of the first-attempt gain, exchange rate $m(k)$, diversity. Contrast with \citet{zhai2026does}, whose SFT used oracle trajectories and narrowed the boundary, and with \citet{rath2026passk}.}
+If RL only sharpens, supervised fine-tuning (SFT) on successful trajectories should recover most of its gain. Following an amendment written before any evaluation of the trained models (23 November 2026), we fine-tune Qwen2.5-3B-Instruct with LoRA (rank 16, 2 epochs, loss on generated tokens only, retrieved passages masked) on 2{,}112 successful trajectories (EM $= 1$, at most 4 per question) drawn from a pool of 1{,}000 bridge questions disjoint from evaluation. Two sources: the PPO agent (\emph{SFT-PPO}, distillation: are the agent's traces enough without RL?) and the base model itself (\emph{SFT-base}, rejection-sampling self-training, with no teacher and no RL). Both are evaluated with the protocol of Table~\ref{tab:main}. Pre-registered rule: H4 is \emph{supported} if the first-attempt gain over the base model is certified and the lower 95\% bounds of $E(k) = \passk_\text{SFT} - \passk_\text{PPO}$ at $k = 1$ and $k = 32$ are above $-0.03$; \emph{partially supported} if only the first condition holds.
+
+\begin{table}[t]\centering\small
+\resizebox{\linewidth}{!}{\begin{tabular}{lccccccc}\toprule
+Model & pass@1 & pass@32 & vs base (H2) & $E(1)$ vs PPO & $E(32)$ vs PPO & $\rho$ & $g = m(1)$\\\midrule
+SFT-PPO & \val{h4.ppo.pass1} & \val{h4.ppo.pass32} & \val{h4.ppo.H2} & \val{h4.ppo.E1} \val{h4.ppo.E1ic} & \val{h4.ppo.E32} \val{h4.ppo.E32ic} & \val{h4.ppo.rho} \val{h4.ppo.rhoic} & \val{h4.ppo.g} \val{h4.ppo.gic}\\
+SFT-base & \val{h4.dep.pass1} & \val{h4.dep.pass32} & \val{h4.dep.H2} & \val{h4.dep.E1} \val{h4.dep.E1ic} & \val{h4.dep.E32} \val{h4.dep.E32ic} & \val{h4.dep.rho} \val{h4.dep.rhoic} & \val{h4.dep.g} \val{h4.dep.gic}\\\bottomrule
+\end{tabular}}
+\caption{SFT on successful traces (500 bridge questions, 32 samples, $T = 4$). $\rho$: share of PPO's first-attempt gain over the base model that is recovered. Brackets: 95\% bootstrap intervals over questions.}\label{tab:h4}
+\end{table}
+
+H4 is \val{h4.ppo.H4} for SFT-PPO and \val{h4.dep.H4} for SFT-base (Table~\ref{tab:h4}). SFT-PPO issues \val{h4.ppo.recherches} searches per trajectory (PPO \val{h4.ppo3b.recherches}, base \val{h4.base.recherches}), gives \val{h4.ppo.distinctes} distinct answers over 32 samples, and leaves \val{h4.ppo.sansrep} of trajectories without an answer. Pre-registered predictions: SFT-PPO recovers a net but incomplete share of the first-attempt gain ($0.3 \le \rho \le 0.8$, H4 partially supported): \val{h4.p.rhoppo}; SFT-base recovers less ($\rho < 0.5$): \val{h4.p.rhodep}; neither expands the frontier: \val{h4.p.frontiere}. \pending{interpretation once the data are in; contrast with \citet{zhai2026does}, whose SFT used oracle trajectories and narrowed the boundary, and with \citet{rath2026passk}.}
 
 \section{Out-of-distribution replication}\label{sec:2wiki}
 
-\pending{2WikiMultiHopQA (not in Search-R1's training data), 500 compositional questions, same protocol; base model sampled $2 \times 32$ times. Pre-registered predictions (24 November 2026): sharpening only; $|\text{observed} - \text{predicted pass@32}| < 0.03$ under pure sharpening; no trend in $m(k)$; fewer distinct answers and more chaining for agents.}
+The exchange-rate law of \S\ref{sec:exchange} was found after seeing the HotpotQA data. We therefore wrote it down as a prediction (amendment of 24 November 2026, before any data) and tested it on 2WikiMultiHopQA \citep{ho2020constructing}, which is not in Search-R1's training data: 500 compositional questions (two hops, two gold paragraphs among 10, seed 42), same environment and protocol. With the question as query, both gold paragraphs are retrieved for 29\% of questions (45\% for HotpotQA bridge). The base model is sampled $2 \times 32$ times with two generation seeds, which gives an unbiased base curve up to $k = 64$ (pass@64 $=$ \val{w2.base.pass64}).
+
+\begin{table}[t]\centering\small
+\resizebox{\linewidth}{!}{\begin{tabular}{lccccccc}\toprule
+Agent & $D(1)$ & $D(32)$ [simult.\ band] & Verdict & $g = m(1)$ & $m(32)$ & pass@32 obs.\ / pred. & obs.\ $-$ pred.\\\midrule
+PPO & \val{w2.ppo.D1} & \val{w2.ppo.D32} \val{w2.ppo.band32} & \val{w2.ppo.H2} & \val{w2.ppo.g} \val{w2.ppo.gic} & \val{w2.ppo.m32} & \val{w2.ppo.obs32} / \val{w2.ppo.pred32} & \val{w2.ppo.ecart} \val{w2.ppo.ecartic}\\
+GRPO & \val{w2.grpo.D1} & \val{w2.grpo.D32} \val{w2.grpo.band32} & \val{w2.grpo.H2} & \val{w2.grpo.g} \val{w2.grpo.gic} & \val{w2.grpo.m32} & \val{w2.grpo.obs32} / \val{w2.grpo.pred32} & \val{w2.grpo.ecart} \val{w2.grpo.ecartic}\\\bottomrule
+\end{tabular}}
+\caption{2WikiMultiHopQA, 500 compositional questions, agents vs base (32 samples; base curve for $m(k)$ from 64 samples). Pass@1 of the base model: \val{w2.ppo.base.pass1}.}\label{tab:2wiki}
+\end{table}
+
+Pre-registered predictions and outcomes (Table~\ref{tab:2wiki}): (1) H1 supported and ``sharpening only'' for both agents: \val{w2.p.verdicts}. (2) Pure sharpening predicts pass@32 within 3 points, with the interval of observed $-$ predicted containing 0: \val{w2.ppo.p.loi} (PPO), \val{w2.grpo.p.loi} (GRPO). (3) No trend in $m(k)$, i.e.\ $m(32)$ within the interval of $m(1)$: \val{w2.ppo.p.tendance} (PPO), \val{w2.grpo.p.tendance} (GRPO). (4) Fewer distinct answers and more chaining than the base model, and a larger gap in maj@32 than in pass@32: \val{w2.ppo.p.diversite} (PPO; \val{w2.ppo.distinctes} vs \val{w2.base.distinctes} distinct answers, chaining \val{w2.ppo.chainage} vs \val{w2.base.chainage}), \val{w2.grpo.p.diversite} (GRPO). \pending{interpretation once the data are in.}
+
+\section{Scale: a 7B pair}\label{sec:7b}
+
+The only Instruct-based v0.3 checkpoint at 7B is GRPO: \texttt{PeterJinGo/SearchR1-nq\_hotpotqa\_train-qwen2.5-7b-it-em-grpo-v0.3} against \texttt{Qwen/Qwen2.5-7B-Instruct}, with the protocol of Table~\ref{tab:main} (amendment of 24 November 2026, before any 7B data). The base model is sampled \val{b7.essaisbase} times per question; with 32 samples only, $m(k)$ is defined only where $k\,m(k) \le 32$ and the pass@32 prediction cannot be computed.
+
+At 7B, the agent's pass@1 is \val{b7.pass1} vs \val{b7.base.pass1} ($D(1) =$ \val{b7.D1}), $D(32) =$ \val{b7.D32} \val{b7.band32}, frontier \val{b7.front} vs \val{b7.base.front}: the rule returns ``\val{b7.H2}''. One agent sample is worth $g =$ \val{b7.g} \val{b7.gic} base samples and the odds factor is $\lambda =$ \val{b7.lambda} (3B GRPO: 1.27 and 1.36). Pre-registered predictions: H1 supported: \val{b7.p.H1}; sharpening only: \val{b7.p.H2}; $\lambda$ and $m(1)$ above those of the 3B GRPO pair: \val{b7.p.plusfort}; pass@32 within 3 points of the pure-sharpening prediction: \val{b7.p.loi}. \pending{interpretation once the data are in.}
 
 \section{Related work}
 
