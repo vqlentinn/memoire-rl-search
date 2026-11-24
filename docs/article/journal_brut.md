@@ -462,3 +462,32 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   pilote, détail par difficulté) : renvois ajoutés ; (3) arrondis harmonisés (3,8 à 6,5 points ; jetons ×1,2 à 1,7) ;
   (4) lecture d'ensemble, conclusion et résumé complétés (coût égal, extrapolation, simulation) ; (5) précision : seule
   la paire de base PPO a été évaluée, au pilote. Placement des figures vérifié (au plus 2 pages de leur renvoi).
+
+## 17-18 novembre 2026 (hors projet de recherche)
+
+- Mail à une enseignante pour échanger sur le sujet (mémoire joint). Page de titre corrigée : « Master 2 Management
+  et Intelligence Artificielle », version du 17 nov. Déclaration d'usage de l'IA raccourcie (gardée, à la demande de
+  la supprimer l'IA a proposé de la raccourcir plutôt ; l'étudiant a choisi la version courte).
+
+## 23 novembre 2026
+
+- Quota Kaggle de nouveau disponible. Session 7 (T = 8, paire PPO) poussée ; restée en file d'attente plusieurs heures.
+- H4 préparée sans GPU : amendement du 23 nov. au plan (règles et prédictions écrites avant les données) ; données
+  d'entraînement déjà disponibles (vivier, disjoint de l'évaluation) : 2 112 exemples par source (PPO : 680 q.,
+  2,47 recherches ; départ : 656 q., 1,16). `scripts/sft_donnees.py`, `scripts/train_sft.py` (LoRA, perte sur les
+  seuls jetons générés, logits aux seules positions entraînées), `analysis/sft_partie2.py` ; chaîne testée sur CPU avec
+  un petit modèle aléatoire ; 67 tests.
+- Session 10 (entraînement) : échec en 79 s, `torchao` 0.10 préinstallé sur Kaggle fait échouer l'import de peft
+  (« only versions above 0.16.0 are supported »). Correction : désinstallation de torchao ; relancée le 24 nov.
+
+## 24 novembre 2026
+
+- Session 7 faite (2 × 4,5 h, aucun échec, 32 000 trajectoires). PPO à T = 8 : EM 0,351 (0,315 à T = 4), sans réponse
+  8,6 % (19,2 %), 2,46 recherches. Départ à T = 8 : EM 0,249, 0,90 recherche (le budget ne le limite pas).
+- Règle H2 (T = 8 contre départ T = 8) : « élargissement », D(32) +0,044, bande [+0,003 ; +0,085], frontière 359/337,
+  McNemar p 0,013. MAIS sensible au tirage du départ : départ T = 8 contre départ T = 4 (même comportement) donne
+  D(32) −0,018 (frontière 337 contre 346) ; PPO T = 8 contre départ T = 4 : « fiabilisation seule », D(32) +0,026.
+  Contre le départ réuni (64 tirages, pass@32 plus précis) : PPO T = 8 D(32) +0,036 [+0,006 ; +0,066] (IC ponctuel),
+  PPO T = 4 +0,020 [−0,011 ; +0,051]. Lecture : un budget plus large augmente surtout le gain au premier essai
+  (+0,10 contre +0,065) et un petit écart à 32 essais (3 à 4 points) ; le verdict « élargissement » tient en partie au
+  tirage bas du départ. Exploratoire (sensibilité), pas de correction pour cette paire.
