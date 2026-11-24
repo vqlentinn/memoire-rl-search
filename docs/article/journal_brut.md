@@ -507,3 +507,14 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
     (départ), 19,0 % (PPO), 9,6 % (GRPO).
   - Schémas TikZ : trois scénarios (fiabiliser / élargir / redistribuer, avec formules de D(k) et m(k)) ; chaînage.
     Mémoire : 83 pages.
+- Veille de littérature (24 nov.) : 11 articles récents lus en entier, annexes comprises (note de littérature).
+  Concurrent direct : Zhai et al. (même dispositif ; élargissement fondé sur 5 questions contre 1, sans test). Convergent :
+  Sharpening Tax (Oh et al., 14 paires, autres agents). Nouveau pour nous : la théorie du RL KL-régularisé prédit des
+  cotes de réussite multipliées par un même facteur (Matrenok et al., annexe B). « He et al. 2025 » non retrouvé.
+- Type de fiabilisation (`analysis/modeles_fiabilisation_partie2.py`, sans GPU) : vraisemblance des 32 essais de
+  l'agent sachant les 64 du départ. Les cotes multipliées (×1,65 PPO, ×1,36 GRPO, ×2,17 PPO T = 8) battent la puissance
+  (écart de log-vraisemblance 51 [27 ; 77] pour PPO) et suivent pass@k à 1,4 point près ; la bimodalisation s'ajuste
+  mal. Ajouter une dispersion par question (σ ≈ 1,8 PPO, 1,1 GRPO sur l'échelle logit) gagne plus de 2 000 d'AIC ;
+  contrôle départ contre départ : facteur 0,99, σ ≈ 0. La redistribution est donc mesurée. Le modèle complet sous-estime
+  la frontière de 2 à 3 points. Grille 400 contre 1 000 : mêmes paramètres. Test de récupération sur simulation.
+- Session 10 (H4) relancée après correction torchao : en cours d'exécution sur Kaggle (sortie de file le 24 nov.).

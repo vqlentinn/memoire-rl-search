@@ -320,3 +320,26 @@ def test_wiki2_preparer_filtre():
     out = preparer([base, oui, double])
     assert [q["id"] for q in out] == ["x"]
     assert out[0]["gold_titles"] == ["T1", "T2"] and out[0]["paragraphs"][3] == "T3\nphrase 3."
+
+
+def test_modeles_fiabilisation_retrouve_cotes_et_dispersion():
+    """Données simulées : cotes multipliées par 1,6, avec ou sans dispersion par question ; l'ajustement les retrouve."""
+    import numpy as np
+    from scipy.special import expit, logit
+    import analysis.modeles_fiabilisation_partie2 as M
+    from analysis.extrapolation_partie2 import ajuster
+    rng = np.random.default_rng(1)
+    n = 3000
+    p = np.where(rng.random(n) < 0.2, 0.0, rng.beta(0.6, 1.3, n))
+    cb = rng.binomial(64, p)
+    a, b, z, _ = ajuster(cb, n=64)
+    q, w = M.grille(a, b, z, 300)
+    post = M.posterieur(cb, q, w)
+    lp = logit(np.clip(p, 1e-9, 1 - 1e-9))
+    for sigma in (0.0, 1.5):
+        pa = np.where(p > 0, expit(lp + np.log(1.6) + sigma * rng.standard_normal(n)), 0.0)
+        ca = rng.binomial(32, pa)
+        t, _ = M.ajuster_transfo("cotes+dispersion", post, ca, q)
+        par = M.parametres_lisibles("cotes+dispersion", t)
+        assert abs(par["facteur_cotes"] - 1.6) < 0.2
+        assert abs(par["sigma_logit"] - sigma) < 0.3
