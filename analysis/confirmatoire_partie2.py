@@ -90,6 +90,13 @@ def est_depart(modele):
     return re.fullmatch(r"Qwen2\.5-\d+B(-Instruct)?", modele) is not None
 
 
+def taille_de(modele):
+    """Taille en milliards de paramètres lue dans le nom (qwen2.5-7b-…, Qwen2.5-7B-Instruct) ; 3 par défaut
+    (les noms courts it-em-ppo, it-sft-ppo désignent le 3B)."""
+    m = re.search(r"qwen2\.5-(\d+)b", modele, re.IGNORECASE)
+    return int(m.group(1)) if m else 3
+
+
 def depart_de(modele):
     """Départ apparié à un agent : même taille (lue dans le nom) et même famille. Sans taille lisible : 3B."""
     m = re.search(r"qwen2\.5-(\d+)b-", modele)

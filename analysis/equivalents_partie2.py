@@ -27,7 +27,7 @@ import numpy as np
 from scipy.stats import norm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from analysis.confirmatoire_partie2 import DEPART, analyser_paire, charger, court, reussites  # noqa: E402
+from analysis.confirmatoire_partie2 import analyser_paire, charger, court, reussites, taille_de  # noqa: E402
 from analysis.cout_partie2 import pass_reel  # noqa: E402
 from analysis.passk import pass_at_k  # noqa: E402
 
@@ -38,24 +38,24 @@ NOM = {("it-em-ppo", 4): "agent PPO, $T = 4$", ("it-em-grpo", 4): "agent GRPO, $
        ("it-em-ppo", 8): "agent PPO, $T = 8$"}
 
 
-def courbe_depart(c64):
-    grille = np.geomspace(1, 64, 400)
-    return grille, np.array([pass_reel(c64, 64, k).mean() for k in grille])
+def courbe_depart(c64, n_dep=64):
+    grille = np.geomspace(1, n_dep, 400)
+    return grille, np.array([pass_reel(c64, n_dep, k).mean() for k in grille])
 
 
 def equivalent(cible, grille, courbe):
-    """k' tel que courbe(k') = cible ; nan si hors de [1, 64]."""
+    """k' tel que courbe(k') = cible ; nan si hors de [1, n_dep]."""
     if cible < courbe[0] or cible > courbe[-1]:
         return np.nan
     return float(np.exp(np.interp(cible, courbe, np.log(grille))))
 
 
-def analyser(c_a, c64):
-    grille, cb = courbe_depart(c64)
+def analyser(c_a, c64, n_dep=64):
+    grille, cb = courbe_depart(c64, n_dep)
     pa = np.array([pass_at_k(32, c_a, k).mean() for k in KS])
     kp = np.array([equivalent(v, grille, cb) for v in pa])
     g = kp[0]
-    pred32 = float(pass_reel(c64, 64, 32 * g).mean()) if np.isfinite(g) and 32 * g <= 64 else np.nan
+    pred32 = float(pass_reel(c64, n_dep, 32 * g).mean()) if np.isfinite(g) and 32 * g <= n_dep else np.nan
     return pa, kp, g, pred32
 
 
@@ -66,30 +66,36 @@ def main(argv=None):
     ap.add_argument("--n-boot", type=int, default=1000)
     ap.add_argument("--type", default="bridge", choices=["bridge", "compositional"],
                     help="compositional : 2WikiMultiHopQA, départ à 64 essais = graines de génération 0 et 1 à T = 4")
+    ap.add_argument("--taille", type=int, default=3, choices=[3, 7],
+                    help="7 : paire 7B GRPO (amendement du 24 nov.) ; départ à 64 essais si le run de graine 1 existe, "
+                         "sinon 32 (m(k) seulement là où k m(k) <= 32, pas de prédiction de pass@32)")
     args = ap.parse_args(argv)
-    dep = court(DEPART["it"])
+    dep = f"Qwen2.5-{args.taille}B-Instruct"
+    # runs de la taille demandée seulement : l'intersection des questions ne dépend pas des runs d'une autre taille
     R = {(court(m), c[3], c[7]): reussites(L, 32) for (m, c), L in charger(args.indir).items()
-         if c[0] == args.type and c[6] == "42" and c[2] == 32 and c[3] in (4, 8)}
+         if c[0] == args.type and c[6] == "42" and c[2] == 32 and c[3] in (4, 8) and taille_de(m) == args.taille}
     ids = sorted(set.intersection(*[set(v) for v in R.values()]))
     C3 = {k: np.array([v[i] for i in ids]) for k, v in R.items()}
-    if args.type == "bridge":  # départ à T = 4 et T = 8 (même comportement), graine 0
-        c64 = C3[(dep, 4, 0)] + C3[(dep, 8, 0)]
-        agents = AGENTS
-    else:  # 2Wiki : départ à T = 4, graines 0 et 1
+    n_dep = 64
+    if (dep, 4, 1) in C3:  # 2Wiki, 7B : départ à T = 4, graines de génération 0 et 1
         c64 = C3[(dep, 4, 0)] + C3[(dep, 4, 1)]
-        agents = tuple(a for a in AGENTS if a[1] == 4)
+    elif args.type == "bridge" and (dep, 8, 0) in C3:  # ponts 3B : départ à T = 4 et T = 8 (même comportement)
+        c64 = C3[(dep, 4, 0)] + C3[(dep, 8, 0)]
+    else:  # un seul run du départ
+        c64, n_dep = C3[(dep, 4, 0)], 32
     C = {(m, t): v for (m, t, g), v in C3.items() if g == 0}
+    agents = tuple(a for a in (AGENTS if args.taille == 3 else (("7b-it-em-grpo", 4),)) if a in C)
     rng = np.random.default_rng(0)
-    res = {"questions": len(ids), "ks": KS, "depart_64": [float(pass_at_k(64, c64, k).mean()) for k in (1, 32, 64)],
-           "agents": {}, "puissance": {}}
-    print(f"départ, 64 tirages : pass@1 {res['depart_64'][0]:.3f}, pass@32 {res['depart_64'][1]:.3f}, "
-          f"pass@64 {res['depart_64'][2]:.3f}")
+    res = {"questions": len(ids), "ks": KS, "essais_depart": n_dep,
+           "depart_64": [float(pass_at_k(n_dep, c64, k).mean()) for k in (1, 32, n_dep)], "agents": {}, "puissance": {}}
+    print(f"départ, {n_dep} tirages : pass@1 {res['depart_64'][0]:.3f}, pass@32 {res['depart_64'][1]:.3f}, "
+          f"pass@{n_dep} {res['depart_64'][2]:.3f}")
     for ag in agents:
-        pa, kp, g, pred = analyser(C[ag], c64)
+        pa, kp, g, pred = analyser(C[ag], c64, n_dep)
         boot = []
         for _ in range(args.n_boot):
             j = rng.integers(0, len(ids), len(ids))
-            b = analyser(C[ag][j], c64[j])
+            b = analyser(C[ag][j], c64[j], n_dep)
             boot.append(np.concatenate([b[1] / KS, [b[2], b[0][-1] - b[3]]]))
         boot = np.array(boot)
         lo, hi = np.nanpercentile(boot, 2.5, 0), np.nanpercentile(boot, 97.5, 0)
@@ -119,9 +125,9 @@ def main(argv=None):
         print(f"   puissance {ag} : s {s:.3f}, q {q:.2f} | à N = 500 : " +
               ", ".join(f"δ {d} -> {v:.0%}" for d, v in p["puissance_N500"].items()) +
               " | N pour 80 % : " + ", ".join(f"δ {d} -> {v}" for d, v in p["N_80"].items()))
-    suffixe = "" if args.type == "bridge" else "_2wiki"
+    suffixe = ("" if args.type == "bridge" else "_2wiki") + ("" if args.taille == 3 else f"_{args.taille}b")
     Path(args.genere, f"equivalents{suffixe}.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
-    if args.type == "bridge":
+    if suffixe == "":
         figure(res, C, c64, Path(args.genere, "equivalents_ponts.pdf"))
     return res
 

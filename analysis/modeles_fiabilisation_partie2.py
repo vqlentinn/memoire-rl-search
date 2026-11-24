@@ -34,7 +34,7 @@ from scipy.special import expit, gammaln, logit
 from scipy.stats import beta as loi_beta
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from analysis.confirmatoire_partie2 import DEPART, charger, court, reussites  # noqa: E402
+from analysis.confirmatoire_partie2 import charger, court, reussites, taille_de  # noqa: E402
 from analysis.extrapolation_partie2 import ajuster  # noqa: E402
 from analysis.passk import pass_at_k  # noqa: E402
 
@@ -171,24 +171,27 @@ def main(argv=None):
     ap.add_argument("--type", default="bridge", choices=["bridge", "compositional"])
     ap.add_argument("--n-boot", type=int, default=100)
     ap.add_argument("--grille", type=int, default=400)
+    ap.add_argument("--taille", type=int, default=3, choices=[3, 7],
+                    help="7 : paire 7B GRPO ; loi du départ sur 64 essais si le run de graine 1 existe, sinon 32")
     args = ap.parse_args(argv)
-    dep = court(DEPART["it"])
+    dep = f"Qwen2.5-{args.taille}B-Instruct"
+    # runs de la taille demandée seulement : l'intersection des questions ne dépend pas des runs d'une autre taille
     R = {(court(m), c[3], c[7]): reussites(L, 32) for (m, c), L in charger(args.indir).items()
-         if c[0] == args.type and c[6] == "42" and c[2] == 32 and c[3] in (4, 8)}
+         if c[0] == args.type and c[6] == "42" and c[2] == 32 and c[3] in (4, 8) and taille_de(m) == args.taille}
     ids = sorted(set.intersection(*[set(v) for v in R.values()]))
     C = {k: np.array([v[i] for i in ids]) for k, v in R.items()}
-    if args.type == "bridge":
-        cb = C[(dep, 4, 0)] + C[(dep, 8, 0)]
-        agents = [("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8)]
-    else:
-        cb = C[(dep, 4, 0)] + C[(dep, 4, 1)]
-        agents = [("it-em-ppo", 4), ("it-em-grpo", 4)]
-    a, b, pi0, _ = ajuster(cb, n=64)
+    # deux runs du départ (contrôle départ / départ possible) ou un seul (32 essais, pas de contrôle)
+    second = (dep, 4, 1) if (dep, 4, 1) in C else (dep, 8, 0) if args.type == "bridge" and (dep, 8, 0) in C else None
+    cb = C[(dep, 4, 0)] + (C[second] if second else 0)
+    nb = 64 if second else 32
+    candidats = [("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8)] if args.taille == 3 else [("7b-it-em-grpo", 4)]
+    agents = [ag for ag in candidats if (ag[0], ag[1], 0) in C]
+    a, b, pi0, _ = ajuster(cb, n=nb)
     p, w = grille(a, b, pi0, args.grille)
-    post = posterieur(cb, p, w)
-    print(f"loi du départ (64 essais) : Bêta({a:.3f}, {b:.3f}), part à 0 : {pi0:.3f}")
+    post = posterieur(cb, p, w, nb=nb)
+    print(f"loi du départ ({nb} essais) : Bêta({a:.3f}, {b:.3f}), part à 0 : {pi0:.3f}")
     noms = ["identité", "puissance", "cotes", "logit-linéaire", "bimodalisation", "puissance+dispersion", "cotes+dispersion"]
-    res = {"questions": len(ids), "loi_depart": [a, b, pi0], "ks": KS, "agents": {}}
+    res = {"questions": len(ids), "essais_depart": nb, "loi_depart": [a, b, pi0], "ks": KS, "agents": {}}
     rng = np.random.default_rng(0)
     for ag in agents:
         ca = C[(ag[0], ag[1], 0)]
@@ -220,21 +223,21 @@ def main(argv=None):
         x = r["puissance_moins_cotes"]
         print(f"   log-vraisemblance puissance − cotes : {x['ecart']:+.1f} [{x['ic'][0]:+.1f} ; {x['ic'][1]:+.1f}]")
     # Contrôle : le départ contre lui-même (deux runs de 32 essais, même comportement) ; attendu : facteur 1, sigma 0
-    if args.type == "bridge":
-        c1, c2 = C[(dep, 4, 0)], C[(dep, 8, 0)]
-    else:
-        c1, c2 = C[(dep, 4, 0)], C[(dep, 4, 1)]
-    a1, b1, z1, _ = ajuster(c1, n=32)
-    p1, w1 = grille(a1, b1, z1, args.grille)
-    post1 = posterieur(c1, p1, w1, nb=32)
     res["controle_depart_depart"] = {}
-    for nom in ("identité", "cotes", "cotes+dispersion"):
-        t1, l1 = ajuster_transfo(nom, post1, c2, p1)
-        res["controle_depart_depart"][nom] = {"logvrais": l1, "parametres": parametres_lisibles(nom, t1)}
-        print(f"contrôle départ / départ, {nom:17} log-vraisemblance {l1:.1f} {parametres_lisibles(nom, t1)}")
-    suffixe = "" if args.type == "bridge" else "_2wiki"
+    if second:
+        c1, c2 = C[(dep, 4, 0)], C[second]
+        a1, b1, z1, _ = ajuster(c1, n=32)
+        p1, w1 = grille(a1, b1, z1, args.grille)
+        post1 = posterieur(c1, p1, w1, nb=32)
+        for nom in ("identité", "cotes", "cotes+dispersion"):
+            t1, l1 = ajuster_transfo(nom, post1, c2, p1)
+            res["controle_depart_depart"][nom] = {"logvrais": l1, "parametres": parametres_lisibles(nom, t1)}
+            print(f"contrôle départ / départ, {nom:17} log-vraisemblance {l1:.1f} {parametres_lisibles(nom, t1)}")
+    else:
+        print("contrôle départ / départ : un seul run du départ, non calculé")
+    suffixe = ("" if args.type == "bridge" else "_2wiki") + ("" if args.taille == 3 else f"_{args.taille}b")
     Path(args.genere, f"modeles_fiabilisation{suffixe}.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
-    if args.type == "bridge":
+    if suffixe == "":
         figure(res, Path(args.genere, "modeles_fiabilisation_ponts.pdf"))
     return res
 
