@@ -518,3 +518,8 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   contrôle départ contre départ : facteur 0,99, σ ≈ 0. La redistribution est donc mesurée. Le modèle complet sous-estime
   la frontière de 2 à 3 points. Grille 400 contre 1 000 : mêmes paramètres. Test de récupération sur simulation.
 - Session 10 (H4) relancée après correction torchao : en cours d'exécution sur Kaggle (sortie de file le 24 nov.).
+- Session 10 (H4, entraînement) faite : deux adaptateurs LoRA (r 16, 2 époques, 264 pas, 2 112 exemples chacun),
+  `it-sft-ppo` en 2 h 47 (perte finale 0,20) et `it-sft-depart` en 1 h 35 (perte finale 0,57), aucun échec
+  (`results/partie2_s10`). Écart de perte : les traces de l'agent sont plus régulières, donc plus faciles à imiter.
+  Session 11 (évaluation, lit la sortie de la 10) en file ; session 12 (2Wiki, agents) en cours ; sessions 14 à 17 (7B)
+  prêtes, pas encore poussées.
