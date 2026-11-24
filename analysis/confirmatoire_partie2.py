@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from scripts.run_passk import statut  # noqa: E402
 from analysis.passk import bootstrap_multiplicateur, courbes, difference_appariee, frontiere, grille_k  # noqa: E402
 
-NOM = re.compile(r"^(?P<modele>.+?)_(?P<type>bridge|comparison)_q(?P<N>\d+)_n(?P<n>\d+)_T(?P<T>\d+)"
+NOM = re.compile(r"^(?P<modele>.+?)_(?P<type>bridge|comparison|compositional)_q(?P<N>\d+)_n(?P<n>\d+)_T(?P<T>\d+)"
                  r"_temp(?P<temp>[\d.]+)_(?P<tag>chat|brut)(?:_seed(?P<sq>\d+))?(?:_ids(?P<ids>[^_]+))?(?:_g(?P<g>\d+))?"
                  r"(?:_shard\d+of\d+)?$")
 DEPART = {"it": "Qwen2.5-3B-Instruct", "base": "Qwen2.5-3B"}

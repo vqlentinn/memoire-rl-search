@@ -307,3 +307,16 @@ def test_vote_majoritaire_ex_aequo():
     reps = ["a", "b"]  # un essai juste, un faux : ex aequo à k = 2 -> 1/2 en espérance
     assert maj_k(reps, {"a": 1, "b": 0}, 2, rng, n_sous=50) == 0.5
     assert maj_k([None, None, "a"], {"a": 1}, 3, rng, n_sous=10) == 1.0
+
+
+def test_wiki2_preparer_filtre():
+    from data.wiki2_distractor import preparer
+    ctx = {"title": [f"T{i}" for i in range(10)], "content": [[f"phrase {i}."] for i in range(10)]}
+    base = {"id": "x", "question": "q ?", "golden_answers": ["Paris"],
+            "metadata": {"type": "compositional", "context": ctx, "supporting_facts": {"title": ["T1", "T2", "T1"]}}}
+    oui = dict(base, id="y", golden_answers=["yes"])
+    double = dict(base, id="z", metadata=dict(base["metadata"], context={"title": ["T0"] * 2 + ctx["title"][2:],
+                                                                       "content": [["même."]] * 10}))
+    out = preparer([base, oui, double])
+    assert [q["id"] for q in out] == ["x"]
+    assert out[0]["gold_titles"] == ["T1", "T2"] and out[0]["paragraphs"][3] == "T3\nphrase 3."

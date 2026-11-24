@@ -57,7 +57,8 @@ def nom_court(model):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
-    ap.add_argument("--type", required=True, choices=["bridge", "comparison"])
+    ap.add_argument("--type", required=True, choices=["bridge", "comparison", "compositional"],
+                    help="compositional : 2WikiMultiHopQA (data/wiki2_distractor.py), les autres : HotpotQA")
     ap.add_argument("--n-questions", type=int, default=50)
     ap.add_argument("--n-samples", type=int, default=32)
     ap.add_argument("--max-turns", type=int, default=4)
@@ -79,7 +80,12 @@ def main():
     ap.add_argument("--outdir", default="results/partie2")
     args = ap.parse_args()
 
-    from data.hotpot_distractor import charger
+    if args.type == "compositional":  # 2WikiMultiHopQA (amendement du 24 nov.) ; --data : un .jsonl, sinon téléchargé
+        from data.wiki2_distractor import charger
+        if args.data and not args.data.endswith(".jsonl"):
+            args.data = None
+    else:
+        from data.hotpot_distractor import charger
     from retrieval.closed_bm25 import ClosedBM25Retriever
     from systems.searchr1 import SearchR1System
 

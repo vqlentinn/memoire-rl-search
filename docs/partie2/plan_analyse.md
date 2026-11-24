@@ -267,3 +267,30 @@ après les résultats principaux), mais règles fixées ici.
   (ρ entre 0,3 et 0,8 : « partiellement »), avec un taux de recherche proche de celui de PPO ; `it-sft-depart` gagne
   moins (ρ < 0,5) ; aucun des deux n'élargit la frontière (verdict H2 « fiabilisation seule » ou « indéterminé »).
 - **Rapporté en plus :** taux de sorties sans réponse, recherches et jetons par trajectoire, perte d'entraînement.
+
+## Amendement du 24 novembre 2026 (avant toute donnée 2Wiki) : réplication sur 2WikiMultiHopQA
+
+Motivation : tester la généralité du résultat principal hors des données d'entraînement de Search-R1 (NQ + HotpotQA),
+et mettre à l'épreuve, sur des données nouvelles, la loi des essais équivalents constatée après coup sur HotpotQA
+(section « Un essai de l'agent vaut un essai et demi du départ » du chapitre). Ce qui était exploratoire sur HotpotQA
+devient ici une prédiction écrite avant les données.
+
+- **Jeu :** 2WikiMultiHopQA, partie dev de FlashRAG (`data/wiki2_distractor.py`), cadre distracteurs (10 paragraphes
+  distincts par question, réponses oui/non exclues), type « compositional » (deux étapes, 2 paragraphes utiles ;
+  5 121 questions éligibles). BM25 fermé par question, top 3, comme HotpotQA. Mesuré avant les données : la question
+  seule ramène les deux paragraphes utiles pour 29 % des questions (45 % sur les ponts HotpotQA).
+- **Échantillon :** 500 questions (graine 42) ; paires Instruct principales (départ, PPO, GRPO) ; n = 32, T = 4,
+  température 0,7, 1 024 jetons par tour, mêmes prompts. Le modèle de départ tire en plus 32 essais avec une autre
+  graine de génération (graine 1) : 64 essais au total, pour les essais équivalents sans modèle paramétrique.
+- **Règles :** H1 et H2 du plan, à l'identique (règle de décision, bandes simultanées, Holm sur les deux paires).
+  Essais équivalents m(k) et prédiction de la fiabilisation pure pass_agent(32) = pass_départ(32 g), g = m(1), comme
+  dans `analysis/equivalents_partie2.py`. Diversité (réponses distinctes), maj@32, chaînage comme dans
+  `analysis/diversite_partie2.py`.
+- **Prédictions (écrites avant) :**
+  1. H1 soutenue pour les deux agents ; H2 « fiabilisation seule » pour les deux.
+  2. Loi des essais équivalents : pour chaque agent, l'IC à 95 % de pass@32 observé − prédit contient 0, et
+     |observé − prédit| < 0,03.
+  3. m(k) sans tendance : m(32) dans l'IC à 95 % de m(1).
+  4. L'agent déclare moins de réponses distinctes et chaîne plus souvent que le départ (IC des écarts hors de 0) ;
+     l'écart de maj@32 est plus grand que l'écart de pass@32.
+- **Sessions :** 12 (agents PPO et GRPO, un par GPU) et 13 (départ, graines de génération 0 et 1).

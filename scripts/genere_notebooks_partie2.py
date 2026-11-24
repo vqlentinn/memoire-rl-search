@@ -25,6 +25,8 @@ IDS = ["--ids", "/kaggle/input/memoire-partie2-s3/difficiles_ponts.txt"]
 # Miroir (amendement du 15 novembre) : questions du vivier sans réussite de chaque agent (sortie de la session 8).
 IDS_PPO = ["--ids", "/kaggle/input/memoire-partie2-s8/difficiles_ppo.txt"]
 IDS_GRPO = ["--ids", "/kaggle/input/memoire-partie2-s8/difficiles_grpo.txt"]
+# 2WikiMultiHopQA (amendement du 24 novembre) : type « compositional », données téléchargées par le chargeur
+W2 = ["--type", "compositional", "--data", ""]
 
 SESSIONS = {
     2: {
@@ -102,6 +104,19 @@ SESSIONS = {
         "sources": ["valentinproux/memoire-partie2-s10"],
         "pip": "peft==0.21.2",
         "fusion": True,
+    },
+    12: {
+        "titre": "session 12 : 2WikiMultiHopQA, agents (compositional, T = 4)",
+        "texte": ("Amendement du 24 novembre (réplication hors distribution, prédictions écrites avant) : 500 questions "
+                  "« compositional » (graine 42), n = 32, T = 4 ; un agent par GPU."),
+        "files": [[(PPO, W2)], [(GRPO, W2)]],
+    },
+    13: {
+        "titre": "session 13 : 2WikiMultiHopQA, modèle de départ (graines de génération 0 et 1)",
+        "texte": ("Amendement du 24 novembre : le modèle de départ tire 32 essais avec la graine 0 (paire principale) et "
+                  "32 avec la graine 1 (64 au total, pour les essais équivalents) ; moitiés sur deux GPU."),
+        "files": [[(QWEN_IT, W2 + ["--shard", "0/2"]), (QWEN_IT, W2 + ["--seed", "1", "--shard", "0/2"])],
+                  [(QWEN_IT, W2 + ["--shard", "1/2"]), (QWEN_IT, W2 + ["--seed", "1", "--shard", "1/2"])]],
     },
     6: {
         "titre": "session 6 : lecture croisée, variante « réponse forcée » (exploratoire)",
