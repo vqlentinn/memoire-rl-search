@@ -139,7 +139,7 @@ def main(argv=None):
               " ".join(f"{k}:{a:.3f}" for k, a in zip(KS, r["maj"])) +
               f" | chaînage {r['chainage']:.3f} (≥ 2 requêtes {r['deux_requetes_ou_plus']:.2f}), EM si chaînage "
               f"{r['em_si_chainage']:.3f} ({r['n_chainage']} traj.), sinon {r['em_sinon']:.3f}")
-    agents = (("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8)) if args.taille == 3 else (("7b-it-em-grpo", 4),)
+    agents = (("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8), ("it-sft-ppo", 4), ("it-sft-depart", 4)) if args.taille == 3 else (("7b-it-em-grpo", 4),)
     for ag, T in agents:
         if (ag, T) not in M or (dep, T) not in M:
             continue

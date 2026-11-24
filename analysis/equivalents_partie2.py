@@ -33,6 +33,7 @@ from analysis.passk import pass_at_k  # noqa: E402
 
 KS = [1, 2, 4, 8, 16, 32]
 AGENTS = (("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8))
+SFT = (("it-sft-ppo", 4), ("it-sft-depart", 4))  # H4 (session 11) : calculés, hors figure
 COUL = {("it-em-ppo", 4): "#2563eb", ("it-em-grpo", 4): "#d97706", ("it-em-ppo", 8): "#0d9488"}
 NOM = {("it-em-ppo", 4): "agent PPO, $T = 4$", ("it-em-grpo", 4): "agent GRPO, $T = 4$",
        ("it-em-ppo", 8): "agent PPO, $T = 8$"}
@@ -84,7 +85,7 @@ def main(argv=None):
     else:  # un seul run du départ
         c64, n_dep = C3[(dep, 4, 0)], 32
     C = {(m, t): v for (m, t, g), v in C3.items() if g == 0}
-    agents = tuple(a for a in (AGENTS if args.taille == 3 else (("7b-it-em-grpo", 4),)) if a in C)
+    agents = tuple(a for a in (AGENTS + SFT if args.taille == 3 else (("7b-it-em-grpo", 4),)) if a in C)
     rng = np.random.default_rng(0)
     res = {"questions": len(ids), "ks": KS, "essais_depart": n_dep,
            "depart_64": [float(pass_at_k(n_dep, c64, k).mean()) for k in (1, 32, n_dep)], "agents": {}, "puissance": {}}

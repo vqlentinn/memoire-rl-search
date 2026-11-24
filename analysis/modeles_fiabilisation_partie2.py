@@ -184,7 +184,7 @@ def main(argv=None):
     second = (dep, 4, 1) if (dep, 4, 1) in C else (dep, 8, 0) if args.type == "bridge" and (dep, 8, 0) in C else None
     cb = C[(dep, 4, 0)] + (C[second] if second else 0)
     nb = 64 if second else 32
-    candidats = [("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8)] if args.taille == 3 else [("7b-it-em-grpo", 4)]
+    candidats = [("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8), ("it-sft-ppo", 4), ("it-sft-depart", 4)] if args.taille == 3 else [("7b-it-em-grpo", 4)]
     agents = [ag for ag in candidats if (ag[0], ag[1], 0) in C]
     a, b, pi0, _ = ajuster(cb, n=nb)
     p, w = grille(a, b, pi0, args.grille)
@@ -250,8 +250,9 @@ def figure(res, chemin):
               "bimodalisation": ("#0d9488", (0, (1, 1))), "cotes+dispersion": ("#111827", "-")}
     titres = {"it-em-ppo_T4": "agent PPO, $T = 4$", "it-em-grpo_T4": "agent GRPO, $T = 4$",
               "it-em-ppo_T8": "agent PPO, $T = 8$"}
-    fig, axes = plt.subplots(1, len(res["agents"]), figsize=(9.6, 3.3), sharey=True)
-    for ax, (cle, r) in zip(np.atleast_1d(axes), res["agents"].items()):
+    ag_fig = {c: r for c, r in res["agents"].items() if c in titres}  # modèles SFT (H4) : hors figure
+    fig, axes = plt.subplots(1, len(ag_fig), figsize=(9.6, 3.3), sharey=True)
+    for ax, (cle, r) in zip(np.atleast_1d(axes), ag_fig.items()):
         obs = np.array(r["observe"])
         for nom, (coul, ls) in styles.items():
             ax.plot(KS, np.array(r["modeles"][nom]["passk_predit"]) - obs, color=coul, ls=ls, lw=1.8, label=nom)
