@@ -255,3 +255,26 @@ Textes HTML d'arXiv lus en entier, sauf mention. Ce qui compte pour l'article :
 Bilan : aucune des sources lues ne définit d'équivalence en essais ni ne prédit la frontière par pass_départ(g k) ;
 aucune ne traite l'asymétrie de sélection (test miroir) ; aucune ne compare le vote majoritaire base / RL ; aucune
 n'étudie un agent de recherche public face à son modèle de départ avec inférence appariée par question.
+
+### Annexes lues (24 novembre 2026, suite) : tous les textes sont maintenant lus en entier
+
+- **Controlling Sharpening 2611.03146, annexes A à L.** Annexe B : pour le RL KL-régularisé à pass@1, la probabilité de
+  succès optimale vaut p* = p e^{1/β} / (1 − p + p e^{1/β}) : les **cotes** de chaque question sont multipliées par
+  e^{1/β} ; une question à p = 0 reste à 0 (pas d'élargissement possible, comme dans notre modèle en puissance). Pour
+  pass@k, décalage de logit k(1 − p*)^{k−1}/β, plus fort sur les questions difficiles. Annexe K : estimer p avec M = 30
+  tirages est bruité près de p petit (écart-type de p* 0,123 à p = 0,1 et k = 4) : prudence analogue pour nos m(k)
+  aux questions rares. Tableau L : MATH niveau 5, la base OLMo-3-7B passe de 37,4 à 65,3 % à pass@1 et de 81,8 à 92,2 %
+  à pass@16 (ici le RL relève aussi pass@16). Coût : plus de 100 000 GPU-heures.
+- **Power Distribution 2605.04542, annexes.** GRPO (MATH500) 0,50 à 0,52 en décodage standard ; l'auto-distillation
+  (SFT sur des échantillons de la distribution en puissance) récupère l'essentiel du gain de l'échantillonnage en
+  puissance (MATH500 0,722 contre 0,714 ; GPQA 0,277 = 0,277) : un précédent, sur les maths, pour l'idée qu'un SFT sur de
+  bonnes traces récupère un gain de « fiabilisation » (H4). Pas de pass@k. La référence « He et al. 2025 » n'apparaît
+  pas dans la version HTML (liste de références absente) ; **non identifiée** à ce jour, ne pas citer sans l'avoir
+  retrouvée.
+- **Search-RSI 2611.27780, annexes.** Bootstrap apparié + Holm sur 3 graines ; plafonner les appels à 4 garde ~70 % du
+  gain. Ni pass@k, ni comparaison à la base, ni Search-R1. Hors sujet pour notre question, citable pour la méthode.
+- **Hard or Just Unreached 2606.19636, fin.** À calcul égal, remplacer un tirage par une chaîne déterministe réduit le
+  nombre de questions jamais résolues dans 80 cellules sur 96 : « jamais résolu en k tirages » dépend du procédé
+  d'échantillonnage.
+- Toutes les autres sources de la veille (Zhai et al., Sharpening Tax, Elicitation or Expansion, What pass@k Cannot
+  Measure, Budget Internalization, Pass@k Inversion, Primitives and Paths) ont été lues en entier plus haut.
