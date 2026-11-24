@@ -2,6 +2,8 @@
 # Après une session Kaggle de la partie 2 : télécharge les sorties, vérifie le journal et les trajectoires,
 # relie les fichiers dans results/partie2/ et relance les analyses.
 #   PY=<python avec matplotlib> scripts/apres_session.sh 3
+# Session faite sur Colab : copier le dossier Drive MyDrive/memoire-rl-search/sN/ dans results/partie2_sN/, puis
+#   LOCAL=1 PY=<python> scripts/apres_session.sh N   (pas de téléchargement Kaggle)
 # Le statut COMPLETE ne prouve rien : ce script s'arrête si un run a échoué ou si une question est incomplète.
 set -euo pipefail
 S="$1"
@@ -10,7 +12,9 @@ K="${KAGGLE:-$HOME/.venvs/memoire-rl-search/bin/kaggle}"
 cd "$(dirname "$0")/.."
 DEST="results/partie2_s${S}"
 mkdir -p "$DEST"
-"$K" kernels output "valentinproux/memoire-partie2-s${S}" -p "$DEST" -o >/dev/null
+if [ -z "${LOCAL:-}" ]; then
+  "$K" kernels output "valentinproux/memoire-partie2-s${S}" -p "$DEST" -o >/dev/null
+fi
 
 echo "== Journal : erreurs Python"
 grep -h -E "Traceback|Error|RuntimeError" "$DEST"/*.log "$DEST"/logs/*.log 2>/dev/null | sort | uniq -c | head -20 || true
