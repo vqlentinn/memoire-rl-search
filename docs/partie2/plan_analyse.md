@@ -294,3 +294,16 @@ devient ici une prédiction écrite avant les données.
   4. L'agent déclare moins de réponses distinctes et chaîne plus souvent que le départ (IC des écarts hors de 0) ;
      l'écart de maj@32 est plus grand que l'écart de pass@32.
 - **Sessions :** 12 (agents PPO et GRPO, un par GPU) et 13 (départ, graines de génération 0 et 1).
+
+## Amendement du 24 novembre 2026 (avant toute donnée 7B) : réplication à 7 milliards de paramètres
+
+- **Paire :** `Qwen/Qwen2.5-7B-Instruct` contre `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-7b-it-em-grpo-v0.3`
+  (vérifié sur Hugging Face le 24 nov. : seule variante Instruct en v0.3 à 7B ; pas de PPO Instruct v0.3 à 7B).
+- **Protocole :** celui de la session 1 (500 ponts HotpotQA, graine 42, n = 32, T = 4, température 0,7, 1 024 jetons par
+  tour). Le modèle est réparti sur les deux T4 (`--tensor-parallel 2`) ; chaque modèle est découpé en deux moitiés de
+  questions (sessions 14 à 17). Si le quota le permet, un second run du départ (graine de génération 1) pour les
+  essais équivalents sans modèle paramétrique ; sinon, base à 32 essais seulement (m(k) calculé jusqu'à k = 32).
+- **Règles :** H1, H2 à l'identique ; essais équivalents ; type de fiabilisation (cotes contre puissance, dispersion).
+- **Prédictions (écrites avant) :** H1 soutenue ; H2 « fiabilisation seule » ; facteur de cotes et m(1) supérieurs à
+  ceux du 3B GRPO (la littérature rapporte un gain de Search-R1 plus grand à 7B) ; pass@32 observé à moins de 3 points de
+  la prédiction de la fiabilisation pure.

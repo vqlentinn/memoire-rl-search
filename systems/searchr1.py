@@ -27,9 +27,10 @@ SEARCH_RE = re.compile(r"<search>(.*?)</search>", re.DOTALL)
 class SearchR1System:
     def __init__(self, model_id: str, retriever, topk: int = 3, max_turns: int = 4,
                  max_tokens: int = 512, temperature: float = 0.0, max_model_len: int = 4096,
-                 use_chat_template: bool = True, seed: int = 0):
+                 use_chat_template: bool = True, seed: int = 0, tensor_parallel: int = 1):
+        # tensor_parallel = 2 : un modèle 7B (15 Go en fp16) réparti sur deux T4 de 16 Go (amendement 7B)
         self.llm = LLM(model_id, dtype="float16", max_model_len=max_model_len,
-                       gpu_memory_utilization=0.85, seed=seed)
+                       gpu_memory_utilization=0.85, seed=seed, tensor_parallel_size=tensor_parallel)
         self.use_chat_template = use_chat_template
         self.max_tokens, self.max_model_len = max_tokens, max_model_len
         self.tok = self.llm.get_tokenizer()

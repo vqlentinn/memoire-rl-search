@@ -78,6 +78,7 @@ def main():
     ap.add_argument("--ids", default=None, help="fichier d'ids (un par ligne) : sous-ensemble difficile, sans tirage")
     ap.add_argument("--shard", default=None, help="« i/m » : seulement les questions i, i+m, i+2m… (deux GPU en parallèle)")
     ap.add_argument("--outdir", default="results/partie2")
+    ap.add_argument("--tensor-parallel", type=int, default=1, help="2 : modèle réparti sur deux GPU (7B sur 2×T4)")
     args = ap.parse_args()
 
     if args.type == "compositional":  # 2WikiMultiHopQA (amendement du 24 nov.) ; --data : un .jsonl, sinon téléchargé
@@ -130,7 +131,8 @@ def main():
 
     systeme = SearchR1System(args.model, ClosedBM25Retriever(questions), topk=args.topk, max_turns=args.max_turns,
                              max_tokens=args.max_tokens, temperature=args.temperature, max_model_len=args.max_model_len,
-                             use_chat_template=not args.no_chat_template, seed=args.seed)
+                             use_chat_template=not args.no_chat_template, seed=args.seed,
+                             tensor_parallel=args.tensor_parallel)
     t0, n_traj = time.time(), 0
     for i in range(0, len(a_faire), args.questions_par_lot):
         lot = a_faire[i:i + args.questions_par_lot]

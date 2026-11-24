@@ -27,6 +27,10 @@ IDS_PPO = ["--ids", "/kaggle/input/memoire-partie2-s8/difficiles_ppo.txt"]
 IDS_GRPO = ["--ids", "/kaggle/input/memoire-partie2-s8/difficiles_grpo.txt"]
 # 2WikiMultiHopQA (amendement du 24 novembre) : type « compositional », données téléchargées par le chargeur
 W2 = ["--type", "compositional", "--data", ""]
+# 7B (amendement du 24 novembre) : seule paire Instruct en v0.3 = GRPO ; modèle réparti sur les deux T4
+QWEN7_IT = "Qwen/Qwen2.5-7B-Instruct"
+GRPO7 = R.replace("3b", "7b") + "it-em-grpo-v0.3"
+TP2 = ["--tensor-parallel", "2"]
 
 SESSIONS = {
     2: {
@@ -117,6 +121,38 @@ SESSIONS = {
                   "32 avec la graine 1 (64 au total, pour les essais équivalents) ; moitiés sur deux GPU."),
         "files": [[(QWEN_IT, W2 + ["--shard", "0/2"]), (QWEN_IT, W2 + ["--seed", "1", "--shard", "0/2"])],
                   [(QWEN_IT, W2 + ["--shard", "1/2"]), (QWEN_IT, W2 + ["--seed", "1", "--shard", "1/2"])]],
+    },
+    14: {
+        "titre": "session 14 : 7B, agent GRPO 7B, moitié 0/2 (ponts, T = 4)",
+        "texte": ("Amendement du 24 novembre (réplication 7B) : Qwen2.5-7B-Instruct contre son agent Search-R1 GRPO v0.3, "
+                  "protocole de la session 1 ; le modèle occupe les deux T4 (tensor parallel), d'où une moitié des "
+                  "questions par session."),
+        "files": [[(GRPO7, TP2 + ["--shard", "0/2"])]],
+        "tp": True,
+    },
+    15: {
+        "titre": "session 15 : 7B, agent GRPO 7B, moitié 1/2 (ponts, T = 4)",
+        "texte": ("Amendement du 24 novembre (réplication 7B) : Qwen2.5-7B-Instruct contre son agent Search-R1 GRPO v0.3, "
+                  "protocole de la session 1 ; le modèle occupe les deux T4 (tensor parallel), d'où une moitié des "
+                  "questions par session."),
+        "files": [[(GRPO7, TP2 + ["--shard", "1/2"])]],
+        "tp": True,
+    },
+    16: {
+        "titre": "session 16 : 7B, modèle de départ 7B, moitié 0/2 (ponts, T = 4)",
+        "texte": ("Amendement du 24 novembre (réplication 7B) : Qwen2.5-7B-Instruct contre son agent Search-R1 GRPO v0.3, "
+                  "protocole de la session 1 ; le modèle occupe les deux T4 (tensor parallel), d'où une moitié des "
+                  "questions par session."),
+        "files": [[(QWEN7_IT, TP2 + ["--shard", "0/2"])]],
+        "tp": True,
+    },
+    17: {
+        "titre": "session 17 : 7B, modèle de départ 7B, moitié 1/2 (ponts, T = 4)",
+        "texte": ("Amendement du 24 novembre (réplication 7B) : Qwen2.5-7B-Instruct contre son agent Search-R1 GRPO v0.3, "
+                  "protocole de la session 1 ; le modèle occupe les deux T4 (tensor parallel), d'où une moitié des "
+                  "questions par session."),
+        "files": [[(QWEN7_IT, TP2 + ["--shard", "1/2"])]],
+        "tp": True,
     },
     6: {
         "titre": "session 6 : lecture croisée, variante « réponse forcée » (exploratoire)",
@@ -344,6 +380,9 @@ def generer(num, s, modele):
                            "!pip uninstall -y -q torchao\n!pip freeze", 1))
     cellules[4]["source"] = source(CELLULE_SFT if "entrainement" in s else CELLULE_FORCEE if "forcee" in s
                                    else CELLULE_LECTURE if "lecture" in s else CELLULE_RUNS)
+    if s.get("tp"):  # un seul run à la fois, sur les deux GPU
+        cellules[4]["source"] = source("".join(cellules[4]["source"]).replace(
+            "CUDA_VISIBLE_DEVICES=str(gpu)", 'CUDA_VISIBLE_DEVICES="0,1"'))
     if s.get("fusion"):
         cellules[4]["source"] = source(CELLULE_RUNS.replace("status, verrou = [], threading.Lock()\n",
                                                             "status, verrou = [], threading.Lock()\n\n"
