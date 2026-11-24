@@ -164,3 +164,38 @@ distillation des bonnes traces obtient l'essentiel pour beaucoup moins cher.
 | Article sur les croisements intitulé « When Pass@k Crossovers Are Real » | Titre exact confirmé (v3) ; nuance ajoutée sur les croisements certifiés à 1,5 milliard |
 | Zhai et al. : dispositif résumé | Ajouté : l'agent RL est entraîné par les auteurs sur 200 questions ; le contrôle sans outil est MATH-500 |
 | Variantes Instruct de Search-R1 « à vérifier » | Vérifié : `SearchR1-nq_hotpotqa_train-qwen2.5-3b-it-em-{ppo,grpo}-v0.3` existent |
+
+## Veille du 24 novembre 2026 (avant l'article)
+
+Sources : recherche web, Consensus, index des articles Hugging Face, OpenAlex (aucun résultat sur la requête ciblée).
+Vérifié sur la page arXiv (résumé) ; « texte » = texte complet consulté en partie.
+
+- **Oh et al., « Sharpening Tax in Post-Training », arXiv 2610.01509 (1er oct. 2026)** (texte, 100 000 premiers
+  caractères). 14 paires base / post-entraîné (Gemma-4, Ministral-3, Qwen2.5, Qwen3.5), 3 bancs agentiques (BFCL v4
+  multi-tour, WebShop, ACEBench), pass@K jusqu'à 128. Le modèle de base, avec un harnais léger, dépasse souvent la
+  version post-entraînée à grand K (36 cas sur 42). Taxe = différence d'aire sous la courbe pass@k. IC bootstrap, pas de
+  test apparié ni de bande simultanée, pas de comparaison à coût égal, pas de vote majoritaire, pas d'équivalence en
+  essais (seulement le budget de croisement k*). **Pas d'agent de recherche ni de HotpotQA.** Soutient notre résultat ;
+  le titre « le renforcement fiabilise les agents » n'est donc plus neuf, nos apports doivent être ailleurs.
+- **Zhai et al., arXiv 2604.14877** (déjà cité ; résumé relu). Annonce un élargissement par le renforcement sur les
+  tâches compositionnelles de collecte d'information, et un **rétrécissement par le SFT à données égales** ; gain
+  attribué à l'intégration de l'information trouvée. À discuter frontalement : notre H4 teste directement leur
+  affirmation sur le SFT, et nos résultats (recherche plutôt que lecture, pas d'élargissement net) la contredisent.
+- **Kim et al., « Elicitation or Expansion? Demystifying Gains from Agent Harness Optimization », arXiv 2610.27889
+  (20 oct. 2026).** Même question (fiabiliser ou élargir) pour l'optimisation de harnais, pas pour le renforcement ;
+  avantage à pass@1 qui peut s'inverser à grand budget.
+- **Rath et al., « What pass@k Cannot Measure », arXiv 2610.07405 (atelier NeurIPS 2026, non archivé).** Maths,
+  Qwen2.5-1.5B, GRPO contre RFT (fine-tuning par rejet, l'analogue de notre `it-sft-depart`) ; mesures de diversité
+  (réponses uniques, entropie) ; aucune méthode n'améliore la couverture des problèmes difficiles. Proche de nos
+  analyses de diversité et de H4, mais sans agent.
+- **Zavidnyi et al., « Budget Internalization », arXiv 2611.26172 (19 nov. 2026).** Un plafond fixe pendant
+  l'entraînement est intériorisé : gain près du budget, perte de l'adaptation au temps de calcul. Budget de jetons,
+  maths ; analogue de notre observation T = 4 / T = 8 (budget de recherches).
+- **Zhou, « When RLVR Shrinks the Reasoning Boundary », arXiv 2607.20543 (juil. 2026)** ; **Zhou et al., « Hard or
+  Just Unreached? », ICML 2026** : pass@k = 0 n'est pas une difficulté intrinsèque (angle mort de l'échantillonnage).
+  Proches de notre test miroir, mais aucun ne traite l'asymétrie d'un sous-ensemble choisi sur l'échec d'un seul des
+  deux modèles comparés (d'après les résumés).
+- **Essais équivalents :** aucune source trouvée qui exprime le modèle entraîné comme le modèle de départ avec g fois
+  plus d'essais, ni qui prédit pass@k par pass_départ(g k). Les plus proches : « Sampling Efficiency Gap » de Yue et
+  al. (pass@1 RL contre pass@256 base) et le budget de croisement k* d'Oh et al. Recherche non exhaustive.
+- **Vote majoritaire base contre RL :** aucune comparaison directe trouvée.
