@@ -282,3 +282,28 @@ def test_zibb_retrouve_la_part_hors_de_portee():
     assert abs(np.mean(p == 0) - 0.25) < 0.03
     a, b, pi0, _ = ajuster(rng.binomial(32, p))
     assert abs(pi0 - 0.25) < 0.05
+
+
+def test_fiabilisation_pure_donne_m_constant():
+    """1 - p' = (1 - p)^g  =>  pass_agent(k) = pass_depart(g k) : m(k) ~ g à tout k (analysis/equivalents_partie2.py)."""
+    import numpy as np
+    from analysis.equivalents_partie2 import analyser
+    rng = np.random.default_rng(0)
+    p = np.where(rng.random(20000) < 0.25, 0.0, rng.beta(0.5, 1.5, 20000))
+    g = 1.6
+    c_a = rng.binomial(32, 1 - (1 - p) ** g)
+    c64 = rng.binomial(64, p)
+    pa, kp, g_est, pred = analyser(c_a, c64)
+    m = kp / np.array([1, 2, 4, 8, 16, 32])
+    assert abs(g_est - g) < 0.08
+    assert np.nanmax(np.abs(m[:5] - g)) < 0.15
+    assert abs(pa[-1] - pred) < 0.01
+
+
+def test_vote_majoritaire_ex_aequo():
+    import numpy as np
+    from analysis.diversite_partie2 import maj_k
+    rng = np.random.default_rng(0)
+    reps = ["a", "b"]  # un essai juste, un faux : ex aequo à k = 2 -> 1/2 en espérance
+    assert maj_k(reps, {"a": 1, "b": 0}, 2, rng, n_sous=50) == 0.5
+    assert maj_k([None, None, "a"], {"a": 1}, 3, rng, n_sous=10) == 1.0
