@@ -64,19 +64,27 @@ def main(argv=None):
     ap.add_argument("--indir", default="results/partie2")
     ap.add_argument("--genere", default="docs/partie2/genere")
     ap.add_argument("--n-boot", type=int, default=1000)
+    ap.add_argument("--type", default="bridge", choices=["bridge", "compositional"],
+                    help="compositional : 2WikiMultiHopQA, départ à 64 essais = graines de génération 0 et 1 à T = 4")
     args = ap.parse_args(argv)
     dep = court(DEPART["it"])
-    R = {(court(m), c[3]): reussites(L, 32) for (m, c), L in charger(args.indir).items()
-         if c[0] == "bridge" and c[6] == "42" and c[2] == 32 and c[3] in (4, 8)}
+    R = {(court(m), c[3], c[7]): reussites(L, 32) for (m, c), L in charger(args.indir).items()
+         if c[0] == args.type and c[6] == "42" and c[2] == 32 and c[3] in (4, 8)}
     ids = sorted(set.intersection(*[set(v) for v in R.values()]))
-    C = {k: np.array([v[i] for i in ids]) for k, v in R.items()}
-    c64 = C[(dep, 4)] + C[(dep, 8)]
+    C3 = {k: np.array([v[i] for i in ids]) for k, v in R.items()}
+    if args.type == "bridge":  # départ à T = 4 et T = 8 (même comportement), graine 0
+        c64 = C3[(dep, 4, 0)] + C3[(dep, 8, 0)]
+        agents = AGENTS
+    else:  # 2Wiki : départ à T = 4, graines 0 et 1
+        c64 = C3[(dep, 4, 0)] + C3[(dep, 4, 1)]
+        agents = tuple(a for a in AGENTS if a[1] == 4)
+    C = {(m, t): v for (m, t, g), v in C3.items() if g == 0}
     rng = np.random.default_rng(0)
     res = {"questions": len(ids), "ks": KS, "depart_64": [float(pass_at_k(64, c64, k).mean()) for k in (1, 32, 64)],
            "agents": {}, "puissance": {}}
     print(f"départ, 64 tirages : pass@1 {res['depart_64'][0]:.3f}, pass@32 {res['depart_64'][1]:.3f}, "
           f"pass@64 {res['depart_64'][2]:.3f}")
-    for ag in AGENTS:
+    for ag in agents:
         pa, kp, g, pred = analyser(C[ag], c64)
         boot = []
         for _ in range(args.n_boot):
@@ -98,7 +106,7 @@ def main(argv=None):
               f"{pred:.3f} : écart {pa[-1] - pred:+.3f} [{lo[7]:+.3f}, {hi[7]:+.3f}]")
     # Puissance de la règle à k = 32 (paires T = 4 et T = 8, écart-type mesuré par question)
     z80 = norm.ppf(0.8)
-    for ag in AGENTS:
+    for ag in agents:
         dep_t = (dep, ag[1])
         r = analyser_paire(C[ag], C[dep_t], 32)
         d32 = (C[ag] > 0).astype(float) - (C[dep_t] > 0).astype(float)
@@ -111,8 +119,10 @@ def main(argv=None):
         print(f"   puissance {ag} : s {s:.3f}, q {q:.2f} | à N = 500 : " +
               ", ".join(f"δ {d} -> {v:.0%}" for d, v in p["puissance_N500"].items()) +
               " | N pour 80 % : " + ", ".join(f"δ {d} -> {v}" for d, v in p["N_80"].items()))
-    Path(args.genere, "equivalents.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
-    figure(res, C, c64, Path(args.genere, "equivalents_ponts.pdf"))
+    suffixe = "" if args.type == "bridge" else "_2wiki"
+    Path(args.genere, f"equivalents{suffixe}.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
+    if args.type == "bridge":
+        figure(res, C, c64, Path(args.genere, "equivalents_ponts.pdf"))
     return res
 
 

@@ -101,14 +101,19 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--indir", default="results/partie2")
     ap.add_argument("--genere", default="docs/partie2/genere")
-    ap.add_argument("--data", default="data/raw/hotpot_distractor/validation.parquet")
+    ap.add_argument("--data", default=None, help="défaut : HotpotQA local, ou 2Wiki téléchargé")
+    ap.add_argument("--type", default="bridge", choices=["bridge", "compositional"])
     args = ap.parse_args(argv)
-    from data.hotpot_distractor import charger as charger_q
     from retrieval.closed_bm25 import ClosedBM25Retriever
-    qs = {q["id"]: q for q in charger_q(args.data, "bridge", n=500, seed=42)}
+    if args.type == "bridge":
+        from data.hotpot_distractor import charger as charger_q
+        args.data = args.data or "data/raw/hotpot_distractor/validation.parquet"
+    else:
+        from data.wiki2_distractor import charger as charger_q
+    qs = {q["id"]: q for q in charger_q(args.data, args.type, n=500, seed=42)}
     retr = ClosedBM25Retriever(list(qs.values()))
     runs = {(court(m), c[3]): L for (m, c), L in charger(args.indir).items()
-            if c[0] == "bridge" and c[6] == "42" and c[2] == N and c[3] in (4, 8)}
+            if c[0] == args.type and c[6] == "42" and c[2] == N and c[3] in (4, 8) and c[7] == 0}
     dep = court(DEPART["it"])
     rng = np.random.default_rng(0)
     M = {k: mesurer(L, qs, retr, rng) for k, L in sorted(runs.items())}
@@ -132,6 +137,8 @@ def main(argv=None):
               f" | chaînage {r['chainage']:.3f} (≥ 2 requêtes {r['deux_requetes_ou_plus']:.2f}), EM si chaînage "
               f"{r['em_si_chainage']:.3f} ({r['n_chainage']} traj.), sinon {r['em_sinon']:.3f}")
     for ag, T in (("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8)):
+        if (ag, T) not in M:
+            continue
         a, b = M[(ag, T)], M[(dep, T)]
         e = {}
         for champ in ("distinctes", "entropie", "part_modale", "mode_juste", "chainage"):
@@ -157,8 +164,10 @@ def main(argv=None):
                                                          for k, v in e.items() if isinstance(v, tuple)))
         print(f"   perdues {e['perdues']} | gagnées {e['gagnees']} | effondrement {e['effondrement_global']} | "
               f"corr(baisse de diversité, gain à k = 1) {e['corr_baisse_diversite_gain1']:+.2f}")
-    Path(args.genere, "diversite.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
-    figure(res, Path(args.genere, "diversite_ponts.pdf"))
+    suffixe = "" if args.type == "bridge" else "_2wiki"
+    Path(args.genere, f"diversite{suffixe}.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
+    if args.type == "bridge":
+        figure(res, Path(args.genere, "diversite_ponts.pdf"))
     return res
 
 
