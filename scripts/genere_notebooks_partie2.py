@@ -324,7 +324,9 @@ def generer(num, s, modele):
         + f"FILES = [\n{files},\n]\n")
     if s.get("pip"):
         cellules[3]["source"] = source("".join(cellules[3]["source"]).replace(
-            "huggingface_hub 2>&1", f"huggingface_hub {s['pip']} 2>&1"))
+            "huggingface_hub 2>&1", f"huggingface_hub {s['pip']} 2>&1").replace(
+            "!pip freeze", "# torchao 0.10 préinstallé fait échouer l'import de peft (session 10, 23 nov.) ; inutilisé ici\n"
+                           "!pip uninstall -y -q torchao\n!pip freeze", 1))
     cellules[4]["source"] = source(CELLULE_SFT if "entrainement" in s else CELLULE_FORCEE if "forcee" in s
                                    else CELLULE_LECTURE if "lecture" in s else CELLULE_RUNS)
     if s.get("fusion"):
