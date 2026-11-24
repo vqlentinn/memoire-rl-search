@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from analysis.confirmatoire_partie2 import DEPART, charger, court  # noqa: E402
+from analysis.confirmatoire_partie2 import charger, court, taille_de  # noqa: E402
 from analysis.recherche_partie2 import norm, titres  # noqa: E402
 from eval.metrics import exact_match, normalize_answer  # noqa: E402
 
@@ -104,6 +104,7 @@ def main(argv=None):
     ap.add_argument("--genere", default="docs/partie2/genere")
     ap.add_argument("--data", default=None, help="défaut : HotpotQA local, ou 2Wiki téléchargé")
     ap.add_argument("--type", default="bridge", choices=["bridge", "compositional"])
+    ap.add_argument("--taille", type=int, default=3, choices=[3, 7], help="7 : paire 7B GRPO (amendement du 24 nov.)")
     args = ap.parse_args(argv)
     from retrieval.closed_bm25 import ClosedBM25Retriever
     if args.type == "bridge":
@@ -114,8 +115,8 @@ def main(argv=None):
     qs = {q["id"]: q for q in charger_q(args.data, args.type, n=500, seed=42)}
     retr = ClosedBM25Retriever(list(qs.values()))
     runs = {(court(m), c[3]): L for (m, c), L in charger(args.indir).items()
-            if c[0] == args.type and c[6] == "42" and c[2] == N and c[3] in (4, 8) and c[7] == 0}
-    dep = court(DEPART["it"])
+            if c[0] == args.type and c[6] == "42" and c[2] == N and c[3] in (4, 8) and c[7] == 0 and taille_de(m) == args.taille}
+    dep = f"Qwen2.5-{args.taille}B-Instruct"
     # un générateur par run, graine tirée de son nom : ses maj@k ne dépendent pas des autres runs présents
     M = {k: mesurer(L, qs, retr, np.random.default_rng(zlib.crc32(f"{k[0]}_T{k[1]}".encode())))
          for k, L in sorted(runs.items())}
@@ -138,8 +139,9 @@ def main(argv=None):
               " ".join(f"{k}:{a:.3f}" for k, a in zip(KS, r["maj"])) +
               f" | chaînage {r['chainage']:.3f} (≥ 2 requêtes {r['deux_requetes_ou_plus']:.2f}), EM si chaînage "
               f"{r['em_si_chainage']:.3f} ({r['n_chainage']} traj.), sinon {r['em_sinon']:.3f}")
-    for ag, T in (("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8)):
-        if (ag, T) not in M:
+    agents = (("it-em-ppo", 4), ("it-em-grpo", 4), ("it-em-ppo", 8)) if args.taille == 3 else (("7b-it-em-grpo", 4),)
+    for ag, T in agents:
+        if (ag, T) not in M or (dep, T) not in M:
             continue
         a, b = M[(ag, T)], M[(dep, T)]
         e = {}
@@ -166,9 +168,9 @@ def main(argv=None):
                                                          for k, v in e.items() if isinstance(v, tuple)))
         print(f"   perdues {e['perdues']} | gagnées {e['gagnees']} | effondrement {e['effondrement_global']} | "
               f"corr(baisse de diversité, gain à k = 1) {e['corr_baisse_diversite_gain1']:+.2f}")
-    suffixe = "" if args.type == "bridge" else "_2wiki"
+    suffixe = ("" if args.type == "bridge" else "_2wiki") + ("" if args.taille == 3 else f"_{args.taille}b")
     Path(args.genere, f"diversite{suffixe}.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
-    if args.type == "bridge":
+    if suffixe == "":
         figure(res, Path(args.genere, "diversite_ponts.pdf"))
     return res
 

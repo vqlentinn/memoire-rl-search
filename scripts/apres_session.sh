@@ -52,3 +52,21 @@ if ls results/partie2/*it-sft-* >/dev/null 2>&1; then "$PY" analysis/sft_partie2
 "$PY" analysis/equivalents_partie2.py --indir results/partie2
 "$PY" analysis/diversite_partie2.py --indir results/partie2
 "$PY" analysis/modeles_fiabilisation_partie2.py --indir results/partie2
+
+# 2WikiMultiHopQA (sessions 12 et 13) : seulement quand les agents et le départ (2 graines × 2 moitiés) sont là
+n2w() { ls results/partie2/ 2>/dev/null | grep "_compositional_" | grep -c "$1" || true; }
+if [ "$(n2w '^Qwen2.5-3B-Instruct_')" -ge 4 ] && [ "$(n2w 'it-em-')" -ge 2 ]; then
+  echo "== 2WikiMultiHopQA"
+  "$PY" analysis/equivalents_partie2.py --indir results/partie2 --type compositional
+  "$PY" analysis/diversite_partie2.py --indir results/partie2 --type compositional
+  "$PY" analysis/modeles_fiabilisation_partie2.py --indir results/partie2 --type compositional
+fi
+
+# 7B (sessions 14 à 17) : seulement quand les deux moitiés de l'agent et du départ sont là
+n7b() { ls results/partie2/ 2>/dev/null | grep "_bridge_" | grep -c "$1" || true; }
+if [ "$(n7b '^qwen2.5-7b-it-em-grpo')" -ge 2 ] && [ "$(n7b '^Qwen2.5-7B-Instruct_')" -ge 2 ]; then
+  echo "== 7B"
+  "$PY" analysis/equivalents_partie2.py --indir results/partie2 --taille 7
+  "$PY" analysis/diversite_partie2.py --indir results/partie2 --taille 7
+  "$PY" analysis/modeles_fiabilisation_partie2.py --indir results/partie2 --taille 7
+fi
