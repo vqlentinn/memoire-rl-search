@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from analysis.confirmatoire_partie2 import DEPART, analyser_paire, charger, court, reussites  # noqa: E402
+from analysis.confirmatoire_partie2 import analyser_paire, depart_de, est_depart, charger, court, reussites  # noqa: E402
 import re  # noqa: E402
 
 from eval.metrics import exact_match, normalize_answer  # noqa: E402
@@ -100,9 +100,9 @@ def main(argv=None):
               f" | EM stricte {v['em_stricte']:.3f}, réparée {v['em_reparee']:.3f}, mention {v['em_mention']:.3f}")
     print("\n== Courbes appariées par notation (même règle pour les deux modèles)")
     for (notation, modele, cond), L in sorted(souples.items()):
-        if modele in DEPART.values():
+        if est_depart(modele):
             continue
-        dep = (notation, DEPART["it"], cond)
+        dep = (notation, depart_de(modele), cond)
         if dep not in souples:
             continue
         n = cond[2]

@@ -20,6 +20,7 @@ import argparse
 import json
 import re
 import sys
+import zlib
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -115,8 +116,9 @@ def main(argv=None):
     runs = {(court(m), c[3]): L for (m, c), L in charger(args.indir).items()
             if c[0] == args.type and c[6] == "42" and c[2] == N and c[3] in (4, 8) and c[7] == 0}
     dep = court(DEPART["it"])
-    rng = np.random.default_rng(0)
-    M = {k: mesurer(L, qs, retr, rng) for k, L in sorted(runs.items())}
+    # un générateur par run, graine tirée de son nom : ses maj@k ne dépendent pas des autres runs présents
+    M = {k: mesurer(L, qs, retr, np.random.default_rng(zlib.crc32(f"{k[0]}_T{k[1]}".encode())))
+         for k, L in sorted(runs.items())}
     ids = sorted(set.intersection(*[set(v) for v in M.values()]))
     res = {"questions": len(ids), "ks": KS, "modeles": {}, "ecarts": {}}
     for (m, T), x in M.items():

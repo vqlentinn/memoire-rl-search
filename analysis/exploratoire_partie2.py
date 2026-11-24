@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from analysis.confirmatoire_partie2 import DEPART, charger, court  # noqa: E402
+from analysis.confirmatoire_partie2 import charger, court, depart_de, est_depart  # noqa: E402
 
 CLASSES = [("0/16", 0, 0), ("1-3/16", 1, 3), ("4-8/16", 4, 8), ("9-15/16", 9, 15), ("16/16", 16, 16)]
 SEL, MES = range(0, 16), range(16, 32)
@@ -119,9 +119,9 @@ def main(argv=None):
     out.mkdir(parents=True, exist_ok=True)
     resultats = {}
     for (modele, cond), lignes in sorted(runs.items()):
-        if modele in DEPART.values() or cond[2] != 32 or cond[6] != "42" or cond[7] != 0:
+        if est_depart(modele) or cond[2] != 32 or cond[6] != "42" or cond[7] != 0:
             continue
-        cle_dep = (DEPART["it" if "-it-" in modele else "base"], cond)
+        cle_dep = (depart_de(modele), cond)
         if cle_dep not in runs:
             continue
         cle = f"{court(modele)}, {cond[0]}, T={cond[3]}"

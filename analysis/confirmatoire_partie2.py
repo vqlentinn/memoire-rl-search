@@ -85,6 +85,17 @@ def famille(modele):
     return "it" if "-it-" in modele else "base"
 
 
+def est_depart(modele):
+    """Modèle de départ (Qwen2.5-3B, Qwen2.5-7B-Instruct…), par opposition à un agent ou un modèle entraîné."""
+    return re.fullmatch(r"Qwen2\.5-\d+B(-Instruct)?", modele) is not None
+
+
+def depart_de(modele):
+    """Départ apparié à un agent : même taille (lue dans le nom) et même famille. Sans taille lisible : 3B."""
+    m = re.search(r"qwen2\.5-(\d+)b-", modele)
+    return f"Qwen2.5-{m.group(1) if m else 3}B" + ("-Instruct" if famille(modele) == "it" else "")
+
+
 def verdict_h2(r, ks):
     elargit = r["dominance"] and r["bande_simul"][0][-1] > 0
     if r["perte_certifiee"]:
@@ -193,7 +204,7 @@ def figure_dispersion(res, n, titre, chemin):
 
 
 def court(modele):
-    return modele.replace("qwen2.5-3b-", "").replace("-v0.3", "")
+    return modele.replace("qwen2.5-3b-", "").replace("qwen2.5-", "").replace("-v0.3", "")
 
 
 def latex_runs(desc):
@@ -232,9 +243,9 @@ def main(argv=None):
 
     paires = []
     for (modele, cond), lignes in runs.items():
-        if modele in DEPART.values():
+        if est_depart(modele):
             continue
-        cle_dep = (DEPART[famille(modele)], cond)
+        cle_dep = (depart_de(modele), cond)
         if cle_dep not in runs:
             continue
         n = cond[2]

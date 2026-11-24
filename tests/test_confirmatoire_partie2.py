@@ -75,3 +75,15 @@ def test_nom_sous_ensemble_difficile_et_graine_de_generation():
     assert m and m["sq"] == "43" and m["g"] == "1"
     m = NOM.match("qwen2.5-3b-it-em-ppo-v0.3_bridge_q180_n32_T4_temp0.7_chat_idsdifficiles-ponts_shard0of2")
     assert m and m["ids"] == "difficiles-ponts" and m["g"] is None
+
+
+def test_depart_apparie_par_taille():
+    """Un agent 7B (sessions 14 à 17) est apparié au départ 7B, pas au 3B ; les départs ne sont pas des agents."""
+    from analysis.confirmatoire_partie2 import court, depart_de, est_depart
+    assert depart_de("qwen2.5-3b-it-em-ppo-v0.3") == "Qwen2.5-3B-Instruct"
+    assert depart_de("qwen2.5-3b-em-grpo-v0.3") == "Qwen2.5-3B"
+    assert depart_de("qwen2.5-7b-it-em-grpo-v0.3") == "Qwen2.5-7B-Instruct"
+    assert depart_de("qwen2.5-3b-it-sft-ppo") == "Qwen2.5-3B-Instruct"
+    assert est_depart("Qwen2.5-7B-Instruct") and est_depart("Qwen2.5-3B")
+    assert not est_depart("qwen2.5-7b-it-em-grpo-v0.3")
+    assert court("qwen2.5-7b-it-em-grpo-v0.3") != court("qwen2.5-3b-it-em-grpo-v0.3")
