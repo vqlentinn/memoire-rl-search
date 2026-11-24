@@ -523,3 +523,14 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   (`results/partie2_s10`). Écart de perte : les traces de l'agent sont plus régulières, donc plus faciles à imiter.
   Session 11 (évaluation, lit la sortie de la 10) en file ; session 12 (2Wiki, agents) en cours ; sessions 14 à 17 (7B)
   prêtes, pas encore poussées.
+- Session 12 (2WikiMultiHopQA, agents, T = 4, 500 q. × 32) faite, deux runs à code 0 (`results/partie2_s12`) :
+  PPO EM 0,290, sans réponse 24,0 % (budget épuisé 20,6 %), 2,54 recherches, 9 h 29 ; GRPO EM 0,263, sans réponse
+  20,3 % (format 16,0 %), 3,9 % tronquées, 1,54 recherche, 6 h 26. Même profil que sur HotpotQA (PPO bute sur le
+  budget, GRPO sur le format). Le message vLLM « force killing remaining process » en fin de run est l'arrêt normal.
+
+## 25 novembre 2026
+
+- Analyses relancées avec la session 12 : aucun chiffre 3B HotpotQA modifié (seuls ajouts : deux lignes 2Wiki dans le
+  tableau des runs). L'analyse 2Wiki attend le modèle de départ (session 13, poussée sur Kaggle ; durée estimée
+  ~3 h 30 sur 2 T4, d'après les runs du départ sur HotpotQA et le rapport 2Wiki/HotpotQA des agents, ×1,3).
+  Session 11 (évaluation H4) en cours.

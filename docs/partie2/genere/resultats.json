@@ -385,6 +385,30 @@
    "jetons": 351.607
   },
   {
+   "modele": "qwen2.5-3b-it-em-grpo-v0.3",
+   "condition": [
+    "compositional",
+    500,
+    32,
+    4,
+    "0.7",
+    "chat",
+    "42",
+    0
+   ],
+   "trajectoires": 16000,
+   "questions": 500,
+   "em": 0.263125,
+   "sans_reponse": 0.20343750000000005,
+   "format": 0.1598125,
+   "budget_epuise": 0.005,
+   "contexte_depasse": 0.0,
+   "sans_recherche_permise": 0.0,
+   "tronquees": 0.038625,
+   "recherches": 1.5428125,
+   "jetons": 348.3844375
+  },
+  {
    "modele": "qwen2.5-3b-it-em-ppo-v0.3",
    "condition": [
     "bridge",
@@ -575,6 +599,30 @@
    "tronquees": 0.0169375,
    "recherches": 2.543375,
    "jetons": 287.315
+  },
+  {
+   "modele": "qwen2.5-3b-it-em-ppo-v0.3",
+   "condition": [
+    "compositional",
+    500,
+    32,
+    4,
+    "0.7",
+    "chat",
+    "42",
+    0
+   ],
+   "trajectoires": 16000,
+   "questions": 500,
+   "em": 0.2899375,
+   "sans_reponse": 0.24,
+   "format": 0.0274375,
+   "budget_epuise": 0.2055625,
+   "contexte_depasse": 0.0,
+   "sans_recherche_permise": 0.0,
+   "tronquees": 0.007,
+   "recherches": 2.543125,
+   "jetons": 268.019375
   }
  ],
  "paires": [

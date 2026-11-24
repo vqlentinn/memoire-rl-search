@@ -98,6 +98,15 @@
   "em_souple": 0.4143125,
   "f1_05": 0.494875
  },
+ "it-em-grpo_compositional_T4": {
+  "sans_reponse": 0.2034375,
+  "dont_reponse_mentionnee": 0.5317972350230414,
+  "em_stricte": 0.263125,
+  "em_reparee": 0.2895,
+  "em_mention": 0.3713125,
+  "em_souple": 0.309125,
+  "f1_05": 0.3524375
+ },
  "it-em-ppo_bridge_T4_difficiles": {
   "sans_reponse": 0.21175508720930233,
   "dont_reponse_mentionnee": 0.10253110253110254,
@@ -151,6 +160,15 @@
   "em_mention": 0.50875,
   "em_souple": 0.3765625,
   "f1_05": 0.4445625
+ },
+ "it-em-ppo_compositional_T4": {
+  "sans_reponse": 0.24,
+  "dont_reponse_mentionnee": 0.07578125,
+  "em_stricte": 0.2899375,
+  "em_reparee": 0.29025,
+  "em_mention": 0.308125,
+  "em_souple": 0.3293125,
+  "f1_05": 0.3708125
  },
  "paire_f1_it-em-grpo_bridge_T4_difficiles": {
   "D": [
