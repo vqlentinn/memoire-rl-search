@@ -199,3 +199,59 @@ Vérifié sur la page arXiv (résumé) ; « texte » = texte complet consulté e
   plus d'essais, ni qui prédit pass@k par pass_départ(g k). Les plus proches : « Sampling Efficiency Gap » de Yue et
   al. (pass@1 RL contre pass@256 base) et le budget de croisement k* d'Oh et al. Recherche non exhaustive.
 - **Vote majoritaire base contre RL :** aucune comparaison directe trouvée.
+
+### Lecture complète (24 novembre 2026)
+
+Textes HTML d'arXiv lus en entier, sauf mention. Ce qui compte pour l'article :
+
+- **Zhai et al. 2604.14877 (lu en entier).** Dispositif presque identique au nôtre : HotpotQA distracteurs, 10 paragraphes,
+  BM25 fermé, ponts (C) et comparaisons (B). Mais : Qwen2.5-7B-Instruct, agent GRPO **entraîné par eux** en LoRA sur
+  **200 questions**, 100 questions d'évaluation par catégorie, n = 64, T ≤ 5. Élargissement sur les ponts à
+  PASS@(64,5) : RL 81, base 77, SFT 73 ; il repose sur **5 questions gagnées contre 1 perdue**. Bootstrap sur les
+  tirages seulement (pas sur les questions) ; leurs IC des gains [2 ; 8] et pertes [1 ; 5] du RL se recouvrent ; aucun
+  test formel. SFT sur des trajectoires **oracle** construites depuis les faits utiles annotés (pas des traces de
+  l'agent). Échange de stratégies : RL stratégie + base raisonnement 0,148, base stratégie + RL raisonnement 0,143
+  (léger avantage à la planification de recherche, comme chez nous), alors que le résumé attribue le gain à
+  l'intégration de l'information. Vérification sur Search-R1 public : annoncée pour une version future, non faite.
+  Diversité : stratégies uniques base 40,1, RL 45,5, SFT 14,7 sur 64.
+  → Notre étude refait leur question avec des checkpoints publics, 500 questions, inférence appariée par question et un
+  contrôle de sélection : leur « 5 contre 1 » est de l'ordre de ce qu'une fiabilisation ou une redistribution produit
+  (notre simulation, notre test miroir).
+- **Oh et al. 2610.01509, Sharpening Tax (lu en entier).** 14 paires, 3 bancs (BFCL, WebShop, ACEBench), N = 128,
+  bootstrap apparié des tâches pour les IC, pas de test. Taxe positive dans 36 cas sur 42 ; **négative pour Qwen2.5-3B
+  et 7B sur BFCL** (le post-entraînement répare le format des appels d'outils). Modèle théorique : une part λ des tâches
+  poussée vers 0 ou 1 (bimodalisation) ; ce n'est pas notre modèle en puissance. Harnais spécial pour les modèles de
+  base, harnais par défaut pour les post-entraînés (biais reconnu). Ne compare pas RL, SFT et distillation (limite
+  déclarée) : H4 le fait.
+- **Kim et al. 2610.27889, Elicitation or Expansion (lu en entier).** HotpotQA avec BM25 fixe et Qwen3-8B, optimisation
+  de harnais. Exemple : le harnais optimisé interroge l'entité pont résolue et atteint le paragraphe dans 125 essais
+  sur 128 (= notre chaînage). L'EM donne un classement faux sur HotpotQA (Qwen3-32B sous 8B), corrigé par un juge : à
+  citer avec notre sensibilité à la notation. Pas de test formel ; pas d'équivalence en essais.
+- **Rath et al. 2610.07405 (lu en entier).** Qwen2.5-1.5B, GSM8K. GRPO **réduit** la diversité (réponses uniques
+  −1,30), RFT l'**augmente** (+0,56). RFT réduit la couverture des problèmes difficiles par rapport au départ (−3 à −3,5
+  points à k ≤ 4) ; GRPO n'en diffère pas. Calcul de puissance (effet minimal détectable ≈ 0,02–0,03). Pas de vote
+  majoritaire. → Prédiction plausible pour H4 : `it-sft-depart` (analogue du RFT) moins concentré que l'agent.
+- **Zavidnyi et al. 2611.26172, Budget Internalization (lu en entier).** Budget de jetons, maths : au-delà du plafond
+  d'entraînement, le modèle RL plafonne sous la base. Chez nous, le budget de **recherches** va dans l'autre sens :
+  PPO à T = 8 gagne (EM 0,315 → 0,351). Contraste à signaler, sans conclure : budgets de nature différente.
+- **Zhou 2607.20543, Pass@k Inversion (lu en entier).** Pertes concentrées sur les prompts « frontière » (succès rare
+  mais récupérable chez la base) ; modèle à deux modes : la politique s'engage sur le mode faux. → Explique nos
+  questions perdues : l'agent s'y « effondre » sur une même réponse fausse dans 57 % des cas.
+- **Zhou et al. 2606.19636, Hard or Just Unreached (lu sauf les 6 derniers % ).** pass@6 = 0 n'est pas une difficulté
+  intrinsèque. Ne traite ni la sélection sur un seul modèle ni la régression vers la moyenne : notre test miroir reste
+  nouveau sur ce point.
+- **Matrenok et al. 2611.03146, Controlling Sharpening (moitié principale lue ; annexes non lues).** Optimum fermé du RL
+  KL-régularisé : inclinaison exponentielle de la politique de référence. Pour pass@1, cela multiplie les **cotes** de
+  réussite de chaque question par un même facteur (p'/(1−p') = e^{1/β} p/(1−p)) : un autre modèle de fiabilisation que
+  notre puissance 1 − p' = (1 − p)^g. Aucune équivalence en essais. → Test possible sur nos données : quel modèle
+  (cotes, puissance, bimodalisation d'Oh et al.) prédit le mieux la courbe de l'agent ?
+- **Qu 2611.11260, Primitives and Paths (lu en entier).** Régime « amplification » : gros gain à pass@1, peu de
+  changement à grand k = notre signature. Tâches synthétiques.
+- **Tomihari et Sato 2605.04542, Power Distribution (moitié principale lue).** π^α optimum du RL à auto-récompense ;
+  pas d'équivalence en essais. Cite He et al. (2025) : à budget égal, échantillonner plus le modèle de base peut faire
+  mieux (rejoint notre analyse à coût égal ; référence à retrouver).
+- **Search-RSI 2611.27780 (moitié principale lue).** Pas de pass@k ni de comparaison à la base ; peu pertinent.
+
+Bilan : aucune des sources lues ne définit d'équivalence en essais ni ne prédit la frontière par pass_départ(g k) ;
+aucune ne traite l'asymétrie de sélection (test miroir) ; aucune ne compare le vote majoritaire base / RL ; aucune
+n'étudie un agent de recherche public face à son modèle de départ avec inférence appariée par question.
