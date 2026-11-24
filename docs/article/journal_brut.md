@@ -491,3 +491,19 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   PPO T = 4 +0,020 [−0,011 ; +0,051]. Lecture : un budget plus large augmente surtout le gain au premier essai
   (+0,10 contre +0,065) et un petit écart à 32 essais (3 à 4 points) ; le verdict « élargissement » tient en partie au
   tirage bas du départ. Exploratoire (sensibilité), pas de correction pour cette paire.
+- Analyses sans GPU ajoutées (exploratoires) :
+  - essais équivalents (`analysis/equivalents_partie2.py`) : le départ à T = 4 et T = 8 réunis donne 64 tirages, donc
+    pass@k sans modèle jusqu'à 64. Un essai de l'agent vaut m(k) essais du départ : PPO 1,49 [1,30 ; 1,70], GRPO 1,27,
+    PPO T = 8 1,85, à peu près constant en k. Fiabilisation pure 1 − p' = (1 − p)^g ⇒ pass_agent(k) = pass_départ(gk) :
+    pass@32 prédit 0,707 / 0,697 / 0,720 contre observé 0,702 / 0,700 / 0,718 (écarts ±0,5 point, IC ±3 points).
+    Conséquence : les 3 à 4 points à 32 essais de T = 8 sont ceux d'une fiabilisation, pas un élargissement ; la
+    lecture « petit élargissement plausible » écrite plus tôt dans la journée est retirée du mémoire.
+    g/c (valeur d'un essai / coût) : jetons 1,20 (PPO), 0,77 (GRPO), 1,40 (PPO T = 8) ; recherches 0,61 à 0,86.
+    Puissance de la règle à N = 500 : 25 % pour un élargissement vrai de 3 points ; ~1 800 questions pour 80 %.
+  - diversité (`analysis/diversite_partie2.py`) : 13,8 réponses distinctes sur 32 (départ) contre 5,4 (PPO) et 7,0
+    (GRPO) ; maj@32 0,434 contre 0,501 et 0,501 (l'écart ne se referme pas) ; le vote du départ bat le premier essai
+    de l'agent (+0,119). Questions perdues : l'agent s'effondre sur une même réponse fausse dans 57 % (PPO) des cas.
+  - chaînage (requête de rang ≥ 2 qui nomme l'entité pont après avoir ramené l'autre paragraphe utile) : 2,8 %
+    (départ), 19,0 % (PPO), 9,6 % (GRPO).
+  - Schémas TikZ : trois scénarios (fiabiliser / élargir / redistribuer, avec formules de D(k) et m(k)) ; chaînage.
+    Mémoire : 83 pages.

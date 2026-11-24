@@ -45,3 +45,5 @@ echo "== Analyses"
 "$PY" analysis/cout_partie2.py --indir results/partie2
 if ls results/partie2/*it-sft-* >/dev/null 2>&1; then "$PY" analysis/sft_partie2.py --indir results/partie2; fi
 "$PY" analysis/budget_partie2.py --indir results/partie2
+"$PY" analysis/equivalents_partie2.py --indir results/partie2
+"$PY" analysis/diversite_partie2.py --indir results/partie2
