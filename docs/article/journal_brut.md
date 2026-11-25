@@ -541,7 +541,7 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   borne basse de E(32) −0,052 sous −0,03). H2 « fiabilisation seule » pour les deux. Prédictions : ρ entre 0,3 et 0,8
   (fausse, bien plus), ρ < 0,5 pour le départ (fausse), pas d'élargissement (juste). Un fine-tuning supervisé LoRA de
   quelques heures sur des traces réussies, même celles du départ, obtient le gain au premier essai du renforcement.
-- Session 13 (2Wiki, départ, graines 0 et 1) faite en ~1 h 30 sur 2 T4 (moins que les 3 h 30 estimées), 4 moitiés
+- Session 13 (2Wiki, départ, graines 0 et 1) faite en ~2 h 50 sur 2 T4 (deux moitiés enchaînées par GPU ; 3 h 30 estimées), 4 moitiés
   complètes, aucun échec. Départ EM 0,168 / 0,170 ; 64 essais : pass@1 0,169, pass@32 0,702, pass@64 0,774.
 - 2Wiki, règles de l'amendement du 24 nov. : PPO H1 soutenue, H2 « fiabilisation seule » (D(32) +0,016, frontière
   353/345) ; GRPO H1 soutenue, H2 « élargissement » (D(32) +0,080, bande [+0,04 ; +0,12], frontière 385/345, McNemar

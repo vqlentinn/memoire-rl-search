@@ -128,6 +128,12 @@ aucun élargissement net. Analyses sans GPU ajoutées le 16 nov. : coût égal (
 extrapolation au-delà de 32 essais (`extrapolation_partie2.py`), validation par simulation (`simulation_partie2.py`).
 Diapositives de soutenance : artefact claude.ai/artifact/F8dcnYqVn9N9gb6h4Y5B9H (privé). Réplication
 sur le vivier à 16 tirages : `analysis/replication_partie2.py` (D(16) ≈ +0,03 certifié sur 1 500 q.).
+Sessions 10 à 13 faites (24-25 nov.) : H4 (SFT LoRA) soutenue pour `it-sft-ppo` (pass@1 0,404 contre PPO 0,315,
+égal à 32 essais), « partiellement » pour `it-sft-depart` (ρ ≈ 1) ; 2Wiki : PPO « fiabilisation seule » (redistribution,
+écart à la fiabilisation pure ≤ −0,068), GRPO « élargissement » selon la règle mais prédit par la fiabilisation pure
+(0,767 contre 0,770). Écrit dans le chapitre (sections H4 et 2Wiki), le résumé, la discussion, la conclusion (mémoire
+90 p.) et l'article court (`docs/papier/main.tex`, seules les valeurs 7B restent PENDING). Reste : 7B, sessions 14 à 17
+(quota Kaggle), puis `apres_session.sh` les analyse et remplit l'article.
 
 Prochaine étape (partie 1, si reprise) : volet A complet (7 jeux, 500 questions) ; agents Search-R1 issus de la version Instruct (variante `-it-`) pour
 séparer règle de recherche et modèle ; H4 (BM25).
