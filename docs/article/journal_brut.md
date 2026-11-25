@@ -534,3 +534,23 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
   tableau des runs). L'analyse 2Wiki attend le modèle de départ (session 13, poussée sur Kaggle ; durée estimée
   ~3 h 30 sur 2 T4, d'après les runs du départ sur HotpotQA et le rapport 2Wiki/HotpotQA des agents, ×1,3).
   Session 11 (évaluation H4) en cours.
+- Session 11 (H4, évaluation, `results/partie2_s11`) faite, 2 runs complets, aucun échec. `it-sft-ppo` : EM 0,404
+  (PPO 0,315, départ 0,250), budget épuisé 10,4 %, 2,56 recherches ; `it-sft-depart` : EM 0,317, 1,06 recherche.
+  Règles de l'amendement du 23 nov. : `it-sft-ppo` H4 « soutenue » (E(1) +0,089 [+0,074 ; +0,105] contre PPO,
+  E(32) +0,004 [−0,022 ; +0,030], ρ 2,38 [1,93 ; 3,24]) ; `it-sft-depart` « partiellement » (ρ 1,03 [0,75 ; 1,55],
+  borne basse de E(32) −0,052 sous −0,03). H2 « fiabilisation seule » pour les deux. Prédictions : ρ entre 0,3 et 0,8
+  (fausse, bien plus), ρ < 0,5 pour le départ (fausse), pas d'élargissement (juste). Un fine-tuning supervisé LoRA de
+  quelques heures sur des traces réussies, même celles du départ, obtient le gain au premier essai du renforcement.
+- Session 13 (2Wiki, départ, graines 0 et 1) faite en ~1 h 30 sur 2 T4 (moins que les 3 h 30 estimées), 4 moitiés
+  complètes, aucun échec. Départ EM 0,168 / 0,170 ; 64 essais : pass@1 0,169, pass@32 0,702, pass@64 0,774.
+- 2Wiki, règles de l'amendement du 24 nov. : PPO H1 soutenue, H2 « fiabilisation seule » (D(32) +0,016, frontière
+  353/345) ; GRPO H1 soutenue, H2 « élargissement » (D(32) +0,080, bande [+0,04 ; +0,12], frontière 385/345, McNemar
+  p 5·10⁻⁶ ; 58 gagnées, 18 perdues). Premier « élargissement » confirmatoire, MAIS la fiabilisation pure l'explique :
+  g 1,86, pass@32 prédit 0,767 contre 0,770 observé (écart +0,003 [−0,027 ; +0,032]) ; la courbe du départ monte
+  encore beaucoup à 32 essais. PPO : m(k) décroît (2,19 à 1,03), écart à la fiabilisation pure ≤ −0,068
+  [−0,104 ; −0,032] : redistribution. Prédictions : 1 non tenue (GRPO), 2 et 3 tenues pour GRPO, non tenues pour PPO,
+  4 tenue pour les deux. Chaînage 49 % (PPO), 42 % (GRPO) contre 15 % (départ).
+- Correction de `equivalents_partie2.py` : quand 32 g dépasse les 64 essais du départ, la prédiction valait nan (et
+  l'IC ne gardait que les rééchantillons où g ≤ 2, biaisé). Elle vaut désormais pass_départ(64), borne basse puisque
+  pass@k croît en k ; l'écart devient une borne haute (affiché « ≤ »). HotpotQA inchangé sauf la borne haute de l'IC
+  de PPO T = 8 (+0,027 → +0,028). Test ajouté (74 tests). Article : 17 valeurs en attente (7B seulement).

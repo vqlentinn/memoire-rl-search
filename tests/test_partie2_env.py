@@ -343,3 +343,18 @@ def test_modeles_fiabilisation_retrouve_cotes_et_dispersion():
         par = M.parametres_lisibles("cotes+dispersion", t)
         assert abs(par["facteur_cotes"] - 1.6) < 0.2
         assert abs(par["sigma_logit"] - sigma) < 0.3
+
+
+def test_equivalents_borne_quand_g_depasse_les_essais_du_depart():
+    """32 g > 64 : la prédiction n'est plus un nan mais pass_départ(64), borne basse de pass_départ(32 g)."""
+    import numpy as np
+    from analysis.equivalents_partie2 import analyser
+    from analysis.passk import pass_at_k
+    rng = np.random.default_rng(1)
+    p = np.where(rng.random(20000) < 0.25, 0.0, rng.beta(0.5, 1.5, 20000))
+    c_a = rng.binomial(32, 1 - (1 - p) ** 3.0)
+    c64 = rng.binomial(64, p)
+    pa, kp, g_est, pred = analyser(c_a, c64)
+    assert 32 * g_est > 64 and np.isfinite(pred)
+    assert abs(pred - pass_at_k(64, c64, 64).mean()) < 1e-9
+    assert pa[-1] - pred > 0  # vraie fiabilisation g = 3 : l'agent dépasse la borne, l'écart borné reste positif

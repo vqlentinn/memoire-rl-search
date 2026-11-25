@@ -65,9 +65,14 @@ def paire(res):
 
 def equivalents(e):
     m, lo, hi = e["m"], e["m_bas"], e["m_haut"]
-    return {"g": f2(e["g"]), "gic": ic2(*e["g_ic"]), "m32": f2(m[-1]), "m32ic": ic2(lo[-1], hi[-1]),
+    v = {"g": f2(e["g"]), "gic": ic2(*e["g_ic"]), "m32": f2(m[-1]), "m32ic": ic2(lo[-1], hi[-1]),
             "obs32": f3(e["pass32_observe"]), "pred32": f3(e["pass32_predit"]),
             "ecart": s3(e["ecart_observe_moins_predit"]), "ecartic": ic3(*e["ecart_ic"])}
+    if e.get("pass32_predit_borne") and fin(e["pass32_predit"]):
+        # 32 g dépasse les essais du départ : prédiction = borne basse, écart = borne haute
+        v["pred32"] = f"$\\geq$ {v['pred32']}"
+        v["ecart"] = f"$\\leq {e['ecart_observe_moins_predit']:+.3f}$"
+    return v
 
 
 def diversite(mod, ec=None):
@@ -115,7 +120,10 @@ def predictions_echange(res_paire, eq_ag, div_ec):
     out = {}
     if eq_ag:
         e, lo, hi = eq_ag["ecart_observe_moins_predit"], *eq_ag["ecart_ic"]
-        if fin(e):
+        if fin(e) and eq_ag.get("pass32_predit_borne"):
+            # écart <= borne : si toute la borne est sous 0, la loi est rejetée ; sinon on ne peut pas conclure
+            out["p.loi"] = tenue(False) if hi < 0 else "not computable"
+        elif fin(e):
             out["p.loi"] = tenue(lo <= 0 <= hi and abs(e) < 0.03)
         m, mb, mh = eq_ag["m"], eq_ag["m_bas"], eq_ag["m_haut"]
         out["p.tendance"] = tenue(mb[0] <= m[-1] <= mh[0]) if fin(m[-1]) else "not computable"

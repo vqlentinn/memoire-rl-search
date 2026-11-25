@@ -56,7 +56,9 @@ def analyser(c_a, c64, n_dep=64):
     pa = np.array([pass_at_k(32, c_a, k).mean() for k in KS])
     kp = np.array([equivalent(v, grille, cb) for v in pa])
     g = kp[0]
-    pred32 = float(pass_reel(c64, n_dep, 32 * g).mean()) if np.isfinite(g) and 32 * g <= n_dep else np.nan
+    # pass@k du départ croît avec k : si 32 g dépasse les n_dep essais, pass_départ(32 g) >= pass_départ(n_dep).
+    # La prédiction est alors une borne basse (et l'écart observé − prédit une borne haute), pas un nan.
+    pred32 = float(pass_reel(c64, n_dep, min(32 * g, n_dep)).mean()) if np.isfinite(g) else np.nan
     return pa, kp, g, pred32
 
 
@@ -105,12 +107,17 @@ def main(argv=None):
                               "m_bas": lo[:6].tolist(), "m_haut": hi[:6].tolist(), "g": g, "g_ic": [lo[6], hi[6]],
                               "pass32_predit": pred, "pass32_observe": float(pa[-1]),
                               "ecart_observe_moins_predit": float(pa[-1] - pred), "ecart_ic": [lo[7], hi[7]],
-                              "part_hors_64": float(np.mean(np.isnan(boot[:, 5])))}
+                              "part_hors_64": float(np.mean(np.isnan(boot[:, 5]))),
+                              "pass32_predit_borne": bool(32 * g > n_dep),
+                              "part_boot_borne": float(np.mean(32 * boot[:, 6] > n_dep))}
         r = res["agents"][cle]
         print(f"== {cle} : m(k) " + " ".join(f"{k}:{m:.2f}[{a:.2f},{b:.2f}]" for k, m, a, b in
                                             zip(KS, r["m"], r["m_bas"], r["m_haut"])))
+        b = r["pass32_predit_borne"]
         print(f"   g = {g:.2f} [{lo[6]:.2f}, {hi[6]:.2f}] | pass@32 observé {pa[-1]:.3f}, prédit par la fiabilisation pure "
-              f"{pred:.3f} : écart {pa[-1] - pred:+.3f} [{lo[7]:+.3f}, {hi[7]:+.3f}]")
+              f"{'>= ' if b else ''}{pred:.3f} : écart {'<= ' if b else ''}{pa[-1] - pred:+.3f} [{lo[7]:+.3f}, {hi[7]:+.3f}]"
+              + (f" (32 g > {n_dep} essais : borne)" if b else "")
+              + (f" ({100 * r['part_boot_borne']:.0f} % des rééchantillons bornés)" if r["part_boot_borne"] > 0 else ""))
     # Puissance de la règle à k = 32 (paires T = 4 et T = 8, écart-type mesuré par question)
     z80 = norm.ppf(0.8)
     for ag in agents:

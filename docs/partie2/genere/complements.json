@@ -24,6 +24,30 @@
    ],
    "D1": 0.06456250000000027
   },
+  "it-sft-depart_bridge": {
+   "D32": -0.01,
+   "bande_simultanee_k32": [
+    -0.04655326649081608,
+    0.026553266490816074
+   ],
+   "ic_ponctuel_k32": [
+    -0.03935149912418654,
+    0.019351499124186537
+   ],
+   "D1": 0.06668750000000041
+  },
+  "it-sft-ppo_bridge": {
+   "D32": 0.014,
+   "bande_simultanee_k32": [
+    -0.02608524932078775,
+    0.054085249320787745
+   ],
+   "ic_ponctuel_k32": [
+    -0.01864170978682314,
+    0.04664170978682314
+   ],
+   "D1": 0.15337500000000043
+  },
   "it-em-grpo_comparison": {
    "D32": 0.002,
    "bande_simultanee_k32": [
@@ -47,6 +71,30 @@
     0.03786450157801702
    ],
    "D1": -0.019749999999999813
+  },
+  "it-em-grpo_compositional": {
+   "D32": 0.08,
+   "bande_simultanee_k32": [
+    0.03844681133539093,
+    0.12155318866460907
+   ],
+   "ic_ponctuel_k32": [
+    0.04660796439524098,
+    0.11339203560475902
+   ],
+   "D1": 0.09556250000000009
+  },
+  "it-em-ppo_compositional": {
+   "D32": 0.016,
+   "bande_simultanee_k32": [
+    -0.02912270701637911,
+    0.06112270701637911
+   ],
+   "ic_ponctuel_k32": [
+    -0.021294065809981562,
+    0.05329406580998156
+   ],
+   "D1": 0.12237500000000041
   }
  },
  "redistribution": {
@@ -72,6 +120,30 @@
    "ic95": [
     18.0,
     48.5
+   ]
+  },
+  "it-sft-depart_bridge": {
+   "questions": 500,
+   "change_agent_depart": 58.0,
+   "change_depart_depart": 58.0,
+   "gagnees": 30.0,
+   "perdues": 28.0,
+   "difference": 0.0,
+   "ic95": [
+    -11.5,
+    12.0
+   ]
+  },
+  "it-sft-ppo_bridge": {
+   "questions": 500,
+   "change_agent_depart": 83.0,
+   "change_depart_depart": 58.0,
+   "gagnees": 51.0,
+   "perdues": 32.0,
+   "difference": 25.0,
+   "ic95": [
+    10.5,
+    40.5
    ]
   },
   "it-em-grpo_comparison": {
@@ -117,6 +189,24 @@
    "trouve_2_sur_perdues": 0.2972560975609756,
    "trouve_2_reussites_gagnees": 0.9253731343283582,
    "trouve_2_reussites_partout": 0.8292973402143707
+  },
+  "it-sft-depart": {
+   "perdues": 27,
+   "gagnees": 26,
+   "sans_reponse_sur_perdues": 0.013888888888888888,
+   "sans_reponse_partout": 0.0075,
+   "trouve_2_sur_perdues": 0.30092592592592593,
+   "trouve_2_reussites_gagnees": 0.6521739130434783,
+   "trouve_2_reussites_partout": 0.619500594530321
+  },
+  "it-sft-ppo": {
+   "perdues": 32,
+   "gagnees": 51,
+   "sans_reponse_sur_perdues": 0.1875,
+   "sans_reponse_partout": 0.11975,
+   "trouve_2_sur_perdues": 0.33984375,
+   "trouve_2_reussites_gagnees": 0.9184549356223176,
+   "trouve_2_reussites_partout": 0.8320540374577833
   }
  },
  "asymetrie_selection": {
@@ -140,6 +230,28 @@
    "ic95": [
     -0.06894212652632342,
     0.11293234974187226
+   ]
+  },
+  "it-sft-depart": {
+   "gain_selection_depart": 0.00546448087431694,
+   "questions_depart": 183.0,
+   "gain_selection_agent": 0.03314917127071823,
+   "questions_agent": 181.0,
+   "asymetrie": -0.02768469039640129,
+   "ic95": [
+    -0.1056297759266098,
+    0.050674237570536435
+   ]
+  },
+  "it-sft-ppo": {
+   "gain_selection_depart": 0.12021857923497267,
+   "questions_depart": 183.0,
+   "gain_selection_agent": 0.09146341463414634,
+   "questions_agent": 164.0,
+   "asymetrie": 0.028755164600826333,
+   "ic95": [
+    -0.05929656141662756,
+    0.11748922428413382
    ]
   }
  }
