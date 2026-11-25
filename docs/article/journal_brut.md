@@ -553,4 +553,4 @@ environ 1 h 15 par moitié (1,8 traj./s), GRPO 5 h 50 (0,8), PPO 7 h à 8 h (0,6
 - Correction de `equivalents_partie2.py` : quand 32 g dépasse les 64 essais du départ, la prédiction valait nan (et
   l'IC ne gardait que les rééchantillons où g ≤ 2, biaisé). Elle vaut désormais pass_départ(64), borne basse puisque
   pass@k croît en k ; l'écart devient une borne haute (affiché « ≤ »). HotpotQA inchangé sauf la borne haute de l'IC
-  de PPO T = 8 (+0,027 → +0,028). Test ajouté (74 tests). Article : 17 valeurs en attente (7B seulement).
+  de PPO T = 8 (+0,027 → +0,028). Test ajouté (73 tests, tous passent). Article : 17 valeurs en attente (7B seulement).
