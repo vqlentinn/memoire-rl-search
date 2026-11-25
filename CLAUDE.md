@@ -5,7 +5,8 @@ Lis ce fichier en entier avant d'agir. Réponds toujours en français à l'utili
 ## L'utilisateur et l'objectif
 
 Étudiant en master d'IA (M2), niveau PyTorch intermédiaire, plutôt théorique, prêt à apprendre sur le tas.
-Il écrit un mémoire de 40 à 50 pages. **Budget : 0 €.** Calcul uniquement sur les GPU gratuits de Kaggle
+Il écrit un mémoire sans limite de pages (jusqu'à 200 pages si besoin) : tout doit y figurer, rien n'est
+coupé pour la longueur. **Budget : 0 €.** Calcul uniquement sur les GPU gratuits de Kaggle
 (2×T4 ou 1×P100, environ 30 h par semaine, sessions de 9 à 12 h, 20 Go de sortie). Pas de crédits API.
 Explique brièvement ce que tu fais : l'utilisateur veut comprendre le code, pas seulement l'obtenir.
 
